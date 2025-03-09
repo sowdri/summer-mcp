@@ -1,0 +1,23 @@
+{
+  "name": "spiller-browser-extension",
+  "version": "1.0.0",
+  "description": "Chrome browser extension for Cursor AI integration",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cursor",
+    "ai",
+    "chrome",
+    "extension"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.254",
+    "esbuild": "^0.19.10",
+    "typescript": "^5.3.3"
+  }
+} 

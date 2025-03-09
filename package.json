@@ -1,0 +1,36 @@
+{
+  "name": "spiller",
+  "version": "1.0.0",
+  "description": "An MCP server for use with Cursor AI to interact with Chrome Web Browser",
+  "main": "index.js",
+  "type": "module",
+  "workspaces": [
+    "mcp-server",
+    "nodejs-server",
+    "browser-extension"
+  ],
+  "scripts": {
+    "build": "npm run build:mcp && npm run build:nodejs && npm run build:extension",
+    "build:mcp": "cd mcp-server && npm run build",
+    "build:nodejs": "cd nodejs-server && npm run build",
+    "build:extension": "cd browser-extension && npm run build",
+    "start:mcp": "cd mcp-server && npm start",
+    "start:nodejs": "cd nodejs-server && npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cursor",
+    "ai",
+    "chrome",
+    "browser",
+    "extension"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.254",
+    "esbuild": "^0.19.10",
+    "nodemon": "^3.0.2",
+    "typescript": "^5.3.3"
+  }
+} 
