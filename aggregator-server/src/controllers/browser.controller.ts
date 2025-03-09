@@ -2,19 +2,19 @@
  * Browser controller
  */
 import { Request, Response } from "express";
-import { browserData, clearAllLogs } from "../models/browserData.js";
+import { clearAllLogs } from "../models/browserData.js";
+import { registerTabsRequest } from "../services/browserTabs.service.js";
 import { sendCommandToExtension } from "../websocket/commands.js";
 
 /**
  * Get browser tabs
  */
 export function getBrowserTabs(req: Request, res: Response): void {
-  // Send command to browser extension if we don't have tabs data
-  if (browserData.browserTabs.length === 0) {
-    sendCommandToExtension("listBrowserTabs");
-  }
+  // Register the request with the browser tabs service
+  registerTabsRequest(res);
 
-  res.json(browserData.browserTabs);
+  // Send command to browser extension
+  sendCommandToExtension("listBrowserTabs");
 }
 
 /**
