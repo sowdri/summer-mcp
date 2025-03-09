@@ -189,25 +189,12 @@ server.tool("wipeLogs", "Wipe all browser logs from memory", async () => {
   };
 });
 
-// Start receiving messages on stdio
-(async () => {
-  try {
-    const transport = new StdioServerTransport();
-
-    // Ensure stdout is only used for JSON messages
-    const originalStdoutWrite = process.stdout.write.bind(process.stdout);
-    process.stdout.write = (chunk: any, encoding?: any, callback?: any) => {
-      // Only allow JSON messages to pass through
-      if (typeof chunk === "string" && !chunk.startsWith("{")) {
-        return true; // Silently skip non-JSON messages
-      }
-      return originalStdoutWrite(chunk, encoding, callback);
-    };
-
-    await server.connect(transport);
-    console.error("MCP server started and ready to receive commands");
-  } catch (error) {
-    console.error("Failed to initialize MCP server:", error);
-    process.exit(1);
-  }
-})();
+// Start the MCP server
+try {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error("MCP server started and ready to receive commands");
+} catch (error) {
+  console.error("Failed to initialize MCP server:", error);
+  process.exit(1);
+}

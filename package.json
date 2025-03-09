@@ -6,16 +6,16 @@
   "type": "module",
   "workspaces": [
     "mcp-server",
-    "nodejs-server",
+    "aggregator-server",
     "browser-extension"
   ],
   "scripts": {
-    "build": "npm run build:mcp && npm run build:nodejs && npm run build:extension",
+    "build": "npm run build:mcp && npm run build:aggregator && npm run build:extension",
     "build:mcp": "cd mcp-server && npm run build",
-    "build:nodejs": "cd nodejs-server && npm run build",
+    "build:aggregator": "cd aggregator-server && npm run build",
     "build:extension": "cd browser-extension && npm run build",
     "start:mcp": "cd mcp-server && npm start",
-    "start:nodejs": "cd nodejs-server && npm start",
+    "start:aggregator": "cd aggregator-server && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

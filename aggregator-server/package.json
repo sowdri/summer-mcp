@@ -1,7 +1,7 @@
 {
-  "name": "spiller-nodejs-server",
+  "name": "spiller-aggregator-server",
   "version": "1.0.0",
-  "description": "Node.js server for browser extension communication",
+  "description": "Aggregator server for browser extension communication",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
