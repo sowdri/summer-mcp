@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Summer-MCP Status</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Summer-MCP</h1>
+      <p class="subtitle">Cursor AI Browser Integration</p>
+    </div>
+    
+    <div class="status-container">
+      <div class="status-indicator">
+        <div id="status-dot" class="status-dot"></div>
+        <div id="status-text" class="status-text">Checking connection...</div>
+      </div>
+      
+      <div class="server-info">
+        <p>Server: <span id="server-url">-</span></p>
+        <p>Last connected: <span id="last-connected">-</span></p>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button id="reconnect-btn" class="btn primary">Reconnect</button>
+      <button id="settings-btn" class="btn secondary">Settings</button>
+    </div>
+    
+    <div class="footer">
+      <p>Version 1.0.0</p>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html> 

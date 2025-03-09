@@ -17,8 +17,8 @@ if (!existsSync('./dist')) {
   mkdirSync('./dist', { recursive: true });
 }
 
-// Build options
-const buildOptions = {
+// Build options for background script
+const backgroundBuildOptions = {
   entryPoints: ['src/background.ts'],
   bundle: true,
   outfile: 'dist/background.js',
@@ -26,9 +26,21 @@ const buildOptions = {
   minify: process.env.NODE_ENV === 'production',
 };
 
-// Start the build
+// Build options for popup script
+const popupBuildOptions = {
+  entryPoints: ['src/popup/popup.ts'],
+  bundle: true,
+  outfile: 'dist/popup/popup.js',
+  sourcemap: true,
+  minify: process.env.NODE_ENV === 'production',
+};
+
+// Start the builds
 console.log('Starting esbuild...');
-build(buildOptions)
+Promise.all([
+  build(backgroundBuildOptions),
+  build(popupBuildOptions)
+])
   .then(() => {
     console.log('Build complete, copying assets...');
     copyAssets();
@@ -44,6 +56,9 @@ function copyAssets() {
   try {
     // Create icons directory
     mkdirSync('./dist/icons', { recursive: true });
+    
+    // Create popup directory
+    mkdirSync('./dist/popup', { recursive: true });
 
     // Copy static assets
     if (existsSync('./dist/icons')) {
@@ -55,6 +70,17 @@ function copyAssets() {
     } else if (existsSync('./src/icons')) {
       // If dist/icons doesn't exist, copy from src
       cpSync('./src/icons', './dist/icons', { recursive: true });
+    }
+    
+    // Copy popup HTML and CSS
+    if (existsSync('./src/popup/popup.html')) {
+      console.log('Copying popup HTML...');
+      cpSync('./src/popup/popup.html', './dist/popup/popup.html');
+    }
+    
+    if (existsSync('./src/popup/popup.css')) {
+      console.log('Copying popup CSS...');
+      cpSync('./src/popup/popup.css', './dist/popup/popup.css');
     }
     
     // Copy manifest

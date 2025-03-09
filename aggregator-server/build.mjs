@@ -19,6 +19,7 @@ const buildOptions = {
   bundle: true,
   platform: 'node',
   outdir: 'dist',
+  format: 'esm',
   external: ['express', 'ws', 'axios'],
   sourcemap: true,
   minify: process.env.NODE_ENV === 'production',

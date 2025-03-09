@@ -4,6 +4,7 @@ import {
   RECONNECTION_TIMEOUT,
   SERVER_URL,
 } from "../../config/constants";
+import { ConnectionStatus, updateConnectionStatus } from "./connectionStatus";
 import { handleServerCommand } from "./messageHandler";
 
 // WebSocket connection
@@ -22,44 +23,70 @@ export function connectWebSocket(): WebSocket | null {
     return socket;
   }
 
-  socket = new WebSocket(SERVER_URL);
+  // Update status to checking
+  updateConnectionStatus(ConnectionStatus.CHECKING);
 
-  socket.onopen = () => {
-    console.log("Connected to WebSocket server");
-    chrome.action.setBadgeText({ text: BADGE_TEXT.CONNECTED });
-    chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.CONNECTED });
-  };
+  try {
+    socket = new WebSocket(SERVER_URL);
 
-  socket.onmessage = (event) => {
-    try {
-      const message = JSON.parse(event.data);
-      console.log("Received message from server:", message);
+    socket.onopen = () => {
+      console.log("Connected to WebSocket server");
+      chrome.action.setBadgeText({ text: BADGE_TEXT.CONNECTED });
+      chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.CONNECTED });
 
-      // Handle commands from the server
-      if (message.command) {
-        handleServerCommand(message);
+      // Update connection status
+      updateConnectionStatus(ConnectionStatus.CONNECTED);
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        console.log("Received message from server:", message);
+
+        // Handle commands from the server
+        if (message.command) {
+          handleServerCommand(message);
+        }
+      } catch (error) {
+        console.error("Error parsing message:", error);
       }
-    } catch (error) {
-      console.error("Error parsing message:", error);
-    }
-  };
+    };
 
-  socket.onclose = () => {
-    console.log("Disconnected from WebSocket server");
-    chrome.action.setBadgeText({ text: BADGE_TEXT.DISCONNECTED });
-    chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.DISCONNECTED });
+    socket.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+      chrome.action.setBadgeText({ text: BADGE_TEXT.DISCONNECTED });
+      chrome.action.setBadgeBackgroundColor({
+        color: BADGE_COLORS.DISCONNECTED,
+      });
 
-    // Try to reconnect after timeout
-    setTimeout(connectWebSocket, RECONNECTION_TIMEOUT);
-  };
+      // Update connection status
+      updateConnectionStatus(ConnectionStatus.DISCONNECTED);
 
-  socket.onerror = (error) => {
-    console.error("WebSocket error:", error);
-    chrome.action.setBadgeText({ text: BADGE_TEXT.ERROR });
-    chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.ERROR });
-  };
+      // Try to reconnect after timeout
+      setTimeout(connectWebSocket, RECONNECTION_TIMEOUT);
+    };
 
-  return socket;
+    socket.onerror = (event: Event) => {
+      console.error("WebSocket error:", event);
+      chrome.action.setBadgeText({ text: BADGE_TEXT.ERROR });
+      chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.ERROR });
+
+      // Update connection status with a generic error message
+      updateConnectionStatus(
+        ConnectionStatus.ERROR,
+        "WebSocket connection error"
+      );
+    };
+
+    return socket;
+  } catch (error) {
+    console.error("Error creating WebSocket:", error);
+    updateConnectionStatus(
+      ConnectionStatus.ERROR,
+      error instanceof Error ? error.message : "Unknown error"
+    );
+    return null;
+  }
 }
 
 /**
@@ -89,4 +116,13 @@ export function sendMessage(type: string, data: any): boolean {
   );
 
   return true;
+}
+
+/**
+ * Get the current connection state
+ * @returns The WebSocket readyState or -1 if no socket exists
+ */
+export function getConnectionState(): number {
+  if (!socket) return -1;
+  return socket.readyState;
 }

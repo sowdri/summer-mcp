@@ -18,8 +18,9 @@ const buildOptions = {
   entryPoints: ['src/index.ts'],
   bundle: true,
   platform: 'node',
+  format: 'esm',
   outdir: 'dist',
-  external: ['express'],
+  external: ['express', '@modelcontextprotocol/sdk/server/mcp.js', '@modelcontextprotocol/sdk/server/stdio.js'],
   sourcemap: true,
   minify: process.env.NODE_ENV === 'production',
 };
