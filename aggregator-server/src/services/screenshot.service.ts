@@ -19,7 +19,10 @@ interface PendingScreenshotRequest {
 }
 
 // Store pending requests with their response objects
-const pendingScreenshotRequests = new Map<string, PendingScreenshotRequest>();
+export const pendingScreenshotRequests = new Map<
+  string,
+  PendingScreenshotRequest
+>();
 
 /**
  * Register a new screenshot request
@@ -78,6 +81,12 @@ async function resizeImage(
  * @param data Screenshot data URL from Chrome API (data:image/png;base64,...)
  */
 export async function handleScreenshotResponse(data: string): Promise<void> {
+  // Check if there are any pending requests
+  if (pendingScreenshotRequests.size === 0) {
+    console.warn("Received screenshot data but no pending requests found");
+    return;
+  }
+
   // Resolve all pending requests as they all need the same data
   for (const [
     requestId,

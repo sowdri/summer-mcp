@@ -28,16 +28,34 @@ export const clients = new Set<WebSocket>();
 export function sendCommandToExtension(
   command: BrowserCommand,
   params?: Record<string, any>
-): void {
+): boolean {
+  // Check if there are any connected clients
+  if (clients.size === 0) {
+    console.warn(
+      `Cannot send command "${command}": No connected browser extensions`
+    );
+    return false;
+  }
+
   const message: CommandMessage = { command };
 
   if (params) {
     message.params = params;
   }
 
+  let sentToAny = false;
   clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(message));
+      sentToAny = true;
     }
   });
+
+  if (!sentToAny) {
+    console.warn(
+      `Failed to send command "${command}": No clients in OPEN state`
+    );
+  }
+
+  return sentToAny;
 }

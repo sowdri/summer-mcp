@@ -12,7 +12,7 @@ interface PendingTabRequest {
 }
 
 // Store pending requests with their response objects
-const pendingTabRequests = new Map<string, PendingTabRequest>();
+export const pendingTabRequests = new Map<string, PendingTabRequest>();
 
 /**
  * Register a new browser tabs request
