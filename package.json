@@ -16,6 +16,7 @@
     "build:extension": "cd browser-extension && npm run build",
     "start:mcp": "cd mcp-server && npm start",
     "start:aggregator": "cd aggregator-server && npm start",
+    "dev": "node dev.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
