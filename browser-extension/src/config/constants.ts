@@ -19,4 +19,4 @@ export const BADGE_TEXT = {
 export const DEBUGGER_PROTOCOL_VERSION = "1.3";
 
 // Reconnection timeout in milliseconds
-export const RECONNECTION_TIMEOUT = 5000;
+export const RECONNECTION_TIMEOUT = 1000;

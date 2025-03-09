@@ -18,6 +18,57 @@ export interface NetworkRequest {
   [key: string]: any;
 }
 
+// Active tab information
+export interface ActiveTab {
+  tabId: number | string;
+  url?: string;
+  title?: string;
+  favIconUrl?: string;
+  timestamp?: number | string;
+  [key: string]: any;
+}
+
+// Tab event information
+export interface TabEvent {
+  event: string; // 'removed', 'updated', etc.
+  tabId: number | string;
+  timestamp?: number | string;
+  [key: string]: any;
+}
+
+// Debugger event information
+export interface DebuggerEvent {
+  event: string; // 'attached', 'detached', etc.
+  tabId: number | string;
+  reason?: string;
+  timestamp?: number | string;
+  [key: string]: any;
+}
+
+// Monitor status information
+export interface MonitorStatus {
+  tabId: number | string;
+  status: string; // 'started', 'stopped', etc.
+  timestamp?: number | string;
+  [key: string]: any;
+}
+
+// Monitor error information
+export interface MonitorError {
+  tabId: number | string;
+  error: string;
+  timestamp?: number | string;
+  [key: string]: any;
+}
+
+// Extension event information
+export interface ExtensionEvent {
+  event: string; // 'startup', 'reconnect', 'suspend', etc.
+  version?: string;
+  timestamp?: number | string;
+  [key: string]: any;
+}
+
 // Tab-specific browser data
 export interface TabData {
   consoleLogs: ConsoleLog[];
@@ -27,6 +78,18 @@ export interface TabData {
     errors: NetworkRequest[];
   };
   selectedElement: any | null;
+  activeTab?: ActiveTab;
+  tabEvents: TabEvent[];
+  debuggerEvents: DebuggerEvent[];
+  monitorStatus: {
+    console: MonitorStatus[];
+    network: MonitorStatus[];
+  };
+  monitorErrors: {
+    console: MonitorError[];
+    network: MonitorError[];
+  };
+  extensionEvents: ExtensionEvent[];
   lastUpdated: number;
 }
 
@@ -48,6 +111,18 @@ export interface BrowserDataProvider {
   addNetworkSuccess(tabId: string, request: NetworkRequest): void;
   addNetworkError(tabId: string, request: NetworkRequest): void;
 
+  // Tab operations
+  updateActiveTab(tabId: string, data: ActiveTab): void;
+  addTabEvent(tabId: string, event: TabEvent): void;
+  addDebuggerEvent(tabId: string, event: DebuggerEvent): void;
+
+  // Monitor operations
+  addMonitorStatus(tabId: string, type: string, status: MonitorStatus): void;
+  addMonitorError(tabId: string, type: string, error: MonitorError): void;
+
+  // Extension operations
+  addExtensionEvent(event: ExtensionEvent): void;
+
   // Asset operations
   setSelectedElement(tabId: string, data: any): void;
 
@@ -66,6 +141,11 @@ export interface BrowserDataConfig {
   MAX_CONSOLE_ERRORS: number;
   MAX_NETWORK_SUCCESS: number;
   MAX_NETWORK_ERRORS: number;
+  MAX_TAB_EVENTS: number;
+  MAX_DEBUGGER_EVENTS: number;
+  MAX_MONITOR_STATUS: number;
+  MAX_MONITOR_ERRORS: number;
+  MAX_EXTENSION_EVENTS: number;
 }
 
 // Browser tab information

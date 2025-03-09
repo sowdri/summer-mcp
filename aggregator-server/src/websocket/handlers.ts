@@ -3,15 +3,28 @@
  */
 import {
   addConsoleLog,
+  addDebuggerEvent,
+  addExtensionEvent,
+  addMonitorError,
+  addMonitorStatus,
+  addNetworkError,
   addNetworkRequest,
+  addTabEvent,
   setSelectedElement,
+  updateActiveTab,
 } from "../models/browserData.js";
 import { handleBrowserTabsResponse } from "../services/browserTabs.service.js";
 import { handleScreenshotResponse } from "../services/screenshot.service.js";
 import {
+  ActiveTab,
   BrowserTabsResponse,
   ConsoleLog,
+  DebuggerEvent,
+  ExtensionEvent,
+  MonitorError,
+  MonitorStatus,
   NetworkRequest,
+  TabEvent,
 } from "../types/index.js";
 
 // Define message types
@@ -19,14 +32,24 @@ type MessageType =
   | "screenshot"
   | "console-logs"
   | "network-requests"
+  | "network-errors"
   | "dom-snapshot"
-  | "browser-tabs";
+  | "browser-tabs"
+  | "active-tab"
+  | "tab-event"
+  | "debugger-event"
+  | "debugger-detached"
+  | "console-monitor-status"
+  | "network-monitor-status"
+  | "console-monitor-error"
+  | "network-monitor-error"
+  | "extension-event";
 
 // Base message interface
 interface BaseMessage {
   type: MessageType;
-  tabId?: string;
-  timestamp?: number;
+  tabId?: string | number;
+  timestamp?: number | string;
 }
 
 // Type-specific message interfaces
@@ -45,6 +68,11 @@ interface NetworkRequestMessage extends BaseMessage {
   data: NetworkRequest;
 }
 
+interface NetworkErrorMessage extends BaseMessage {
+  type: "network-errors";
+  data: NetworkRequest;
+}
+
 interface DomSnapshotMessage extends BaseMessage {
   type: "dom-snapshot";
   data: any;
@@ -55,13 +83,56 @@ interface BrowserTabsMessage extends BaseMessage {
   data: BrowserTabsResponse;
 }
 
+interface ActiveTabMessage extends BaseMessage {
+  type: "active-tab";
+  data: ActiveTab;
+}
+
+interface TabEventMessage extends BaseMessage {
+  type: "tab-event";
+  data: TabEvent;
+}
+
+interface DebuggerEventMessage extends BaseMessage {
+  type: "debugger-event";
+  data: DebuggerEvent;
+}
+
+interface DebuggerDetachedMessage extends BaseMessage {
+  type: "debugger-detached";
+  data: DebuggerEvent;
+}
+
+interface MonitorStatusMessage extends BaseMessage {
+  type: "console-monitor-status" | "network-monitor-status";
+  data: MonitorStatus;
+}
+
+interface MonitorErrorMessage extends BaseMessage {
+  type: "console-monitor-error" | "network-monitor-error";
+  data: MonitorError;
+}
+
+interface ExtensionEventMessage extends BaseMessage {
+  type: "extension-event";
+  data: ExtensionEvent;
+}
+
 // Union type of all possible messages
 type ExtensionMessage =
   | ScreenshotMessage
   | ConsoleLogMessage
   | NetworkRequestMessage
+  | NetworkErrorMessage
   | DomSnapshotMessage
-  | BrowserTabsMessage;
+  | BrowserTabsMessage
+  | ActiveTabMessage
+  | TabEventMessage
+  | DebuggerEventMessage
+  | DebuggerDetachedMessage
+  | MonitorStatusMessage
+  | MonitorErrorMessage
+  | ExtensionEventMessage;
 
 /**
  * Handle messages from browser extension
@@ -101,11 +172,68 @@ export function handleWebSocketMessage(message: string): void {
       case "network-requests":
         addNetworkRequest(parsedMessage.data);
         break;
+      case "network-errors":
+        addNetworkError(parsedMessage.data);
+        break;
       case "dom-snapshot":
         setSelectedElement(parsedMessage.data);
         break;
       case "browser-tabs":
         handleBrowserTabsResponse(parsedMessage.data);
+        break;
+      case "active-tab":
+        updateActiveTab(parsedMessage.data);
+        console.log(
+          "Active tab updated:",
+          parsedMessage.data.tabId,
+          parsedMessage.data.url
+        );
+        break;
+      case "tab-event":
+        addTabEvent(parsedMessage.data);
+        console.log(
+          "Tab event:",
+          parsedMessage.data.event,
+          parsedMessage.data.tabId
+        );
+        break;
+      case "debugger-event":
+        addDebuggerEvent(parsedMessage.data);
+        console.log(
+          "Debugger event:",
+          parsedMessage.data.event,
+          parsedMessage.data.tabId
+        );
+        break;
+      case "debugger-detached":
+        addDebuggerEvent(parsedMessage.data);
+        console.log(
+          "Debugger detached:",
+          parsedMessage.data.tabId,
+          parsedMessage.data.reason
+        );
+        break;
+      case "console-monitor-status":
+      case "network-monitor-status":
+        addMonitorStatus(parsedMessage.type, parsedMessage.data);
+        console.log(
+          "Monitor status:",
+          parsedMessage.type,
+          parsedMessage.data.status
+        );
+        break;
+      case "console-monitor-error":
+      case "network-monitor-error":
+        addMonitorError(parsedMessage.type, parsedMessage.data);
+        console.log(
+          "Monitor error:",
+          parsedMessage.type,
+          parsedMessage.data.error
+        );
+        break;
+      case "extension-event":
+        addExtensionEvent(parsedMessage.data);
+        console.log("Extension event:", parsedMessage.data.event);
         break;
       default:
         // This should never happen due to type checking
