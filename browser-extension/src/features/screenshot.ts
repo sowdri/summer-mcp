@@ -10,6 +10,8 @@ export function takeScreenshot(tabId: number): void {
     chrome.windows.WINDOW_ID_CURRENT,
     { format: "png" },
     (dataUrl) => {
+      // Send the original data URL to the server
+      // The resizing will be done on the server side
       sendMessage("screenshot", dataUrl);
     }
   );

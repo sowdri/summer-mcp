@@ -97,23 +97,71 @@ server.tool(
         }
       );
 
-      const result = await response.json();
+      // Log the response status and headers for debugging
+      console.log(`Screenshot response status: ${response.status}`);
+      console.log(
+        `Screenshot response headers:`,
+        Object.fromEntries(response.headers.entries())
+      );
 
-      if (response.ok) {
+      // Try to parse the response as JSON
+      let result;
+      try {
+        result = await response.json();
+        console.log("Screenshot response parsed successfully");
+      } catch (parseError) {
+        console.error("Error parsing screenshot response:", parseError);
+        const text = await response.text();
+        console.log("Raw response text:", text.substring(0, 100) + "...");
         return {
           content: [
             {
               type: "text",
-              text: "Successfully saved screenshot",
+              text: `Error parsing screenshot response: ${parseError}`,
             },
           ],
         };
+      }
+
+      if (response.ok) {
+        // Check if we have the expected data structure
+        if (result && result.data) {
+          console.log("Screenshot data received, length:", result.data.length);
+          const contentType = result.contentType || "image/png";
+
+          return {
+            content: [
+              {
+                type: "image",
+                data: result.data,
+                mimeType: contentType,
+              },
+            ],
+          };
+        } else {
+          console.log(
+            "Unexpected response structure:",
+            JSON.stringify(result).substring(0, 100) + "..."
+          );
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Screenshot taken but unexpected response format: ${JSON.stringify(
+                  result
+                )}`,
+              },
+            ],
+          };
+        }
       } else {
         return {
           content: [
             {
               type: "text",
-              text: `Error taking screenshot: ${result.error}`,
+              text: `Error taking screenshot: ${
+                result.error || "Unknown error"
+              }`,
             },
           ],
         };
@@ -121,6 +169,7 @@ server.tool(
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
+      console.error("Screenshot error:", errorMessage);
       return {
         content: [
           {
@@ -190,11 +239,31 @@ server.tool("wipeLogs", "Wipe all browser logs from memory", async () => {
 });
 
 // Start the MCP server
-try {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("MCP server started and ready to receive commands");
-} catch (error) {
-  console.error("Failed to initialize MCP server:", error);
-  process.exit(1);
-}
+// try {
+//   const transport = new StdioServerTransport();
+//   await server.connect(transport);
+//   console.error("MCP server started and ready to receive commands");
+// } catch (error) {
+//   console.error("Failed to initialize MCP server:", error);
+//   process.exit(1);
+// }
+(async () => {
+  try {
+    const transport = new StdioServerTransport();
+
+    // Ensure stdout is only used for JSON messages
+    const originalStdoutWrite = process.stdout.write.bind(process.stdout);
+    process.stdout.write = (chunk: any, encoding?: any, callback?: any) => {
+      // Only allow JSON messages to pass through
+      if (typeof chunk === "string" && !chunk.startsWith("{")) {
+        return true; // Silently skip non-JSON messages
+      }
+      return originalStdoutWrite(chunk, encoding, callback);
+    };
+
+    await server.connect(transport);
+  } catch (error) {
+    console.error("Failed to initialize MCP server:", error);
+    process.exit(1);
+  }
+})();

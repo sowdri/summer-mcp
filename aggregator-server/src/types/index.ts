@@ -26,7 +26,6 @@ export interface TabData {
     success: NetworkRequest[];
     errors: NetworkRequest[];
   };
-  screenshot: string | null;
   selectedElement: any | null;
   lastUpdated: number;
 }
@@ -50,7 +49,6 @@ export interface BrowserDataProvider {
   addNetworkError(tabId: string, request: NetworkRequest): void;
 
   // Asset operations
-  setScreenshot(tabId: string, data: string): void;
   setSelectedElement(tabId: string, data: any): void;
 
   // Utility operations

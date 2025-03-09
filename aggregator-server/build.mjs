@@ -20,7 +20,7 @@ const buildOptions = {
   platform: 'node',
   outdir: 'dist',
   format: 'esm',
-  external: ['express', 'ws', 'axios'],
+  external: ['express', 'ws', 'axios', 'sharp'],
   sourcemap: true,
   minify: process.env.NODE_ENV === 'production',
 };

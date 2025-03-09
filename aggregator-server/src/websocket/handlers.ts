@@ -4,10 +4,10 @@
 import {
   addConsoleLog,
   addNetworkRequest,
-  setScreenshot,
   setSelectedElement,
 } from "../models/browserData.js";
 import { handleBrowserTabsResponse } from "../services/browserTabs.service.js";
+import { handleScreenshotResponse } from "../services/screenshot.service.js";
 import {
   BrowserTabsResponse,
   ConsoleLog,
@@ -71,10 +71,29 @@ export function handleWebSocketMessage(message: string): void {
     const parsedMessage = JSON.parse(message) as ExtensionMessage;
     console.log("Received from extension:", parsedMessage.type);
 
+    // Debug the actual data
+    if (parsedMessage.type === "screenshot") {
+      console.log("Screenshot data type:", typeof parsedMessage.data);
+      console.log(
+        "Screenshot data is null or undefined:",
+        parsedMessage.data === null || parsedMessage.data === undefined
+      );
+      if (parsedMessage.data) {
+        console.log("Screenshot data length:", parsedMessage.data.length);
+        console.log(
+          "Screenshot data preview:",
+          parsedMessage.data.substring(0, 50) + "..."
+        );
+      }
+    }
+
     // Process message based on type
     switch (parsedMessage.type) {
       case "screenshot":
-        setScreenshot(parsedMessage.data);
+        // Handle the async function
+        handleScreenshotResponse(parsedMessage.data).catch((error) => {
+          console.error("Error handling screenshot response:", error);
+        });
         break;
       case "console-logs":
         addConsoleLog(parsedMessage.data);

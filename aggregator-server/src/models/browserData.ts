@@ -27,7 +27,6 @@ function createEmptyTabData(): TabData {
       success: [],
       errors: [],
     },
-    screenshot: null,
     selectedElement: null,
     lastUpdated: Date.now(),
   };
@@ -174,12 +173,6 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
   }
 
   // Asset operations
-  setScreenshot(tabId: string, data: string): void {
-    const tabData = this.ensureTabData(tabId);
-    tabData.screenshot = data;
-    tabData.lastUpdated = Date.now();
-  }
-
   setSelectedElement(tabId: string, data: any): void {
     const tabData = this.ensureTabData(tabId);
     tabData.selectedElement = data;
@@ -257,15 +250,6 @@ export function addNetworkRequest(request: any): void {
   } else {
     browserDataProvider.addNetworkSuccess(defaultTabId, request);
   }
-}
-
-/**
- * Set screenshot data
- */
-export function setScreenshot(data: string): void {
-  // Use a default tab ID for legacy calls
-  const defaultTabId = "default";
-  browserDataProvider.setScreenshot(defaultTabId, data);
 }
 
 /**
