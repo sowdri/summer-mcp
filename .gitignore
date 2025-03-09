@@ -31,4 +31,7 @@ build/
 
 # Logs
 logs/
-*.log 
+*.log
+
+# Debug screenshots
+debug-screenshots/ 
