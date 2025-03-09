@@ -15,7 +15,8 @@ export type MessageType =
   | "screenshot"
   | "console-logs"
   | "network-requests"
-  | "dom-snapshot";
+  | "dom-snapshot"
+  | "browser-tabs";
 
 // Message structure for sending data to the server
 export interface WebSocketMessage {
