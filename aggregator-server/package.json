@@ -1,5 +1,5 @@
 {
-  "name": "spiller-aggregator-server",
+  "name": "summer-mcp-aggregator-server",
   "version": "1.0.0",
   "description": "Aggregator server for browser extension communication",
   "main": "dist/index.js",

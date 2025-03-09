@@ -1,5 +1,5 @@
 {
-  "name": "spiller-mcp-server",
+  "name": "summer-mcp-server",
   "version": "1.0.0",
   "description": "MCP server for Cursor AI browser integration",
   "main": "dist/index.js",

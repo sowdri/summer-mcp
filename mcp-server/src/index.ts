@@ -5,7 +5,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 
 // Create the MCP server
 const server = new McpServer({
-  name: "Spiller Browser Tools MCP",
+  name: "Summer-MCP Browser Tools",
   version: "1.0.0",
 });
 

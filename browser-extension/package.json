@@ -1,5 +1,5 @@
 {
-  "name": "spiller-browser-extension",
+  "name": "summer-mcp-browser-extension",
   "version": "1.0.0",
   "description": "Chrome browser extension for Cursor AI integration",
   "type": "module",

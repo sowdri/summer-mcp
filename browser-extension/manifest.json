@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Spiller - Cursor AI Browser Integration",
+  "name": "Summer-MCP - Cursor AI Browser Integration",
   "version": "1.0.0",
   "description": "Browser extension for integrating with Cursor AI",
   "permissions": [

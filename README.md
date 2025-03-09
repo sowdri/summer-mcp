@@ -1,4 +1,4 @@
-# Spiller MCP
+# Summer-MCP
 
 An MCP server for use with Cursor AI to interact with Chrome Web Browser to enable the following:
 
@@ -12,7 +12,7 @@ An MCP server for use with Cursor AI to interact with Chrome Web Browser to enab
 
 ## Simplified Architecture
 
-Spiller consists of three main components that work together:
+Summer-MCP consists of three main components that work together:
 
 ```
 Browser → Browser Extension → Aggregator Server → MCP Server → AI Model

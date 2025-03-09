@@ -11,7 +11,7 @@ const router = Router();
 
 // Health check
 router.get("/", (req, res) => {
-  res.json({ message: "Spiller Aggregator Server is running" });
+  res.json({ message: "Summer-MCP Aggregator Server is running" });
 });
 
 // Register all routes
