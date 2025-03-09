@@ -1,5 +1,9 @@
+import { exec } from 'child_process';
 import { build } from 'esbuild';
 import { cpSync, existsSync, mkdirSync, rmSync } from 'fs';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
 
 console.log('🚀 Building browser extension...');
 
@@ -42,7 +46,14 @@ function copyAssets() {
     mkdirSync('./dist/icons', { recursive: true });
 
     // Copy static assets
-    if (existsSync('./src/icons')) {
+    if (existsSync('./dist/icons')) {
+      // If icons already exist in dist, don't overwrite them
+      if (!existsSync('./dist/icons/icon16.png') && existsSync('./src/icons')) {
+        console.log('No PNG icons found in dist, copying from src...');
+        cpSync('./src/icons', './dist/icons', { recursive: true });
+      }
+    } else if (existsSync('./src/icons')) {
+      // If dist/icons doesn't exist, copy from src
       cpSync('./src/icons', './dist/icons', { recursive: true });
     }
     
