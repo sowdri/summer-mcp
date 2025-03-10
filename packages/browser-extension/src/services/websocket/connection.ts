@@ -4,7 +4,8 @@ import {
   RECONNECTION_TIMEOUT,
   SERVER_URL,
 } from "../../config/constants";
-import { BrowserWebSocketReceiveMessageType, BrowserWebSocketSendMessageType, ServerCommand } from "../../types/interfaces";
+import { BrowserWebSocketReceiveMessageType } from "../../types/interfaces";
+import { ServerCommand, BrowserMessageType, BrowserMessage } from "@summer-mcp/core";
 import { ConnectionStatus, updateConnectionStatus } from "./connectionStatus";
 import { handleServerCommand } from "./messageHandler";
 
@@ -113,25 +114,22 @@ export function getConnectionState(): number {
 }
 
 /**
- * Send a message to the server
- * @param type Message type
- * @param data Message data
- * @returns Whether the message was sent successfully
+ * Send a message to the WebSocket server
+ * @param message The browser message to send
+ * @returns True if the message was sent, false otherwise
  */
-export function sendMessage(
-  type: BrowserWebSocketSendMessageType,
-  data: any
-): boolean {
+export function sendMessage(message: BrowserMessage): boolean {
+  const socket = getWebSocket();
   if (!socket || socket.readyState !== WebSocket.OPEN) {
+    console.error("WebSocket not connected");
     return false;
   }
 
-  socket.send(
-    JSON.stringify({
-      type,
-      data,
-    })
-  );
-
-  return true;
+  try {
+    socket.send(JSON.stringify(message));
+    return true;
+  } catch (error) {
+    console.error("Error sending message:", error);
+    return false;
+  }
 }

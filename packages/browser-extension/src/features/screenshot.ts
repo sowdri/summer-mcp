@@ -1,5 +1,5 @@
 import { sendMessage } from "../services/websocket/connection";
-import { BrowserWebSocketSendMessageType } from "../types/interfaces";
+import { BrowserMessageType, ScreenshotMessage } from "@summer-mcp/core";
 
 /**
  * Take a screenshot of the current tab
@@ -13,7 +13,14 @@ export function takeScreenshot(tabId: number): void {
     (dataUrl) => {
       // Send the original data URL to the server
       // The resizing will be done on the server side
-      sendMessage(BrowserWebSocketSendMessageType.SCREENSHOT, dataUrl);
+      const message: ScreenshotMessage = {
+        type: BrowserMessageType.SCREENSHOT,
+        data: dataUrl,
+        tabId,
+        timestamp: Date.now()
+      };
+      
+      sendMessage(message);
     }
   );
 }

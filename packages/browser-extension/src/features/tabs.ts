@@ -1,5 +1,11 @@
 import { sendMessage } from "../services/websocket/connection";
-import { BrowserWebSocketSendMessageType } from "../types/interfaces";
+import { 
+  BrowserMessageType, 
+  BrowserTabsMessage, 
+  ActiveTabMessage, 
+  ActivateTabResultMessage,
+  BrowserTab
+} from "@summer-mcp/core";
 
 /**
  * List all browser tabs with their IDs
@@ -8,15 +14,22 @@ import { BrowserWebSocketSendMessageType } from "../types/interfaces";
 export function listBrowserTabs(): void {
   chrome.tabs.query({}, (tabs) => {
     const tabsList = tabs.map((tab) => ({
-      id: tab.id,
-      url: tab.url,
-      title: tab.title,
+      id: tab.id || 0,
+      url: tab.url || "",
+      title: tab.title || "",
       active: tab.active,
       windowId: tab.windowId,
       index: tab.index,
-    }));
+      favIconUrl: tab.favIconUrl
+    } as BrowserTab));
 
-    sendMessage(BrowserWebSocketSendMessageType.BROWSER_TABS, tabsList);
+    const message: BrowserTabsMessage = {
+      type: BrowserMessageType.BROWSER_TABS,
+      data: tabsList,
+      timestamp: Date.now()
+    };
+
+    sendMessage(message);
     console.log("Sent browser tabs list:", tabsList.length, "tabs");
   });
 }
@@ -33,15 +46,23 @@ export function getActiveBrowserTab(): void {
     }
 
     const activeTab = tabs[0];
-    const tabInfo = {
-      id: activeTab.id,
-      url: activeTab.url,
-      title: activeTab.title,
+    const tabInfo: BrowserTab = {
+      id: activeTab.id || 0,
+      url: activeTab.url || "",
+      title: activeTab.title || "",
+      active: true,
       windowId: activeTab.windowId,
       index: activeTab.index,
+      favIconUrl: activeTab.favIconUrl
     };
 
-    sendMessage(BrowserWebSocketSendMessageType.ACTIVE_TAB, tabInfo);
+    const message: ActiveTabMessage = {
+      type: BrowserMessageType.ACTIVE_TAB,
+      data: tabInfo,
+      timestamp: Date.now()
+    };
+
+    sendMessage(message);
     console.log("Sent active tab info:", tabInfo.url);
   });
 }
@@ -58,22 +79,34 @@ export function activateBrowserTab(tabId: string): void {
     console.error(errorMessage);
     
     // Send error response
-    sendMessage(BrowserWebSocketSendMessageType.ACTIVATE_TAB_RESULT, {
-      success: false,
-      error: errorMessage,
-    });
+    const message: ActivateTabResultMessage = {
+      type: BrowserMessageType.ACTIVATE_TAB_RESULT,
+      data: {
+        success: false,
+        tabId: undefined,
+        error: errorMessage
+      },
+      timestamp: Date.now()
+    };
+
+    sendMessage(message);
     return;
   }
 
   chrome.tabs.update(numericTabId, { active: true }, (tab) => {
     const success = !!tab;
-    const response = {
-      success,
-      tabId: numericTabId,
-      error: success ? undefined : `Failed to activate tab ${tabId}`,
+    
+    const message: ActivateTabResultMessage = {
+      type: BrowserMessageType.ACTIVATE_TAB_RESULT,
+      data: {
+        success,
+        tabId: numericTabId,
+        error: success ? undefined : `Failed to activate tab ${tabId}`
+      },
+      timestamp: Date.now()
     };
 
-    sendMessage(BrowserWebSocketSendMessageType.ACTIVATE_TAB_RESULT, response);
+    sendMessage(message);
     console.log(
       success ? "Tab activated successfully" : "Failed to activate tab",
       tabId

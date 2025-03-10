@@ -2,6 +2,28 @@
  * Type definitions for the aggregator server
  */
 
+// Import types from core package
+import {
+  BrowserMessageType,
+  BrowserMessage,
+  ServerCommandType,
+  ServerCommand,
+  ServerMessage,
+  ConsoleLogEntry as CoreConsoleLog,
+  NetworkRequest as CoreNetworkRequest,
+  BrowserTab
+} from "@summer-mcp/core";
+
+// Re-export types from core package
+export {
+  BrowserMessageType,
+  BrowserMessage,
+  ServerCommandType,
+  ServerCommand,
+  ServerMessage,
+  BrowserTab
+};
+
 /**
  * Message types sent from aggregator server to browser extension
  */
@@ -13,43 +35,13 @@ export enum AggregatorWebSocketSendMessageType {
 /**
  * Message types received by aggregator server from browser extension
  */
-export enum AggregatorWebSocketReceiveMessageType {
-  SCREENSHOT = "screenshot",
-  CONSOLE_LOGS = "console-logs",
-  CONSOLE_ERRORS = "console-errors",
-  NETWORK_REQUESTS = "network-requests",
-  NETWORK_ERRORS = "network-errors",
-  DOM_SNAPSHOT = "dom-snapshot",
-  BROWSER_TABS = "browser-tabs",
-  ACTIVE_TAB = "active-tab",
-  ACTIVATE_TAB_RESULT = "activate-tab-result",
-  TAB_EVENT = "tab-event",
-  DEBUGGER_EVENT = "debugger-event",
-  DEBUGGER_DETACHED = "debugger-detached",
-  CONSOLE_MONITOR_STATUS = "console-monitor-status",
-  NETWORK_MONITOR_STATUS = "network-monitor-status",
-  CONSOLE_MONITOR_ERROR = "console-monitor-error",
-  NETWORK_MONITOR_ERROR = "network-monitor-error",
-  EXTENSION_EVENT = "extension-event"
-}
+export type AggregatorWebSocketReceiveMessageType = BrowserMessageType;
 
-// Console log interface
-export interface ConsoleLog {
-  level?: string;
-  type?: string;
-  message?: string;
-  timestamp?: number;
-  [key: string]: any;
-}
+// Alias types from core for backward compatibility
+export type ConsoleLog = CoreConsoleLog;
+export type NetworkRequest = CoreNetworkRequest;
 
-// Network request interface
-export interface NetworkRequest {
-  method: string;
-  timestamp?: number;
-  [key: string]: any;
-}
-
-// Active tab information
+// Tab data interfaces specific to the aggregator server
 export interface ActiveTab {
   tabId: number | string;
   url?: string;
@@ -59,7 +51,6 @@ export interface ActiveTab {
   [key: string]: any;
 }
 
-// Tab event information
 export interface TabEvent {
   event: string; // 'removed', 'updated', etc.
   tabId: number | string;
@@ -67,7 +58,6 @@ export interface TabEvent {
   [key: string]: any;
 }
 
-// Debugger event information
 export interface DebuggerEvent {
   event: string; // 'attached', 'detached', etc.
   tabId: number | string;
@@ -76,7 +66,6 @@ export interface DebuggerEvent {
   [key: string]: any;
 }
 
-// Monitor status information
 export interface MonitorStatus {
   tabId: number | string;
   status: string; // 'started', 'stopped', etc.
@@ -84,7 +73,6 @@ export interface MonitorStatus {
   [key: string]: any;
 }
 
-// Monitor error information
 export interface MonitorError {
   tabId: number | string;
   error: string;
@@ -92,7 +80,6 @@ export interface MonitorError {
   [key: string]: any;
 }
 
-// Extension event information
 export interface ExtensionEvent {
   event: string; // 'startup', 'reconnect', 'suspend', etc.
   version?: string;
@@ -177,16 +164,6 @@ export interface BrowserDataConfig {
   MAX_MONITOR_STATUS: number;
   MAX_MONITOR_ERRORS: number;
   MAX_EXTENSION_EVENTS: number;
-}
-
-// Browser tab information
-export interface BrowserTab {
-  id: string;
-  title: string;
-  url: string;
-  active: boolean;
-  windowId: string;
-  favIconUrl?: string;
 }
 
 // Browser tabs response
