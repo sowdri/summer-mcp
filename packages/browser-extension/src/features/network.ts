@@ -4,9 +4,7 @@ import {
 } from "../services/debugger/manager";
 import { sendMessage } from "../services/websocket/messageSender";
 import { 
-  BrowserMessageType, 
-  NetworkMonitorErrorMessage, 
-  NetworkMonitorStatusMessage 
+  BrowserMessageType
 } from "@summer-mcp/core";
 
 /**
@@ -32,39 +30,12 @@ export function startNetworkMonitoring(tabId: number): void {
       console.error(
         `[Network Monitor] Error enabling network: ${chrome.runtime.lastError.message}`
       );
-
-      // Send error to aggregator
-      const message: NetworkMonitorErrorMessage = {
-        type: BrowserMessageType.NETWORK_MONITOR_ERROR,
-        data: {
-          tabId,
-          error: chrome.runtime.lastError?.message || "Unknown error",
-          timestamp: Date.now()
-        },
-        tabId,
-        timestamp: Date.now()
-      };
-      sendMessage(message);
-
       return;
     }
 
     console.debug(
       `[Network Monitor] Network monitoring started successfully for tab: ${tabId}`
     );
-
-    // Send success to aggregator
-    const message: NetworkMonitorStatusMessage = {
-      type: BrowserMessageType.NETWORK_MONITOR_STATUS,
-      data: {
-        tabId,
-        status: "started",
-        timestamp: Date.now()
-      },
-      tabId,
-      timestamp: Date.now()
-    };
-    sendMessage(message);
   });
 }
 
@@ -93,19 +64,6 @@ export function stopNetworkMonitoring(tabId: number): void {
       console.debug(
         `[Network Monitor] Network monitoring stopped successfully for tab: ${tabId}`
       );
-
-      // Send status to aggregator
-      const message: NetworkMonitorStatusMessage = {
-        type: BrowserMessageType.NETWORK_MONITOR_STATUS,
-        data: {
-          tabId,
-          status: "stopped",
-          timestamp: Date.now()
-        },
-        tabId,
-        timestamp: Date.now()
-      };
-      sendMessage(message);
     }
   });
 }

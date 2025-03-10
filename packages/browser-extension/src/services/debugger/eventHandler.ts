@@ -2,10 +2,7 @@ import { sendMessage } from "../websocket/messageSender";
 import { 
   BrowserMessageType, 
   ConsoleLogsMessage, 
-  NetworkRequestsMessage,
-  NetworkErrorsMessage,
-  DebuggerEventMessage,
-  DebuggerDetachedMessage
+  NetworkRequestsMessage
 } from "@summer-mcp/core";
 
 /**
@@ -71,17 +68,6 @@ export function initDebuggerEventListeners(): void {
     console.debug(
       `[Debugger] Debugger detached from tab: ${tabId}, reason: ${reason}`
     );
-
-    // Send debugger detached event to aggregator
-    const message: DebuggerDetachedMessage = {
-      type: BrowserMessageType.DEBUGGER_DETACHED,
-      data: {
-        reason: reason || "unknown"
-      },
-      tabId,
-      timestamp: Date.now()
-    };
-    sendMessage(message);
   });
 
   console.debug("[Debugger] Debugger event listeners initialized");
@@ -141,8 +127,8 @@ function handleNetworkEvent(tabId: number, method: string, params: any): void {
     (method === "Network.responseReceived" && params.response && params.response.status >= 400);
 
   if (isError) {
-    const errorMessage: NetworkErrorsMessage = {
-      type: BrowserMessageType.NETWORK_ERRORS,
+    const requestMessage: NetworkRequestsMessage = {
+      type: BrowserMessageType.NETWORK_REQUESTS,
       data: {
         method: params.request?.method || "UNKNOWN",
         url: params.request?.url || params.url || "UNKNOWN",
@@ -150,12 +136,13 @@ function handleNetworkEvent(tabId: number, method: string, params: any): void {
         statusText: params.response?.statusText || params.errorText,
         timestamp: Date.now(),
         error: params.errorText || `HTTP ${params.response?.status}`,
+        isError: true,
         ...params
       },
       tabId,
       timestamp: Date.now()
     };
-    sendMessage(errorMessage);
+    sendMessage(requestMessage);
   } else {
     const requestMessage: NetworkRequestsMessage = {
       type: BrowserMessageType.NETWORK_REQUESTS,

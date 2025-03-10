@@ -488,14 +488,3 @@ export function addMonitorError(type: string, error: MonitorError): void {
 export function addExtensionEvent(event: ExtensionEvent): void {
   browserDataProvider.addExtensionEvent(event);
 }
-
-/**
- * Add console error
- * @param tabId The ID of the tab that generated the error
- * @param error The console error entry
- * @deprecated Use addConsoleLog instead, as all logs are now stored in consoleLogs
- */
-export function addConsoleError(tabId: string, error: any): void {
-  // Redirect to addConsoleLog since we're now storing all logs in one place
-  browserDataProvider.addConsoleLog(tabId, error);
-}

@@ -8,21 +8,11 @@
 export enum BrowserMessageType {
   SCREENSHOT = "screenshot",
   CONSOLE_LOGS = "console-logs",
-  CONSOLE_ERRORS = "console-errors",
   NETWORK_REQUESTS = "network-requests",
-  NETWORK_ERRORS = "network-errors",
   DOM_SNAPSHOT = "dom-snapshot",
   BROWSER_TABS = "browser-tabs",
   ACTIVE_TAB = "active-tab",
-  ACTIVATE_TAB_RESULT = "activate-tab-result",
-  TAB_EVENT = "tab-event",
-  DEBUGGER_EVENT = "debugger-event",
-  DEBUGGER_DETACHED = "debugger-detached",
-  CONSOLE_MONITOR_STATUS = "console-monitor-status",
-  NETWORK_MONITOR_STATUS = "network-monitor-status",
-  CONSOLE_MONITOR_ERROR = "console-monitor-error",
-  NETWORK_MONITOR_ERROR = "network-monitor-error",
-  EXTENSION_EVENT = "extension-event"
+  ACTIVATE_TAB_RESULT = "activate-tab-result"
 }
 
 /**
@@ -76,15 +66,6 @@ export interface ConsoleLogsMessage extends BaseBrowserMessage {
 }
 
 /**
- * Console errors message
- */
-export interface ConsoleErrorsMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.CONSOLE_ERRORS;
-  data: ConsoleLogEntry[];
-  tabId: string | number;
-}
-
-/**
  * Network request information
  */
 export interface NetworkRequest {
@@ -107,14 +88,6 @@ export interface NetworkRequest {
 export interface NetworkRequestsMessage extends BaseBrowserMessage {
   type: BrowserMessageType.NETWORK_REQUESTS;
   data: NetworkRequest;
-}
-
-/**
- * Network errors message
- */
-export interface NetworkErrorsMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.NETWORK_ERRORS;
-  data: NetworkRequest & { error: string };
 }
 
 /**
@@ -160,117 +133,13 @@ export interface ActivateTabResultMessage extends BaseBrowserMessage {
 }
 
 /**
- * Tab event message
- */
-export interface TabEventMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.TAB_EVENT;
-  data: {
-    event: string; // 'created', 'updated', 'removed', etc.
-    tabId: string | number;
-    [key: string]: any;
-  };
-}
-
-/**
- * Debugger event message
- */
-export interface DebuggerEventMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.DEBUGGER_EVENT;
-  data: {
-    method: string;
-    params?: any;
-    [key: string]: any;
-  };
-}
-
-/**
- * Debugger detached message
- */
-export interface DebuggerDetachedMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.DEBUGGER_DETACHED;
-  data: {
-    reason: string;
-  };
-}
-
-/**
- * Monitor status information
- */
-export interface MonitorStatus {
-  status: string; // 'started', 'stopped', etc.
-  [key: string]: any;
-}
-
-/**
- * Console monitor status message
- */
-export interface ConsoleMonitorStatusMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.CONSOLE_MONITOR_STATUS;
-  data: MonitorStatus;
-}
-
-/**
- * Network monitor status message
- */
-export interface NetworkMonitorStatusMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.NETWORK_MONITOR_STATUS;
-  data: MonitorStatus;
-}
-
-/**
- * Monitor error information
- */
-export interface MonitorError {
-  error: string;
-  [key: string]: any;
-}
-
-/**
- * Console monitor error message
- */
-export interface ConsoleMonitorErrorMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.CONSOLE_MONITOR_ERROR;
-  data: MonitorError;
-}
-
-/**
- * Network monitor error message
- */
-export interface NetworkMonitorErrorMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.NETWORK_MONITOR_ERROR;
-  data: MonitorError;
-}
-
-/**
- * Extension event message
- */
-export interface ExtensionEventMessage extends BaseBrowserMessage {
-  type: BrowserMessageType.EXTENSION_EVENT;
-  data: {
-    event: string; // 'startup', 'reconnect', 'suspend', etc.
-    version?: string;
-    [key: string]: any;
-  };
-}
-
-/**
  * Union type of all possible browser messages
  */
 export type BrowserMessage =
   | ScreenshotMessage
   | ConsoleLogsMessage
-  | ConsoleErrorsMessage
   | NetworkRequestsMessage
-  | NetworkErrorsMessage
   | DomSnapshotMessage
   | BrowserTabsMessage
   | ActiveTabMessage
-  | ActivateTabResultMessage
-  | TabEventMessage
-  | DebuggerEventMessage
-  | DebuggerDetachedMessage
-  | ConsoleMonitorStatusMessage
-  | NetworkMonitorStatusMessage
-  | ConsoleMonitorErrorMessage
-  | NetworkMonitorErrorMessage
-  | ExtensionEventMessage; 
+  | ActivateTabResultMessage; 

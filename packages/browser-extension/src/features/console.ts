@@ -4,9 +4,7 @@ import {
 } from "../services/debugger/manager";
 import { sendMessage } from "../services/websocket/messageSender";
 import { 
-  BrowserMessageType, 
-  ConsoleMonitorErrorMessage, 
-  ConsoleMonitorStatusMessage 
+  BrowserMessageType
 } from "@summer-mcp/core";
 
 /**
@@ -32,20 +30,6 @@ export function startConsoleMonitoring(tabId: number): void {
       console.error(
         `[Console Monitor] Error enabling console: ${chrome.runtime.lastError.message}`
       );
-
-      // Send error to aggregator
-      const message: ConsoleMonitorErrorMessage = {
-        type: BrowserMessageType.CONSOLE_MONITOR_ERROR,
-        data: {
-          tabId,
-          error: chrome.runtime.lastError?.message || "Unknown error",
-          timestamp: Date.now()
-        },
-        tabId,
-        timestamp: Date.now()
-      };
-      sendMessage(message);
-
       return;
     }
 
@@ -62,19 +46,6 @@ export function startConsoleMonitoring(tabId: number): void {
           console.debug(
             `[Console Monitor] Console monitoring started successfully for tab: ${tabId}`
           );
-
-          // Send success to aggregator
-          const message: ConsoleMonitorStatusMessage = {
-            type: BrowserMessageType.CONSOLE_MONITOR_STATUS,
-            data: {
-              tabId,
-              status: "started",
-              timestamp: Date.now()
-            },
-            tabId,
-            timestamp: Date.now()
-          };
-          sendMessage(message);
         }
       }
     );
@@ -106,19 +77,6 @@ export function stopConsoleMonitoring(tabId: number): void {
       console.debug(
         `[Console Monitor] Console monitoring stopped successfully for tab: ${tabId}`
       );
-
-      // Send status to aggregator
-      const message: ConsoleMonitorStatusMessage = {
-        type: BrowserMessageType.CONSOLE_MONITOR_STATUS,
-        data: {
-          tabId,
-          status: "stopped",
-          timestamp: Date.now()
-        },
-        tabId,
-        timestamp: Date.now()
-      };
-      sendMessage(message);
     }
   });
 }

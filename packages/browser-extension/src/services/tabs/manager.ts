@@ -12,9 +12,7 @@ import {
 import { sendMessage } from "../websocket/messageSender";
 import { 
   BrowserMessageType, 
-  TabEventMessage, 
-  ActiveTabMessage,
-  DebuggerEventMessage
+  ActiveTabMessage
 } from "@summer-mcp/core";
 
 // Track the currently active tab
@@ -72,20 +70,6 @@ function handleTabCreated(tab: chrome.tabs.Tab): void {
     chrome.action.setBadgeText({ tabId, text: BADGE_TEXT.CONNECTED });
     chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_COLORS.CONNECTED });
   }
-
-  // Send tab created event to aggregator
-  const message: TabEventMessage = {
-    type: BrowserMessageType.TAB_EVENT,
-    data: {
-      event: "created",
-      tabId,
-      tab: JSON.parse(JSON.stringify(tab)),
-      timestamp: Date.now()
-    },
-    tabId,
-    timestamp: Date.now()
-  };
-  sendMessage(message);
 }
 
 /**
@@ -99,19 +83,6 @@ function handleTabRemoved(tabId: number): void {
     detachDebugger(tabId);
     debuggerConnections.delete(tabId);
   }
-
-  // Send tab closed event to aggregator
-  const message: TabEventMessage = {
-    type: BrowserMessageType.TAB_EVENT,
-    data: {
-      event: "removed",
-      tabId,
-      timestamp: Date.now()
-    },
-    tabId,
-    timestamp: Date.now()
-  };
-  sendMessage(message);
 
   // If the active tab was removed, set activeTabId to null
   if (activeTabId === tabId) {
@@ -155,21 +126,6 @@ function handleTabUpdated(
 ): void {
   console.debug(`[Tab Manager] Tab updated: ${tabId}`, changeInfo);
 
-  // Send tab update event to aggregator
-  const message: TabEventMessage = {
-    type: BrowserMessageType.TAB_EVENT,
-    data: {
-      event: "updated",
-      tabId,
-      changeInfo: JSON.parse(JSON.stringify(changeInfo)),
-      tab: JSON.parse(JSON.stringify(tab)),
-      timestamp: Date.now()
-    },
-    tabId,
-    timestamp: Date.now()
-  };
-  sendMessage(message);
-
   // If this is a new tab or page load, ensure debugger is attached
   if (changeInfo.status === "complete") {
     // Automatically attach debugger to the tab if not already attached
@@ -205,21 +161,6 @@ function handleActionClicked(tab: chrome.tabs.Tab): void {
     detachDebugger(tabId);
     chrome.action.setBadgeText({ text: BADGE_TEXT.DISCONNECTED });
     chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.DISCONNECTED });
-
-    // Send debugger detached event
-    const message: DebuggerEventMessage = {
-      type: BrowserMessageType.DEBUGGER_EVENT,
-      data: {
-        method: "Debugger.detached",
-        event: "detached",
-        tabId,
-        reason: "user_action",
-        timestamp: Date.now()
-      },
-      tabId,
-      timestamp: Date.now()
-    };
-    sendMessage(message);
   } else {
     attachDebugger(tabId);
     chrome.action.setBadgeText({ text: BADGE_TEXT.CONNECTED });
@@ -227,20 +168,6 @@ function handleActionClicked(tab: chrome.tabs.Tab): void {
 
     // Send initial data
     refreshMonitoring(tabId);
-
-    // Send debugger attached event
-    const message: DebuggerEventMessage = {
-      type: BrowserMessageType.DEBUGGER_EVENT,
-      data: {
-        method: "Debugger.attached",
-        event: "attached",
-        tabId,
-        timestamp: Date.now()
-      },
-      tabId,
-      timestamp: Date.now()
-    };
-    sendMessage(message);
   }
 }
 
