@@ -5,8 +5,7 @@ import { Router } from "express";
 import { 
   getBrowserTabs, 
   getActiveBrowserTab, 
-  activateBrowserTab, 
-  wipeLogs 
+  activateBrowserTab
 } from "../controllers/browser.controller.js";
 
 const router = Router();
@@ -19,8 +18,5 @@ router.get("/active-tab", getActiveBrowserTab);
 
 // Activate browser tab
 router.post("/activate-tab", activateBrowserTab);
-
-// Wipe logs
-router.post("/wipe-logs", wipeLogs);
 
 export default router;

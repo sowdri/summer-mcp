@@ -60,14 +60,6 @@ export function getBrowserTabs(req: Request, res: Response): Response | void {
 }
 
 /**
- * Clear all logs
- */
-export function wipeLogs(req: Request, res: Response): void {
-  clearAllLogs();
-  res.json({ message: "All logs cleared" });
-}
-
-/**
  * Get active browser tab
  */
 export function getActiveBrowserTab(req: Request, res: Response): Response | void {

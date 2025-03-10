@@ -10,11 +10,8 @@ export enum ServerCommandType {
   GET_ACTIVE_BROWSER_TAB = "getActiveBrowserTab",
   ACTIVATE_BROWSER_TAB = "activateBrowserTab",
   TAKE_SCREENSHOT = "takeScreenshot",
-  GET_CONSOLE_LOGS = "getConsoleLogs",
-  GET_CONSOLE_ERRORS = "getConsoleErrors",
   GET_NETWORK_REQUESTS = "getNetworkRequests",
-  GET_SELECTED_ELEMENT = "getSelectedElement",
-  CLEAR_LOGS = "clearLogs"
+  GET_SELECTED_ELEMENT = "getSelectedElement"
 }
 
 /**
@@ -57,20 +54,6 @@ export interface TakeScreenshotCommand extends BaseServerCommand {
 }
 
 /**
- * Command to get console logs from the browser
- */
-export interface GetConsoleLogsCommand extends BaseServerCommand {
-  command: ServerCommandType.GET_CONSOLE_LOGS;
-}
-
-/**
- * Command to get console errors from the browser
- */
-export interface GetConsoleErrorsCommand extends BaseServerCommand {
-  command: ServerCommandType.GET_CONSOLE_ERRORS;
-}
-
-/**
  * Command to get network requests from the browser
  */
 export interface GetNetworkRequestsCommand extends BaseServerCommand {
@@ -82,13 +65,6 @@ export interface GetNetworkRequestsCommand extends BaseServerCommand {
  */
 export interface GetSelectedElementCommand extends BaseServerCommand {
   command: ServerCommandType.GET_SELECTED_ELEMENT;
-}
-
-/**
- * Command to clear logs in the browser
- */
-export interface ClearLogsCommand extends BaseServerCommand {
-  command: ServerCommandType.CLEAR_LOGS;
 }
 
 /**
@@ -108,11 +84,8 @@ export type ServerCommand =
   | GetActiveBrowserTabCommand
   | ActivateBrowserTabCommand
   | TakeScreenshotCommand
-  | GetConsoleLogsCommand
-  | GetConsoleErrorsCommand
   | GetNetworkRequestsCommand
-  | GetSelectedElementCommand
-  | ClearLogsCommand;
+  | GetSelectedElementCommand;
 
 /**
  * Union type of all possible server messages (commands + connection status)
