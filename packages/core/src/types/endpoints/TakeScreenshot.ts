@@ -1,24 +1,24 @@
 /**
- * Capture Screenshot Endpoint Types
+ * Take Screenshot Endpoint Types
  * 
- * These types define the request and response formats for the /capture-screenshot endpoint.
- * This endpoint captures a screenshot of the current browser tab.
+ * These types define the request and response formats for the /take-screenshot endpoint.
+ * This endpoint takes a screenshot of the current browser tab.
  */
 
 /**
- * POST /capture-screenshot
+ * POST /take-screenshot
  * 
  * Request: No parameters required
  * Future enhancement could include options like dimensions, format, etc.
  */
-export type CaptureScreenshotRequest = {};
+export type TakeScreenshotRequest = {};
 
 /**
- * POST /capture-screenshot
+ * POST /take-screenshot
  * 
  * Response: Screenshot data as base64 string
  */
-export interface CaptureScreenshotResponse {
+export interface TakeScreenshotResponse {
   /**
    * Base64 encoded screenshot data
    */
@@ -30,7 +30,7 @@ export interface CaptureScreenshotResponse {
   contentType: string;
   
   /**
-   * Timestamp when the screenshot was captured
+   * Timestamp when the screenshot was taken
    */
   timestamp: number;
   
@@ -48,7 +48,7 @@ export interface CaptureScreenshotResponse {
 /**
  * Error response for screenshot endpoint
  */
-export interface CaptureScreenshotErrorResponse {
+export interface TakeScreenshotErrorResponse {
   /**
    * Error message
    */

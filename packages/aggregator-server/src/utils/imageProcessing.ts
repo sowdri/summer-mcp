@@ -4,7 +4,7 @@
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
-import { CaptureScreenshotResponse } from "@summer-mcp/core";
+import { TakeScreenshotResponse } from "@summer-mcp/core";
 
 // The current working directory
 const __dirname = process.cwd();
@@ -53,12 +53,12 @@ export async function resizeImageToBase64(
  * Process screenshot data from a data URL
  * @param dataUrl The data URL containing the screenshot image
  * @param saveDebugImages Whether to save debug images to disk
- * @returns A Promise that resolves to a CaptureScreenshotResponse object
+ * @returns A Promise that resolves to a TakeScreenshotResponse object
  */
 export async function processScreenshot(
   dataUrl: string,
   saveDebugImages = true
-): Promise<CaptureScreenshotResponse> {
+): Promise<TakeScreenshotResponse> {
   if (!dataUrl) {
     throw new Error("Screenshot data is undefined or empty");
   }

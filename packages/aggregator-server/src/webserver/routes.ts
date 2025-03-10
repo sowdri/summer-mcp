@@ -6,7 +6,7 @@ import { Router, Request, Response } from "express";
 import { getBrowserTabs } from "./handlers/getBrowserTabs";
 import { getActiveBrowserTab } from "./handlers/getActiveBrowserTab";
 import { activateBrowserTab } from "./handlers/activateBrowserTab";
-import { captureScreenshot } from "./handlers/captureScreenshot";
+import { takeScreenshot } from "./handlers/takeScreenshot";
 
 const router: Router = Router();
 
@@ -21,7 +21,7 @@ router.get("/active-tab", getActiveBrowserTab);
 router.post("/activate-tab", activateBrowserTab);
 
 // DOM routes
-router.post("/capture-screenshot", captureScreenshot);
+router.post("/take-screenshot", takeScreenshot);
 
 // Network routes
 // TODO: Implement network routes

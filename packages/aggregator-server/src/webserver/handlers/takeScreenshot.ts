@@ -1,5 +1,5 @@
 /**
- * Handler for capturing a screenshot
+ * Handler for taking a screenshot
  */
 import { Request, Response } from "express";
 import {
@@ -10,24 +10,24 @@ import { clients, sendCommandToExtension } from "../../websocket/messageSender";
 import { 
   ServerCommandType, 
   TakeScreenshotCommand,
-  CaptureScreenshotRequest,
-  CaptureScreenshotResponse,
-  CaptureScreenshotErrorResponse
+  TakeScreenshotRequest,
+  TakeScreenshotResponse,
+  TakeScreenshotErrorResponse
 } from "@summer-mcp/core";
 
 /**
- * Capture screenshot of the current tab
+ * Take screenshot of the current tab
  * 
- * Implements the POST /capture-screenshot endpoint
+ * Implements the POST /take-screenshot endpoint
  */
-export function captureScreenshot(
-  req: Request<{}, CaptureScreenshotResponse | CaptureScreenshotErrorResponse, CaptureScreenshotRequest>,
+export function takeScreenshot(
+  req: Request<{}, TakeScreenshotResponse | TakeScreenshotErrorResponse, TakeScreenshotRequest>,
   res: Response
 ): Response | void {
   // Check if there are any connected WebSocket clients
   if (clients.size === 0) {
     // No browser extensions connected, return an error
-    const errorResponse: CaptureScreenshotErrorResponse = {
+    const errorResponse: TakeScreenshotErrorResponse = {
       error: "No browser extension connected",
       message: "Please ensure the browser extension is installed and connected",
     };
@@ -55,7 +55,7 @@ export function captureScreenshot(
       takeScreenshotBridge.pendingRequests.delete(requestId);
     }
 
-    const errorResponse: CaptureScreenshotErrorResponse = {
+    const errorResponse: TakeScreenshotErrorResponse = {
       error: "Failed to send command to browser extension",
       message: "The browser extension is connected but not in a ready state",
     };

@@ -7,6 +7,7 @@ alwaysApply: true
 - Do
     - given an outline of what your are planning to do.
     - ask for confirmation before proceeding
+    - read naming-conventions
 
 # After each code change
 - Do

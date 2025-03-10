@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { CaptureScreenshotResponse, CaptureScreenshotErrorResponse } from "@summer-mcp/core";
+import { TakeScreenshotResponse, TakeScreenshotErrorResponse } from "@summer-mcp/core";
 // eslint-disable-next-line no-restricted-imports
 import { ToolCallback } from "@modelcontextprotocol/sdk/server/mcp.js";
 
@@ -11,7 +11,7 @@ export function registerTakeScreenshotTool(server: McpServer) {
   const handler: ToolCallback = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:${AGGREGATOR_PORT}/capture-screenshot`,
+        `http://127.0.0.1:${AGGREGATOR_PORT}/take-screenshot`,
         {
           method: "POST",
           headers: {
@@ -29,7 +29,7 @@ export function registerTakeScreenshotTool(server: McpServer) {
       );
 
       // Try to parse the response as JSON
-      let result: CaptureScreenshotResponse | CaptureScreenshotErrorResponse;
+      let result: TakeScreenshotResponse | TakeScreenshotErrorResponse;
       try {
         result = await response.json();
         console.log("Screenshot response parsed successfully");
@@ -49,7 +49,7 @@ export function registerTakeScreenshotTool(server: McpServer) {
 
       if (response.ok) {
         // Check if we have the expected data structure
-        const screenshotResult = result as CaptureScreenshotResponse;
+        const screenshotResult = result as TakeScreenshotResponse;
         if (screenshotResult && screenshotResult.data) {
           console.log("Screenshot data received, length:", screenshotResult.data.length);
           const contentType = screenshotResult.contentType || "image/png";
@@ -80,7 +80,7 @@ export function registerTakeScreenshotTool(server: McpServer) {
           };
         }
       } else {
-        const errorResult = result as CaptureScreenshotErrorResponse;
+        const errorResult = result as TakeScreenshotErrorResponse;
         return {
           content: [
             {
