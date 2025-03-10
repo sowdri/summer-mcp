@@ -122,41 +122,20 @@ function handleNetworkEvent(tabId: number, method: string, params: any): void {
     `[Debugger] Network event: ${method} - ${logInfo} (tab: ${tabId})`
   );
 
-  // Determine if this is a success or error
-  const isError = method === "Network.loadingFailed" || 
-    (method === "Network.responseReceived" && params.response && params.response.status >= 400);
-
-  if (isError) {
-    const requestMessage: NetworkRequestsMessage = {
-      type: BrowserMessageType.NETWORK_REQUESTS,
-      data: {
-        method: params.request?.method || "UNKNOWN",
-        url: params.request?.url || params.url || "UNKNOWN",
-        status: params.response?.status,
-        statusText: params.response?.statusText || params.errorText,
-        timestamp: Date.now(),
-        error: params.errorText || `HTTP ${params.response?.status}`,
-        isError: true,
-        ...params
-      },
-      tabId,
-      timestamp: Date.now()
-    };
-    sendMessage(requestMessage);
-  } else {
-    const requestMessage: NetworkRequestsMessage = {
-      type: BrowserMessageType.NETWORK_REQUESTS,
-      data: {
-        method: params.request?.method || "UNKNOWN",
-        url: params.request?.url || params.url || "UNKNOWN",
-        status: params.response?.status,
-        statusText: params.response?.statusText,
-        timestamp: Date.now(),
-        ...params
-      },
-      tabId,
-      timestamp: Date.now()
-    };
-    sendMessage(requestMessage);
-  }
+  // Send all network events with a single message format
+  const requestMessage: NetworkRequestsMessage = {
+    type: BrowserMessageType.NETWORK_REQUESTS,
+    data: {
+      method: params.request?.method || "UNKNOWN",
+      url: params.request?.url || params.url || "UNKNOWN",
+      status: params.response?.status,
+      statusText: params.response?.statusText || params.errorText,
+      timestamp: Date.now(),
+      eventType: method,
+      ...params
+    },
+    tabId,
+    timestamp: Date.now()
+  };
+  sendMessage(requestMessage);
 }
