@@ -14,9 +14,10 @@ export interface PendingRequest {
 
 /**
  * Bridge class for managing pending requests and responses
- * @template T The type of response data
+ * @template TBrowserMessage The type of browser message received from WebSocket
+ * @template THttpResponse The type of HTTP response sent to the MCP server
  */
-export class Bridge<T> {
+export class Bridge<TBrowserMessage, THttpResponse> {
   /**
    * Map of pending requests
    */
@@ -25,8 +26,12 @@ export class Bridge<T> {
   /**
    * Create a new Bridge instance
    * @param defaultTimeoutMessage Default message to send on timeout
+   * @param convertMessageToResponse Function to convert browser message to HTTP response
    */
-  constructor(private defaultTimeoutMessage: string) {
+  constructor(
+    private defaultTimeoutMessage: string,
+    private convertMessageToResponse: (message: TBrowserMessage) => THttpResponse | Promise<THttpResponse>
+  ) {
     this.pendingRequests = new Map<string, PendingRequest>();
   }
   
@@ -57,17 +62,20 @@ export class Bridge<T> {
   }
   
   /**
-   * Resolve all pending requests with the provided data
-   * @param data Response data
+   * Resolve all pending requests with the provided browser message
+   * @param message Browser message from WebSocket
    */
-  resolveRequests(data: T): void {
+  async resolveRequests(message: TBrowserMessage): Promise<void> {
+    // Convert the browser message to an HTTP response
+    const response = await Promise.resolve(this.convertMessageToResponse(message));
+    
     // Resolve all pending requests as they all need the same data
     for (const [requestId, { res, timeout }] of this.pendingRequests.entries()) {
       // Clear the timeout
       clearTimeout(timeout);
 
       // Send the response
-      res.json(data);
+      res.json(response);
 
       // Remove from pending requests
       this.pendingRequests.delete(requestId);

@@ -9,20 +9,29 @@ import {
 import { clients, sendCommandToExtension } from "../../websocket/messageSender";
 import { 
   ServerCommandType, 
-  GetActiveBrowserTabCommand
+  GetActiveBrowserTabCommand,
+  GetActiveTabRequest,
+  GetActiveTabResponse,
+  GetActiveTabErrorResponse
 } from "@summer-mcp/core";
 
 /**
  * Get active browser tab
+ * 
+ * Implements the GET /active-tab endpoint
  */
-export function getActiveBrowserTab(req: Request, res: Response): Response | void {
+export function getActiveBrowserTab(
+  req: Request<{}, GetActiveTabResponse | GetActiveTabErrorResponse, GetActiveTabRequest>, 
+  res: Response
+): Response | void {
   // Check if there are any connected WebSocket clients
   if (clients.size === 0) {
     // No browser extensions connected, return an error
-    return res.status(503).json({
+    const errorResponse: GetActiveTabErrorResponse = {
       error: "No browser extension connected",
       message: "Please ensure the browser extension is installed and connected",
-    });
+    };
+    return res.status(503).json(errorResponse);
   }
 
   // Register the request with the browser tabs service
@@ -46,10 +55,11 @@ export function getActiveBrowserTab(req: Request, res: Response): Response | voi
       getActiveTabBridge.pendingRequests.delete(requestId);
     }
 
-    return res.status(503).json({
+    const errorResponse: GetActiveTabErrorResponse = {
       error: "Failed to send command to browser extension",
       message: "The browser extension is connected but not in a ready state",
-    });
+    };
+    return res.status(503).json(errorResponse);
   }
 
   // The response will be sent by the browser tabs service when the data is received

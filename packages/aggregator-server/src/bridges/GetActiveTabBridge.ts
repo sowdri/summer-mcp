@@ -3,15 +3,29 @@
  * Bridge for handling active tab retrieval requests
  */
 import { Response } from "express";
-import { BrowserTab } from "@summer-mcp/core";
+import { ActiveTabMessage, GetActiveTabResponse } from "@summer-mcp/core";
 import { Bridge } from "./Bridge";
+
+/**
+ * Convert ActiveTabMessage to GetActiveTabResponse
+ * @param message Active tab message from WebSocket
+ * @returns GetActiveTabResponse for HTTP response
+ */
+function convertActiveTabMessageToResponse(message: ActiveTabMessage): GetActiveTabResponse {
+  return {
+    ...message.data,
+    timestamp: typeof message.timestamp === 'number' 
+      ? message.timestamp 
+      : Date.now()
+  };
+}
 
 /**
  * Bridge for active tab retrieval requests
  */
-export class GetActiveTabBridge extends Bridge<BrowserTab> {
+export class GetActiveTabBridge extends Bridge<ActiveTabMessage, GetActiveTabResponse> {
   constructor() {
-    super("Timeout waiting for active tab data");
+    super("Timeout waiting for active tab data", convertActiveTabMessageToResponse);
   }
 }
 
@@ -30,8 +44,8 @@ export function registerGetActiveTabRequest(res: Response, timeoutMs = 5000): st
 
 /**
  * Handle active tab response from websocket
- * @param data Active tab data from the browser extension
+ * @param message Active tab message from WebSocket
  */
-export function handleGetActiveTabResponse(data: BrowserTab): void {
-  getActiveTabBridge.resolveRequests(data);
+export function handleGetActiveTabResponse(message: ActiveTabMessage): void {
+  getActiveTabBridge.resolveRequests(message);
 } 

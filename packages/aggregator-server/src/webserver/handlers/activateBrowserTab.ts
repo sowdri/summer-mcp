@@ -5,30 +5,40 @@ import { Request, Response } from "express";
 import { clients, sendCommandToExtension } from "../../websocket/messageSender";
 import { 
   ServerCommandType, 
-  ActivateBrowserTabCommand
+  ActivateBrowserTabCommand,
+  ActivateTabRequest,
+  ActivateTabResponse,
+  ActivateTabErrorResponse
 } from "@summer-mcp/core";
 
 /**
  * Activate a browser tab
+ * 
+ * Implements the POST /activate-tab endpoint
  */
-export function activateBrowserTab(req: Request, res: Response): Response | void {
+export function activateBrowserTab(
+  req: Request<{}, ActivateTabResponse | ActivateTabErrorResponse, ActivateTabRequest>, 
+  res: Response
+): Response | void {
   // Check if there are any connected WebSocket clients
   if (clients.size === 0) {
     // No browser extensions connected, return an error
-    return res.status(503).json({
+    const errorResponse: ActivateTabErrorResponse = {
       error: "No browser extension connected",
       message: "Please ensure the browser extension is installed and connected",
-    });
+    };
+    return res.status(503).json(errorResponse);
   }
 
-  // Get tabId from request parameters or query
-  const tabId = req.params.tabId || req.query.tabId;
+  // Get tabId from request body
+  const { tabId } = req.body;
 
   if (!tabId) {
-    return res.status(400).json({
+    const errorResponse: ActivateTabErrorResponse = {
       error: "Missing tabId parameter",
       message: "Please provide a tab ID to activate",
-    });
+    };
+    return res.status(400).json(errorResponse);
   }
 
   // Create the command object
@@ -44,15 +54,18 @@ export function activateBrowserTab(req: Request, res: Response): Response | void
   const commandSent = sendCommandToExtension(command);
 
   if (!commandSent) {
-    return res.status(503).json({
+    const errorResponse: ActivateTabErrorResponse = {
       error: "Failed to send command to browser extension",
       message: "The browser extension is connected but not in a ready state",
-    });
+    };
+    return res.status(503).json(errorResponse);
   }
 
   // Return success response
-  res.json({
-    message: "Tab activation requested",
+  const response: ActivateTabResponse = {
+    success: true,
     tabId: tabId,
-  });
+    timestamp: Date.now()
+  };
+  res.json(response);
 } 

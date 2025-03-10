@@ -7,22 +7,31 @@ import {
   registerScreenshotRequest,
 } from "../../bridges/TakeScreenshotBridge";
 import { clients, sendCommandToExtension } from "../../websocket/messageSender";
-import { ServerCommandType, TakeScreenshotCommand } from "@summer-mcp/core";
+import { 
+  ServerCommandType, 
+  TakeScreenshotCommand,
+  CaptureScreenshotRequest,
+  CaptureScreenshotResponse,
+  CaptureScreenshotErrorResponse
+} from "@summer-mcp/core";
 
 /**
  * Capture screenshot of the current tab
+ * 
+ * Implements the POST /capture-screenshot endpoint
  */
 export function captureScreenshot(
-  req: Request,
+  req: Request<{}, CaptureScreenshotResponse | CaptureScreenshotErrorResponse, CaptureScreenshotRequest>,
   res: Response
 ): Response | void {
   // Check if there are any connected WebSocket clients
   if (clients.size === 0) {
     // No browser extensions connected, return an error
-    return res.status(503).json({
+    const errorResponse: CaptureScreenshotErrorResponse = {
       error: "No browser extension connected",
       message: "Please ensure the browser extension is installed and connected",
-    });
+    };
+    return res.status(503).json(errorResponse);
   }
 
   // Register the request with the screenshot service
@@ -46,10 +55,11 @@ export function captureScreenshot(
       takeScreenshotBridge.pendingRequests.delete(requestId);
     }
 
-    return res.status(503).json({
+    const errorResponse: CaptureScreenshotErrorResponse = {
       error: "Failed to send command to browser extension",
       message: "The browser extension is connected but not in a ready state",
-    });
+    };
+    return res.status(503).json(errorResponse);
   }
 
   // The response will be sent by the screenshot service when the data is received

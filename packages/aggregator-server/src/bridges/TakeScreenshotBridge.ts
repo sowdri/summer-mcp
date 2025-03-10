@@ -5,65 +5,27 @@
 import { Response } from "express";
 import { Bridge } from "./Bridge";
 import { processScreenshot } from "../utils/imageProcessing";
-import { ScreenshotMessage } from "@summer-mcp/core";
+import { ScreenshotMessage, CaptureScreenshotResponse } from "@summer-mcp/core";
+
+/**
+ * Convert ScreenshotMessage to CaptureScreenshotResponse
+ * @param message Screenshot message from WebSocket
+ * @returns Promise resolving to CaptureScreenshotResponse for HTTP response
+ */
+async function convertScreenshotMessageToResponse(message: ScreenshotMessage): Promise<CaptureScreenshotResponse> {
+  if (!message || !message.data) {
+    throw new Error("Screenshot data is undefined or empty");
+  }
+  
+  return await processScreenshot(message.data);
+}
 
 /**
  * Bridge for screenshot capture requests
  */
-export class TakeScreenshotBridge extends Bridge<ScreenshotMessage> {
+export class TakeScreenshotBridge extends Bridge<ScreenshotMessage, CaptureScreenshotResponse> {
   constructor() {
-    super("Timeout waiting for screenshot data");
-  }
-
-  /**
-   * Handle screenshot response from websocket
-   * Overrides the base resolveRequests method to add image processing
-   * @param message Screenshot message from the browser extension
-   */
-  async resolveScreenshotRequests(message: ScreenshotMessage): Promise<void> {
-    // Check if there are any pending requests
-    if (this.pendingRequests.size === 0) {
-      console.warn("Received screenshot data but no pending requests found");
-      return;
-    }
-
-    try {
-      // Process the screenshot once outside the loop
-      if (!message || !message.data) {
-        console.error("Screenshot data is undefined or empty");
-        // Resolve all pending requests with an error
-        for (const [requestId, { res, timeout }] of this.pendingRequests.entries()) {
-          clearTimeout(timeout);
-          res.status(500).json({ error: "Screenshot data is undefined or empty" });
-          this.pendingRequests.delete(requestId);
-        }
-        return;
-      }
-
-      // Process the screenshot data once for all requests
-      const processedData = await processScreenshot(message.data);
-
-      // Resolve all pending requests with the same processed data
-      for (const [requestId, { res, timeout }] of this.pendingRequests.entries()) {
-        // Clear the timeout
-        clearTimeout(timeout);
-        
-        // Send the response
-        res.json(processedData);
-        
-        // Remove from pending requests
-        this.pendingRequests.delete(requestId);
-      }
-    } catch (error) {
-      console.error("Error processing screenshot data:", error);
-      
-      // Resolve all pending requests with an error
-      for (const [requestId, { res, timeout }] of this.pendingRequests.entries()) {
-        clearTimeout(timeout);
-        res.status(500).json({ error: "Error processing screenshot data" });
-        this.pendingRequests.delete(requestId);
-      }
-    }
+    super("Timeout waiting for screenshot data", convertScreenshotMessageToResponse);
   }
 }
 
@@ -85,5 +47,5 @@ export function registerScreenshotRequest(res: Response, timeoutMs = 5000): stri
  * @param message Screenshot message from the browser extension
  */
 export async function handleScreenshotResponse(message: ScreenshotMessage): Promise<void> {
-  await takeScreenshotBridge.resolveScreenshotRequests(message);
+  await takeScreenshotBridge.resolveRequests(message);
 } 

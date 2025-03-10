@@ -3,15 +3,29 @@
  * Bridge for handling browser tabs retrieval requests
  */
 import { Response } from "express";
-import { BrowserTabsResponse } from "@summer-mcp/core";
+import { BrowserTabsMessage, GetBrowserTabsResponse } from "@summer-mcp/core";
 import { Bridge } from "./Bridge";
+
+/**
+ * Convert BrowserTabsMessage to GetBrowserTabsResponse
+ * @param message Browser tabs message from WebSocket
+ * @returns GetBrowserTabsResponse for HTTP response
+ */
+function convertBrowserTabsMessageToResponse(message: BrowserTabsMessage): GetBrowserTabsResponse {
+  return {
+    tabs: message.data,
+    timestamp: typeof message.timestamp === 'number' 
+      ? message.timestamp 
+      : Date.now()
+  };
+}
 
 /**
  * Bridge for browser tabs retrieval requests
  */
-export class GetBrowserTabsBridge extends Bridge<BrowserTabsResponse> {
+export class GetBrowserTabsBridge extends Bridge<BrowserTabsMessage, GetBrowserTabsResponse> {
   constructor() {
-    super("Timeout waiting for browser tabs data");
+    super("Timeout waiting for browser tabs data", convertBrowserTabsMessageToResponse);
   }
 }
 
@@ -30,8 +44,8 @@ export function registerGetBrowserTabsRequest(res: Response, timeoutMs = 5000): 
 
 /**
  * Handle browser tabs response from websocket
- * @param data Browser tabs response data
+ * @param message Browser tabs message from WebSocket
  */
-export function handleGetBrowserTabsResponse(data: BrowserTabsResponse): void {
-  getBrowserTabsBridge.resolveRequests(data);
+export function handleGetBrowserTabsResponse(message: BrowserTabsMessage): void {
+  getBrowserTabsBridge.resolveRequests(message);
 } 

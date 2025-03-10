@@ -35,7 +35,9 @@ export default [
     rules: {
       ...tseslint.configs.recommended.rules,
       'import/extensions': 'off',
-      'no-case-declarations': 'off'
+      'no-case-declarations': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-empty-interface': 'off'
     },
     linterOptions: {
       reportUnusedDisableDirectives: true,

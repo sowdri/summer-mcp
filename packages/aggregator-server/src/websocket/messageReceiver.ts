@@ -10,7 +10,6 @@ import { handleGetBrowserTabsResponse } from "../bridges/GetBrowserTabsBridge";
 import { handleGetActiveTabResponse } from "../bridges/GetActiveTabBridge";
 import { handleScreenshotResponse } from "../bridges/TakeScreenshotBridge";
 import {
-  BrowserTabsResponse,
   ConsoleLog,
   BrowserMessageType,
   NetworkRequest,
@@ -74,17 +73,12 @@ export function handleWebSocketMessage(message: string): void {
         console.log("Received DOM snapshot, length:", domData.html.length);
         break;
       case BrowserMessageType.BROWSER_TABS:
-        // Convert to the expected BrowserTabsResponse format
-        const tabsResponse: BrowserTabsResponse = {
-          tabs: (parsedMessage as BrowserTabsMessage).data,
-          timestamp: Date.now()
-        };
-        handleGetBrowserTabsResponse(tabsResponse);
+        // Pass the BrowserTabsMessage to the bridge
+        handleGetBrowserTabsResponse(parsedMessage as BrowserTabsMessage);
         break;
       case BrowserMessageType.ACTIVE_TAB:
-        // Extract the BrowserTab data from the ActiveTabMessage
-        const tabData = (parsedMessage as ActiveTabMessage).data;
-        handleGetActiveTabResponse(tabData);
+        // Pass the ActiveTabMessage to the bridge
+        handleGetActiveTabResponse(parsedMessage as ActiveTabMessage);
         break;
       case BrowserMessageType.ACTIVATE_TAB_RESULT:
         // Convert the activate tab result to BrowserTab format with additional properties

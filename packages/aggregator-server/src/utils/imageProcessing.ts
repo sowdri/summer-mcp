@@ -4,6 +4,7 @@
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
+import { CaptureScreenshotResponse } from "@summer-mcp/core";
 
 // The current working directory
 const __dirname = process.cwd();
@@ -52,20 +53,12 @@ export async function resizeImageToBase64(
  * Process screenshot data from a data URL
  * @param dataUrl The data URL containing the screenshot image
  * @param saveDebugImages Whether to save debug images to disk
- * @returns A Promise that resolves to an object with the processed image data
+ * @returns A Promise that resolves to a CaptureScreenshotResponse object
  */
 export async function processScreenshot(
   dataUrl: string,
   saveDebugImages = true
-): Promise<{
-  data: string;
-  contentType: string;
-  timestamp: number;
-  originalSize?: number;
-  resizedSize?: number;
-  originalPath?: string;
-  resizedPath?: string;
-}> {
+): Promise<CaptureScreenshotResponse> {
   if (!dataUrl) {
     throw new Error("Screenshot data is undefined or empty");
   }
@@ -113,16 +106,6 @@ export async function processScreenshot(
       }
 
       // Log processing info
-      const result = {
-        data: resizedBase64Data,
-        contentType,
-        timestamp,
-        originalSize: imageBuffer.length,
-        resizedSize: resizedImageBuffer.length,
-        originalPath,
-        resizedPath
-      };
-
       console.log("Screenshot data processed with Sharp:", {
         originalSize: imageBuffer.length,
         resizedSize: resizedImageBuffer.length,
@@ -132,7 +115,14 @@ export async function processScreenshot(
         resizedPath
       });
 
-      return result;
+      // Return a properly typed response
+      return {
+        data: resizedBase64Data,
+        contentType,
+        timestamp,
+        originalSize: imageBuffer.length,
+        resizedSize: resizedImageBuffer.length
+      };
     } else {
       console.warn("Invalid data URL format:", dataUrl.substring(0, 50) + "...");
       // If the data URL format is invalid, return the original data
