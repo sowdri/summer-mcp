@@ -42,9 +42,6 @@ export function handleServerCommand(command: ServerCommand): void {
       case ServerCommandType.TAKE_SCREENSHOT:
         takeScreenshot(tabId);
         break;
-      case ServerCommandType.GET_NETWORK_REQUESTS:
-        startNetworkMonitoring(tabId);
-        break;
       case ServerCommandType.GET_SELECTED_ELEMENT:
         getDomSnapshot(tabId);
         break;

@@ -10,7 +10,6 @@ export enum ServerCommandType {
   GET_ACTIVE_BROWSER_TAB = "getActiveBrowserTab",
   ACTIVATE_BROWSER_TAB = "activateBrowserTab",
   TAKE_SCREENSHOT = "takeScreenshot",
-  GET_NETWORK_REQUESTS = "getNetworkRequests",
   GET_SELECTED_ELEMENT = "getSelectedElement"
 }
 
@@ -54,13 +53,6 @@ export interface TakeScreenshotCommand extends BaseServerCommand {
 }
 
 /**
- * Command to get network requests from the browser
- */
-export interface GetNetworkRequestsCommand extends BaseServerCommand {
-  command: ServerCommandType.GET_NETWORK_REQUESTS;
-}
-
-/**
  * Command to get the selected element from the browser
  */
 export interface GetSelectedElementCommand extends BaseServerCommand {
@@ -84,7 +76,6 @@ export type ServerCommand =
   | GetActiveBrowserTabCommand
   | ActivateBrowserTabCommand
   | TakeScreenshotCommand
-  | GetNetworkRequestsCommand
   | GetSelectedElementCommand;
 
 /**
