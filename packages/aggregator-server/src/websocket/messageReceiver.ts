@@ -5,14 +5,12 @@ import {
   addConsoleLog,
   addNetworkRequest,
   updateActiveTab,
-} from "../models/browserData";
+} from "../data/browserData";
 import { handleActiveTabResponse, handleBrowserTabsResponse } from "../services/browserTabs.service";
 import { handleScreenshotResponse } from "../services/screenshot.service";
 import {
   BrowserTabsResponse,
   ConsoleLog,
-} from "../types/index";
-import { 
   BrowserMessageType,
   BrowserTab,
   NetworkRequest,

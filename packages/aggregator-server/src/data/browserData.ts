@@ -6,9 +6,9 @@ import {
   BrowserDataConfig,
   BrowserDataProvider,
   ConsoleLog,
-  TabData
-} from "../types/index";
-import { NetworkRequest } from "@summer-mcp/core";
+  TabData,
+  NetworkRequest
+} from "@summer-mcp/core";
 
 // Configuration constants
 export const BROWSER_DATA_CONFIG: BrowserDataConfig = {
