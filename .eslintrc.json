@@ -1,0 +1,39 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "import/extensions": "off"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "overrides": [
+    {
+      "files": [
+        "packages/core/**/*.ts",
+        "packages/browser-extension/**/*.ts",
+        "packages/mcp-server/**/*.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["*.js"],
+                "message": "Do not use .js extension in imports"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

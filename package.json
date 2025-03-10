@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "Summer MCP - Browser Monitoring and Control Platform",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm -r dev",
     "clean": "pnpm -r clean",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "lint": "eslint \"packages/*/src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"packages/*/src/**/*.{ts,tsx}\" --fix"
   },
   "keywords": [
     "browser",
@@ -16,5 +19,11 @@
     "websocket"
   ],
   "author": "",
-  "license": "MIT"
-} 
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "@typescript-eslint/parser": "^8.26.0",
+    "eslint": "^9.22.0"
+  }
+}

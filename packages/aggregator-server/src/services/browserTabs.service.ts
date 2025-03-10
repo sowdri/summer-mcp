@@ -3,8 +3,7 @@
  * Handles communication between HTTP requests and WebSocket responses
  */
 import { Response } from "express";
-import { BrowserTab } from "@summer-mcp/core";
-import { BrowserTabsResponse } from "../types/browser-data.js";
+import { BrowserTab, BrowserTabsResponse } from "@summer-mcp/core";
 
 // Interface for pending request entry
 interface PendingTabRequest {

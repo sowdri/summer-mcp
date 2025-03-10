@@ -1,10 +1,10 @@
 /**
- * Tab data types for the aggregator server
+ * Tab data types for the MCP system
  */
 
-import { ConsoleLogEntry, NetworkRequest, BrowserTab } from "@summer-mcp/core";
+import { ConsoleLogEntry, NetworkRequest, BrowserTab } from "./messages";
 
-// Alias types from core for backward compatibility
+// Alias types for backward compatibility
 export type ConsoleLog = ConsoleLogEntry;
 
 // Tab-specific browser data

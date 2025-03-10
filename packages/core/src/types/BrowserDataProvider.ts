@@ -1,17 +1,9 @@
 /**
- * Browser data types for the aggregator server
+ * Browser data provider interface for the MCP system
  */
 
-import { BrowserTab, NetworkRequest } from "@summer-mcp/core";
-import { 
-  TabData, 
-  ConsoleLog
-} from "./tab-data.js";
-
-// Browser data interface
-export interface BrowserData {
-  tabs: Record<string, TabData>;
-}
+import { BrowserTab, NetworkRequest } from "./messages";
+import { TabData, ConsoleLog } from "./TabData";
 
 // Browser data storage provider interface
 export interface BrowserDataProvider {
@@ -37,16 +29,4 @@ export interface BrowserDataProvider {
   // Configuration
   getMaxEntries(): number;
   setMaxEntries(count: number): void;
-}
-
-// Configuration constants
-export interface BrowserDataConfig {
-  MAX_CONSOLE_LOGS: number; // All console logs including errors and warnings
-  MAX_NETWORK_REQUESTS: number;
-}
-
-// Browser tabs response
-export interface BrowserTabsResponse {
-  tabs: BrowserTab[];
-  timestamp: number;
 } 

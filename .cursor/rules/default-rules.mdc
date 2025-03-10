@@ -3,5 +3,12 @@ description:
 globs: 
 alwaysApply: true
 ---
+# After each code change
+- Do
+    - use pnpm and not npm
+    - run tsc to check if there are any type errors
+    - run eslint to check for any linter errors
+    - run build to check if build is successful
+- Don't
+    - Do not run the modules, they are already running in the background.
 
-- Do not run the modules, they are already running in the background.

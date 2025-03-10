@@ -10,7 +10,14 @@ import {
   ServerCommand,
   ServerMessage,
   ConnectionStatusCommand,
-  BrowserTab
+  BrowserTab,
+  // Import the moved types from core
+  BrowserData,
+  BrowserDataProvider,
+  BrowserDataConfig,
+  BrowserTabsResponse,
+  TabData,
+  ConsoleLog
 } from "@summer-mcp/core";
 
 // Re-export types from core package
@@ -21,9 +28,16 @@ export {
   ServerCommand,
   ServerMessage,
   ConnectionStatusCommand,
-  BrowserTab
+  BrowserTab,
+  // Re-export the moved types
+  BrowserData,
+  BrowserDataProvider,
+  BrowserDataConfig,
+  BrowserTabsResponse,
+  TabData,
+  ConsoleLog
 };
 
-// Re-export types from local files
-export * from "./browser-data.js";
-export * from "./tab-data.js";
+// No need to re-export from local files anymore as they've been moved to core
+// export * from "./browser-data.js";
+// export * from "./tab-data.js";
