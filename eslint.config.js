@@ -42,7 +42,7 @@ export default [
     }
   },
   {
-    files: ['packages/core/**/*.ts', 'packages/browser-extension/**/*.ts', 'packages/mcp-server/**/*.ts'],
+    files: ['packages/core/**/*.ts', 'packages/browser-extension/**/*.ts', 'packages/mcp-server/**/*.ts', 'packages/aggregator-server/**/*.ts'],
     rules: {
       'no-restricted-imports': [
         'error',

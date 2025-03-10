@@ -6,11 +6,12 @@ import { Response } from "express";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 
-// Get the directory name in a way that works with ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Get the directory name in a way that works with CommonJS
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+const __dirname = process.cwd();
 
 // Interface for pending request entry
 interface PendingScreenshotRequest {
