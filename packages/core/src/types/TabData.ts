@@ -2,7 +2,7 @@
  * Tab data types for the MCP system
  */
 
-import { ConsoleLogEntry, NetworkRequest, BrowserTab } from "./messages";
+import { ConsoleLogEntry, NetworkRequest } from "./messages";
 
 // Alias types for backward compatibility
 export type ConsoleLog = ConsoleLogEntry;
@@ -11,6 +11,5 @@ export type ConsoleLog = ConsoleLogEntry;
 export interface TabData {
   consoleLogs: ConsoleLog[]; // All console logs including errors and warnings
   networkRequests: NetworkRequest[];
-  activeTab?: BrowserTab; // Using BrowserTab directly from core
   lastUpdated: number;
 } 

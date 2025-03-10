@@ -11,9 +11,9 @@ alwaysApply: true
 # After each code change
 - Do
     - use pnpm and not npm
-    - run tsc to check if there are any type errors
-    - run eslint to check for any linter errors
-    - run build to check if build is successful
+    - run `pnpm run type-check` in project root to check for any typescript errors
+    - run `pnpm run lint` at project root to check for any linter errors
+    - run `pnpm run build` at project root to check if build is successful
 - Don't
     - Do not run the modules, they are already running in the background.
 

@@ -2,7 +2,7 @@
  * Browser data provider interface for the MCP system
  */
 
-import { BrowserTab, NetworkRequest } from "./messages";
+import { NetworkRequest } from "./messages";
 import { TabData, ConsoleLog } from "./TabData";
 
 // Browser data storage provider interface
@@ -17,7 +17,7 @@ export interface BrowserDataProvider {
   addNetworkRequest(tabId: string, request: NetworkRequest): void;
 
   // Tab operations
-  updateActiveTab(tabId: string, data: BrowserTab): void;
+  // updateActiveTab method removed as activeTab doesn't belong in TabData
 
   // Utility operations
   clearTabLogs(tabId: string): void;

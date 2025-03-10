@@ -21,7 +21,6 @@ function createEmptyTabData(): TabData {
   return {
     consoleLogs: [], // All console logs including errors and warnings
     networkRequests: [],
-    activeTab: undefined,
     lastUpdated: Date.now()
   };
 }
@@ -98,41 +97,20 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
 
   addNetworkRequest(tabId: string, request: NetworkRequest): void {
     const tabData = this.ensureTabData(tabId);
-
-    // Add timestamp if not present
-    if (!request.timestamp) {
-      request.timestamp = Date.now();
-    }
-
-    // Set isError flag based on the request
-    if (request.method === "Network.loadingFailed" || (request.status !== undefined && request.status >= 400)) {
-      request.isError = true;
-    } else {
-      request.isError = false;
-    }
-
-    // Add to the beginning for newest first
+    
+    // Add the request to the beginning of the array (newest first)
     tabData.networkRequests.unshift(request);
-
-    // Limit the number of entries
-    if (
-      tabData.networkRequests.length > this.config.MAX_NETWORK_REQUESTS
-    ) {
-      tabData.networkRequests = tabData.networkRequests.slice(
-        0,
-        this.config.MAX_NETWORK_REQUESTS
-      );
+    
+    // Trim the array if it exceeds the maximum number of entries
+    if (tabData.networkRequests.length > this.config.MAX_NETWORK_REQUESTS) {
+      tabData.networkRequests.length = this.config.MAX_NETWORK_REQUESTS;
     }
-
+    
     tabData.lastUpdated = Date.now();
   }
 
   // Tab operations
-  updateActiveTab(tabId: string, data: BrowserTab): void {
-    const tabData = this.ensureTabData(tabId);
-    tabData.activeTab = data;
-    tabData.lastUpdated = Date.now();
-  }
+  // updateActiveTab method removed as activeTab doesn't belong in TabData
 
   // Utility operations
   clearTabLogs(tabId: string): void {
@@ -214,7 +192,8 @@ export function addNetworkError(request: any): void {
 }
 
 /**
- * Update active tab
+ * Wrapper function for updating active tab information
+ * Note: This no longer updates TabData directly as activeTab has been removed from TabData
  */
 export function updateActiveTab(data: any): void {
   if (!data || !data.id) {
@@ -222,6 +201,8 @@ export function updateActiveTab(data: any): void {
     return;
   }
 
-  const tabId = data.id.toString();
-  browserDataProvider.updateActiveTab(tabId, data);
+  // Instead of updating TabData, we now just handle the active tab data separately
+  // Any code that needs the active tab data should use a different mechanism
+  // This function is kept as a placeholder to avoid breaking existing code
+  console.log("Active tab updated:", data.id);
 }
