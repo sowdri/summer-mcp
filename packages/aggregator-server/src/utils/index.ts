@@ -2,6 +2,9 @@
  * Utility functions
  */
 
+// Export image processing utilities
+export * from "./imageProcessing";
+
 /**
  * Format date for logging
  */

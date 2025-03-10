@@ -3,9 +3,9 @@
  */
 import { Request, Response } from "express";
 import {
-  pendingTabRequests,
-  registerTabsRequest,
-} from "../../services/browserTabs.service";
+  getBrowserTabsBridge,
+  registerGetBrowserTabsRequest,
+} from "../../bridges/GetBrowserTabsBridge";
 import { clients, sendCommandToExtension } from "../../websocket/messageSender";
 import { 
   ServerCommandType, 
@@ -26,7 +26,7 @@ export function getBrowserTabs(req: Request, res: Response): Response | void {
   }
 
   // Register the request with the browser tabs service
-  const requestId = registerTabsRequest(res);
+  const requestId = registerGetBrowserTabsRequest(res);
 
   // Create the command object
   const command: ListBrowserTabsCommand = {
@@ -40,10 +40,10 @@ export function getBrowserTabs(req: Request, res: Response): Response | void {
   // If command wasn't sent successfully, clean up and return error
   if (!commandSent) {
     // Clean up the pending request
-    const pendingRequest = pendingTabRequests.get(requestId);
+    const pendingRequest = getBrowserTabsBridge.pendingRequests.get(requestId);
     if (pendingRequest) {
       clearTimeout(pendingRequest.timeout);
-      pendingTabRequests.delete(requestId);
+      getBrowserTabsBridge.pendingRequests.delete(requestId);
     }
 
     return res.status(503).json({

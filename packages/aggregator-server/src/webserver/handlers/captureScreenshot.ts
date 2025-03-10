@@ -3,9 +3,9 @@
  */
 import { Request, Response } from "express";
 import {
-  pendingScreenshotRequests,
+  takeScreenshotBridge,
   registerScreenshotRequest,
-} from "../../services/screenshot.service";
+} from "../../bridges/TakeScreenshotBridge";
 import { clients, sendCommandToExtension } from "../../websocket/messageSender";
 import { ServerCommandType, TakeScreenshotCommand } from "@summer-mcp/core";
 
@@ -40,10 +40,10 @@ export function captureScreenshot(
   // If command wasn't sent successfully, clean up and return error
   if (!commandSent) {
     // Clean up the pending request
-    const pendingRequest = pendingScreenshotRequests.get(requestId);
+    const pendingRequest = takeScreenshotBridge.pendingRequests.get(requestId);
     if (pendingRequest) {
       clearTimeout(pendingRequest.timeout);
-      pendingScreenshotRequests.delete(requestId);
+      takeScreenshotBridge.pendingRequests.delete(requestId);
     }
 
     return res.status(503).json({

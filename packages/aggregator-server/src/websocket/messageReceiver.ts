@@ -6,8 +6,9 @@ import {
   addNetworkRequest,
   updateActiveTab,
 } from "../data/browserData";
-import { handleActiveTabResponse, handleBrowserTabsResponse } from "../services/browserTabs.service";
-import { handleScreenshotResponse } from "../services/screenshot.service";
+import { handleGetBrowserTabsResponse } from "../bridges/GetBrowserTabsBridge";
+import { handleGetActiveTabResponse } from "../bridges/GetActiveTabBridge";
+import { handleScreenshotResponse } from "../bridges/TakeScreenshotBridge";
 import {
   BrowserTabsResponse,
   ConsoleLog,
@@ -75,12 +76,12 @@ export function handleWebSocketMessage(message: string): void {
           tabs: parsedMessage.data as BrowserTab[],
           timestamp: Date.now()
         };
-        handleBrowserTabsResponse(tabsResponse);
+        handleGetBrowserTabsResponse(tabsResponse);
         break;
       case BrowserMessageType.ACTIVE_TAB:
         // Use BrowserTab directly
         const tabData = parsedMessage.data as BrowserTab;
-        handleActiveTabResponse(tabData);
+        handleGetActiveTabResponse(tabData);
         break;
       case BrowserMessageType.ACTIVATE_TAB_RESULT:
         // Convert the activate tab result to BrowserTab format with additional properties
