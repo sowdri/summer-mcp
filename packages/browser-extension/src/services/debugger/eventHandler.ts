@@ -1,4 +1,13 @@
-import { sendMessage } from "../websocket/connection";
+import { sendMessage } from "../websocket/messageSender";
+import { 
+  BrowserMessageType, 
+  ConsoleLogsMessage, 
+  ConsoleErrorsMessage,
+  NetworkRequestsMessage,
+  NetworkErrorsMessage,
+  DebuggerEventMessage,
+  DebuggerDetachedMessage
+} from "@summer-mcp/core";
 
 /**
  * Initialize debugger event listeners
@@ -65,11 +74,15 @@ export function initDebuggerEventListeners(): void {
     );
 
     // Send debugger detached event to aggregator
-    sendMessage("debugger-detached", {
+    const message: DebuggerDetachedMessage = {
+      type: BrowserMessageType.DEBUGGER_DETACHED,
+      data: {
+        reason: reason || "unknown"
+      },
       tabId,
-      reason,
-      timestamp: new Date().toISOString(),
-    });
+      timestamp: Date.now()
+    };
+    sendMessage(message);
   });
 
   console.debug("[Debugger] Debugger event listeners initialized");
@@ -88,11 +101,33 @@ function handleConsoleMessage(tabId: number, params: any): void {
   console.debug(`[Debugger] Console ${level}: ${message.text} (tab: ${tabId})`);
 
   // Send to aggregator with additional metadata
-  sendMessage("console-logs", {
-    tabId,
-    message: params,
-    timestamp: new Date().toISOString(),
-  });
+  if (level === "error" || level === "warning") {
+    const errorMessage: ConsoleErrorsMessage = {
+      type: BrowserMessageType.CONSOLE_ERRORS,
+      data: [{
+        level,
+        message: message.text,
+        timestamp: Date.now(),
+        ...params
+      }],
+      tabId,
+      timestamp: Date.now()
+    };
+    sendMessage(errorMessage);
+  } else {
+    const logMessage: ConsoleLogsMessage = {
+      type: BrowserMessageType.CONSOLE_LOGS,
+      data: [{
+        level,
+        message: message.text,
+        timestamp: Date.now(),
+        ...params
+      }],
+      tabId,
+      timestamp: Date.now()
+    };
+    sendMessage(logMessage);
+  }
 }
 
 /**
@@ -118,22 +153,39 @@ function handleNetworkEvent(tabId: number, method: string, params: any): void {
   );
 
   // Determine if this is a success or error
-  let eventType = "network-requests";
-  if (method === "Network.loadingFailed") {
-    eventType = "network-errors";
-  } else if (
-    method === "Network.responseReceived" &&
-    params.response &&
-    params.response.status >= 400
-  ) {
-    eventType = "network-errors";
-  }
+  const isError = method === "Network.loadingFailed" || 
+    (method === "Network.responseReceived" && params.response && params.response.status >= 400);
 
-  // Send to aggregator with additional metadata
-  sendMessage(eventType, {
-    tabId,
-    method,
-    data: params,
-    timestamp: new Date().toISOString(),
-  });
+  if (isError) {
+    const errorMessage: NetworkErrorsMessage = {
+      type: BrowserMessageType.NETWORK_ERRORS,
+      data: {
+        method: params.request?.method || "UNKNOWN",
+        url: params.request?.url || params.url || "UNKNOWN",
+        status: params.response?.status,
+        statusText: params.response?.statusText || params.errorText,
+        timestamp: Date.now(),
+        error: params.errorText || `HTTP ${params.response?.status}`,
+        ...params
+      },
+      tabId,
+      timestamp: Date.now()
+    };
+    sendMessage(errorMessage);
+  } else {
+    const requestMessage: NetworkRequestsMessage = {
+      type: BrowserMessageType.NETWORK_REQUESTS,
+      data: {
+        method: params.request?.method || "UNKNOWN",
+        url: params.request?.url || params.url || "UNKNOWN",
+        status: params.response?.status,
+        statusText: params.response?.statusText,
+        timestamp: Date.now(),
+        ...params
+      },
+      tabId,
+      timestamp: Date.now()
+    };
+    sendMessage(requestMessage);
+  }
 }

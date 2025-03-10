@@ -8,7 +8,13 @@ import {
   debuggerConnections,
   detachDebugger,
 } from "../debugger/manager";
-import { sendMessage } from "../websocket/connection";
+import { sendMessage } from "../websocket/messageSender";
+import { 
+  BrowserMessageType, 
+  TabEventMessage, 
+  ActiveTabMessage,
+  DebuggerEventMessage
+} from "@summer-mcp/core";
 
 // Track the currently active tab
 let activeTabId: number | null = null;
@@ -55,11 +61,17 @@ function handleTabRemoved(tabId: number): void {
   }
 
   // Send tab closed event to aggregator
-  sendMessage("tab-event", {
-    event: "removed",
+  const message: TabEventMessage = {
+    type: BrowserMessageType.TAB_EVENT,
+    data: {
+      event: "removed",
+      tabId,
+      timestamp: Date.now()
+    },
     tabId,
-    timestamp: new Date().toISOString(),
-  });
+    timestamp: Date.now()
+  };
+  sendMessage(message);
 
   // If the active tab was removed, set activeTabId to null
   if (activeTabId === tabId) {
@@ -104,13 +116,19 @@ function handleTabUpdated(
   console.debug(`[Tab Manager] Tab updated: ${tabId}`, changeInfo);
 
   // Send tab update event to aggregator
-  sendMessage("tab-event", {
-    event: "updated",
+  const message: TabEventMessage = {
+    type: BrowserMessageType.TAB_EVENT,
+    data: {
+      event: "updated",
+      tabId,
+      changeInfo: JSON.parse(JSON.stringify(changeInfo)),
+      tab: JSON.parse(JSON.stringify(tab)),
+      timestamp: Date.now()
+    },
     tabId,
-    changeInfo,
-    tab,
-    timestamp: new Date().toISOString(),
-  });
+    timestamp: Date.now()
+  };
+  sendMessage(message);
 
   // If this is the active tab and it's completed loading, refresh monitoring
   if (
@@ -143,11 +161,19 @@ function handleActionClicked(tab: chrome.tabs.Tab): void {
     chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.DISCONNECTED });
 
     // Send debugger detached event
-    sendMessage("debugger-event", {
-      event: "detached",
+    const message: DebuggerEventMessage = {
+      type: BrowserMessageType.DEBUGGER_EVENT,
+      data: {
+        method: "Debugger.detached",
+        event: "detached",
+        tabId,
+        reason: "user_action",
+        timestamp: Date.now()
+      },
       tabId,
-      timestamp: new Date().toISOString(),
-    });
+      timestamp: Date.now()
+    };
+    sendMessage(message);
   } else {
     attachDebugger(tabId);
     chrome.action.setBadgeText({ text: BADGE_TEXT.CONNECTED });
@@ -157,11 +183,18 @@ function handleActionClicked(tab: chrome.tabs.Tab): void {
     refreshMonitoring(tabId);
 
     // Send debugger attached event
-    sendMessage("debugger-event", {
-      event: "attached",
+    const message: DebuggerEventMessage = {
+      type: BrowserMessageType.DEBUGGER_EVENT,
+      data: {
+        method: "Debugger.attached",
+        event: "attached",
+        tabId,
+        timestamp: Date.now()
+      },
       tabId,
-      timestamp: new Date().toISOString(),
-    });
+      timestamp: Date.now()
+    };
+    sendMessage(message);
   }
 }
 
@@ -178,13 +211,21 @@ function sendActiveTabInfo(tabId: number): void {
       return;
     }
 
-    sendMessage("active-tab", {
+    const message: ActiveTabMessage = {
+      type: BrowserMessageType.ACTIVE_TAB,
+      data: {
+        id: tabId,
+        url: tab.url || "",
+        title: tab.title || "",
+        active: true,
+        windowId: tab.windowId,
+        index: tab.index,
+        favIconUrl: tab.favIconUrl
+      },
       tabId,
-      url: tab.url,
-      title: tab.title,
-      favIconUrl: tab.favIconUrl,
-      timestamp: new Date().toISOString(),
-    });
+      timestamp: Date.now()
+    };
+    sendMessage(message);
 
     console.debug(`[Tab Manager] Active tab info sent: ${tabId} - ${tab.url}`);
   });

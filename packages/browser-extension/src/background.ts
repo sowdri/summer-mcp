@@ -11,12 +11,12 @@ import {
   connectWebSocket,
   getConnectionState,
   getWebSocket,
-  sendMessage,
 } from "./services/websocket/connection";
 import {
   ConnectionStatus,
   getConnectionData,
 } from "./services/websocket/connectionStatus";
+import { sendMessage } from "./services/websocket/messageSender";
 import { BrowserMessageType, ExtensionEventMessage } from "@summer-mcp/core";
 
 console.debug("[Background] Background script starting...");

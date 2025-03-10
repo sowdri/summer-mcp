@@ -2,7 +2,8 @@ import {
   attachDebugger,
   isDebuggerAttached,
 } from "../services/debugger/manager";
-import { sendMessage } from "../services/websocket/connection";
+import { sendMessage } from "../services/websocket/messageSender";
+import { BrowserMessageType, DomSnapshotMessage } from "@summer-mcp/core";
 
 /**
  * Get DOM snapshot for a tab
@@ -16,6 +17,15 @@ export function getDomSnapshot(tabId: number): void {
 
   // Get DOM snapshot
   chrome.debugger.sendCommand({ tabId }, "DOM.getDocument", {}, (root) => {
-    sendMessage("dom-snapshot", root);
+    const message: DomSnapshotMessage = {
+      type: BrowserMessageType.DOM_SNAPSHOT,
+      data: {
+        html: JSON.stringify(root),
+        selectedElement: undefined
+      },
+      tabId,
+      timestamp: Date.now()
+    };
+    sendMessage(message);
   });
 }

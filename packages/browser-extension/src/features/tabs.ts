@@ -1,4 +1,4 @@
-import { sendMessage } from "../services/websocket/connection";
+import { sendMessage } from "../services/websocket/messageSender";
 import { 
   BrowserMessageType, 
   BrowserTabsMessage, 

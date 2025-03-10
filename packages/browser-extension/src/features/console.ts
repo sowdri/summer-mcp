@@ -2,7 +2,12 @@ import {
   attachDebugger,
   isDebuggerAttached,
 } from "../services/debugger/manager";
-import { sendMessage } from "../services/websocket/connection";
+import { sendMessage } from "../services/websocket/messageSender";
+import { 
+  BrowserMessageType, 
+  ConsoleMonitorErrorMessage, 
+  ConsoleMonitorStatusMessage 
+} from "@summer-mcp/core";
 
 /**
  * Start console monitoring for a tab
@@ -29,11 +34,17 @@ export function startConsoleMonitoring(tabId: number): void {
       );
 
       // Send error to aggregator
-      sendMessage("console-monitor-error", {
+      const message: ConsoleMonitorErrorMessage = {
+        type: BrowserMessageType.CONSOLE_MONITOR_ERROR,
+        data: {
+          tabId,
+          error: chrome.runtime.lastError?.message || "Unknown error",
+          timestamp: Date.now()
+        },
         tabId,
-        error: chrome.runtime.lastError.message,
-        timestamp: new Date().toISOString(),
-      });
+        timestamp: Date.now()
+      };
+      sendMessage(message);
 
       return;
     }
@@ -53,11 +64,17 @@ export function startConsoleMonitoring(tabId: number): void {
           );
 
           // Send success to aggregator
-          sendMessage("console-monitor-status", {
+          const message: ConsoleMonitorStatusMessage = {
+            type: BrowserMessageType.CONSOLE_MONITOR_STATUS,
+            data: {
+              tabId,
+              status: "started",
+              timestamp: Date.now()
+            },
             tabId,
-            status: "started",
-            timestamp: new Date().toISOString(),
-          });
+            timestamp: Date.now()
+          };
+          sendMessage(message);
         }
       }
     );
@@ -91,11 +108,17 @@ export function stopConsoleMonitoring(tabId: number): void {
       );
 
       // Send status to aggregator
-      sendMessage("console-monitor-status", {
+      const message: ConsoleMonitorStatusMessage = {
+        type: BrowserMessageType.CONSOLE_MONITOR_STATUS,
+        data: {
+          tabId,
+          status: "stopped",
+          timestamp: Date.now()
+        },
         tabId,
-        status: "stopped",
-        timestamp: new Date().toISOString(),
-      });
+        timestamp: Date.now()
+      };
+      sendMessage(message);
     }
   });
 }

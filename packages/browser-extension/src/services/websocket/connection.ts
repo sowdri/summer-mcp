@@ -4,10 +4,9 @@ import {
   RECONNECTION_TIMEOUT,
   SERVER_URL,
 } from "../../config/constants";
-import { BrowserWebSocketReceiveMessageType } from "../../types/interfaces";
-import { ServerCommand, BrowserMessageType, BrowserMessage } from "@summer-mcp/core";
 import { ConnectionStatus, updateConnectionStatus } from "./connectionStatus";
-import { handleServerCommand } from "./messageHandler";
+import { processServerMessage } from "./commandReceiver";
+import { BrowserMessage } from "@summer-mcp/core";
 
 // WebSocket connection
 let socket: WebSocket | null = null;
@@ -41,21 +40,7 @@ export function connectWebSocket(): WebSocket | null {
     };
 
     socket.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        console.log("Received message from server:", message);
-
-        // Handle messages based on type
-        if (message.type === BrowserWebSocketReceiveMessageType.COMMAND) {
-          handleServerCommand(message as ServerCommand);
-        } else if (message.type === BrowserWebSocketReceiveMessageType.CONNECTION) {
-          console.log("Connection status:", message.status);
-        } else {
-          console.warn("Unknown message type:", message.type);
-        }
-      } catch (error) {
-        console.error("Error parsing message:", error);
-      }
+      processServerMessage(event.data);
     };
 
     socket.onclose = () => {

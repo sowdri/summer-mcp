@@ -2,7 +2,12 @@ import {
   attachDebugger,
   isDebuggerAttached,
 } from "../services/debugger/manager";
-import { sendMessage } from "../services/websocket/connection";
+import { sendMessage } from "../services/websocket/messageSender";
+import { 
+  BrowserMessageType, 
+  NetworkMonitorErrorMessage, 
+  NetworkMonitorStatusMessage 
+} from "@summer-mcp/core";
 
 /**
  * Start network monitoring for a tab
@@ -25,15 +30,21 @@ export function startNetworkMonitoring(tabId: number): void {
   chrome.debugger.sendCommand({ tabId }, "Network.enable", {}, (result) => {
     if (chrome.runtime.lastError) {
       console.error(
-        `[Network Monitor] Error enabling network monitoring: ${chrome.runtime.lastError.message}`
+        `[Network Monitor] Error enabling network: ${chrome.runtime.lastError.message}`
       );
 
       // Send error to aggregator
-      sendMessage("network-monitor-error", {
+      const message: NetworkMonitorErrorMessage = {
+        type: BrowserMessageType.NETWORK_MONITOR_ERROR,
+        data: {
+          tabId,
+          error: chrome.runtime.lastError?.message || "Unknown error",
+          timestamp: Date.now()
+        },
         tabId,
-        error: chrome.runtime.lastError.message,
-        timestamp: new Date().toISOString(),
-      });
+        timestamp: Date.now()
+      };
+      sendMessage(message);
 
       return;
     }
@@ -43,11 +54,17 @@ export function startNetworkMonitoring(tabId: number): void {
     );
 
     // Send success to aggregator
-    sendMessage("network-monitor-status", {
+    const message: NetworkMonitorStatusMessage = {
+      type: BrowserMessageType.NETWORK_MONITOR_STATUS,
+      data: {
+        tabId,
+        status: "started",
+        timestamp: Date.now()
+      },
       tabId,
-      status: "started",
-      timestamp: new Date().toISOString(),
-    });
+      timestamp: Date.now()
+    };
+    sendMessage(message);
   });
 }
 
@@ -70,7 +87,7 @@ export function stopNetworkMonitoring(tabId: number): void {
   chrome.debugger.sendCommand({ tabId }, "Network.disable", {}, (result) => {
     if (chrome.runtime.lastError) {
       console.error(
-        `[Network Monitor] Error disabling network monitoring: ${chrome.runtime.lastError.message}`
+        `[Network Monitor] Error disabling network: ${chrome.runtime.lastError.message}`
       );
     } else {
       console.debug(
@@ -78,11 +95,17 @@ export function stopNetworkMonitoring(tabId: number): void {
       );
 
       // Send status to aggregator
-      sendMessage("network-monitor-status", {
+      const message: NetworkMonitorStatusMessage = {
+        type: BrowserMessageType.NETWORK_MONITOR_STATUS,
+        data: {
+          tabId,
+          status: "stopped",
+          timestamp: Date.now()
+        },
         tabId,
-        status: "stopped",
-        timestamp: new Date().toISOString(),
-      });
+        timestamp: Date.now()
+      };
+      sendMessage(message);
     }
   });
 }
