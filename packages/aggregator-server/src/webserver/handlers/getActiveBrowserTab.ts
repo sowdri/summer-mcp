@@ -1,21 +1,21 @@
 /**
- * DOM controller for the MCP system
+ * Handler for getting active browser tab
  */
 import { Request, Response } from "express";
 import {
-  pendingScreenshotRequests,
-  registerScreenshotRequest,
-} from "../services/screenshot.service";
-import { clients, sendCommandToExtension } from "../websocket/messageSender";
-import { ServerCommandType, TakeScreenshotCommand } from "@summer-mcp/core";
+  pendingTabRequests,
+  registerActiveTabRequest,
+} from "../../services/browserTabs.service";
+import { clients, sendCommandToExtension } from "../../websocket/messageSender";
+import { 
+  ServerCommandType, 
+  GetActiveBrowserTabCommand
+} from "@summer-mcp/core";
 
 /**
- * Capture screenshot of the current tab
+ * Get active browser tab
  */
-export function captureScreenshot(
-  req: Request,
-  res: Response
-): Response | void {
+export function getActiveBrowserTab(req: Request, res: Response): Response | void {
   // Check if there are any connected WebSocket clients
   if (clients.size === 0) {
     // No browser extensions connected, return an error
@@ -25,13 +25,13 @@ export function captureScreenshot(
     });
   }
 
-  // Register the request with the screenshot service
-  const requestId = registerScreenshotRequest(res);
+  // Register the request with the browser tabs service
+  const requestId = registerActiveTabRequest(res);
 
   // Create the command object
-  const command: TakeScreenshotCommand = {
+  const command: GetActiveBrowserTabCommand = {
     type: 'command',
-    command: ServerCommandType.TAKE_SCREENSHOT
+    command: ServerCommandType.GET_ACTIVE_BROWSER_TAB
   };
 
   // Send command to browser extension
@@ -40,10 +40,10 @@ export function captureScreenshot(
   // If command wasn't sent successfully, clean up and return error
   if (!commandSent) {
     // Clean up the pending request
-    const pendingRequest = pendingScreenshotRequests.get(requestId);
+    const pendingRequest = pendingTabRequests.get(requestId);
     if (pendingRequest) {
       clearTimeout(pendingRequest.timeout);
-      pendingScreenshotRequests.delete(requestId);
+      pendingTabRequests.delete(requestId);
     }
 
     return res.status(503).json({
@@ -52,5 +52,5 @@ export function captureScreenshot(
     });
   }
 
-  // The response will be sent by the screenshot service when the data is received
-}
+  // The response will be sent by the browser tabs service when the data is received
+} 

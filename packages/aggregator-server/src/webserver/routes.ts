@@ -3,14 +3,10 @@
  * All API routes for the aggregator server
  */
 import { Router, Request, Response } from "express";
-import { 
-  getBrowserTabs, 
-  getActiveBrowserTab, 
-  activateBrowserTab
-} from "../controllers/browser.controller";
-import {
-  captureScreenshot,
-} from "../controllers/dom.controller";
+import { getBrowserTabs } from "./handlers/getBrowserTabs";
+import { getActiveBrowserTab } from "./handlers/getActiveBrowserTab";
+import { activateBrowserTab } from "./handlers/activateBrowserTab";
+import { captureScreenshot } from "./handlers/captureScreenshot";
 
 const router: Router = Router();
 
