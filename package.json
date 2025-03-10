@@ -1,37 +1,20 @@
 {
   "name": "summer-mcp",
   "version": "1.0.0",
-  "description": "An MCP server for use with Cursor AI to interact with Chrome Web Browser",
-  "main": "index.js",
-  "type": "module",
-  "workspaces": [
-    "mcp-server",
-    "aggregator-server",
-    "browser-extension"
-  ],
+  "description": "Summer MCP - Browser Monitoring and Control Platform",
+  "private": true,
   "scripts": {
-    "build": "npm run build:mcp && npm run build:aggregator && npm run build:extension",
-    "build:mcp": "cd mcp-server && npm run build",
-    "build:aggregator": "cd aggregator-server && npm run build",
-    "build:extension": "cd browser-extension && npm run build",
-    "start:mcp": "cd mcp-server && npm start",
-    "start:aggregator": "cd aggregator-server && npm start",
-    "dev": "node dev.mjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "clean": "pnpm -r clean",
+    "test": "pnpm -r test"
   },
   "keywords": [
-    "cursor",
-    "ai",
-    "chrome",
     "browser",
-    "extension"
+    "monitoring",
+    "extension",
+    "websocket"
   ],
   "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/chrome": "^0.0.254",
-    "esbuild": "^0.19.10",
-    "nodemon": "^3.0.2",
-    "typescript": "^5.3.3"
-  }
+  "license": "MIT"
 } 

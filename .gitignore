@@ -1,22 +1,27 @@
-# Node.js dependencies
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+.npm
+.yarn-integrity
+.pnpm-store/
 package-lock.json
 yarn.lock
 
 # Build outputs
-dist/
-build/
+dist
+build
+out
+*.tsbuildinfo
 *.zip
 
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-.DS_Store
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Environment variables
 .env
@@ -25,13 +30,20 @@ build/
 .env.test.local
 .env.production.local
 
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
 # Browser extension specific
 *.pem
 *.crx
 
-# Logs
-logs/
-*.log
-
 # Debug screenshots
-debug-screenshots/ 
+screenshots 

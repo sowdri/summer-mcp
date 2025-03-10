@@ -12,7 +12,7 @@ let aggregatorServerProcess = null;
 function startExtensionWatcher() {
   console.log('\n👀 Setting up watch for browser-extension...');
   
-  const extensionDir = path.join(process.cwd(), 'browser-extension');
+  const extensionDir = path.join(process.cwd(), 'packages/browser-extension');
   const buildScriptPath = path.join(extensionDir, 'build.mjs');
   
   if (!existsSync(buildScriptPath)) {
@@ -53,7 +53,7 @@ function startExtensionWatcher() {
 function startMcpWatcher() {
   console.log('\n👀 Setting up watch for mcp-server...');
   
-  const mcpDir = path.join(process.cwd(), 'mcp-server');
+  const mcpDir = path.join(process.cwd(), 'packages/mcp-server');
   const buildScriptPath = path.join(mcpDir, 'build.mjs');
   
   if (!existsSync(buildScriptPath)) {
@@ -99,7 +99,7 @@ function startAggregatorServer() {
     console.log('🚀 Starting aggregator server...');
   }
 
-  const aggregatorDir = path.join(process.cwd(), 'aggregator-server');
+  const aggregatorDir = path.join(process.cwd(), 'packages/aggregator-server');
   const serverPath = path.join(aggregatorDir, 'dist', 'index.js');
   
   aggregatorServerProcess = spawn('node', ['dist/index.js'], {
@@ -125,7 +125,7 @@ function startAggregatorServer() {
 async function startAggregatorDev() {
   console.log('\n🚀 Setting up dev mode for aggregator-server...');
   
-  const aggregatorDir = path.join(process.cwd(), 'aggregator-server');
+  const aggregatorDir = path.join(process.cwd(), 'packages/aggregator-server');
   const distDir = path.join(aggregatorDir, 'dist');
   
   // Ensure dist directory exists

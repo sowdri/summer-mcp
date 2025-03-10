@@ -3,9 +3,9 @@ import { existsSync } from 'fs';
 import path from 'path';
 
 const components = [
-  'mcp-server',
-  'nodejs-server',
-  'browser-extension'
+  'packages/mcp-server',
+  'packages/aggregator-server',
+  'packages/browser-extension'
 ];
 
 console.log('🚀 Starting build process for all components...');
@@ -14,7 +14,8 @@ console.log('🚀 Starting build process for all components...');
 for (const component of components) {
   console.log(`\n🔨 Building ${component}...\n`);
   
-  const buildScriptPath = path.join(process.cwd(), component, 'build.mjs');
+  const componentDir = path.join(process.cwd(), component);
+  const buildScriptPath = path.join(componentDir, 'build.mjs');
   
   if (!existsSync(buildScriptPath)) {
     console.error(`❌ Build script not found for ${component}`);
@@ -23,9 +24,10 @@ for (const component of components) {
   
   try {
     // Use spawnSync for synchronous execution
-    const result = spawn('node', [buildScriptPath], {
+    const result = spawn('node', ['build.mjs'], {
       stdio: 'inherit',
-      shell: true
+      shell: true,
+      cwd: componentDir
     });
     
     // Wait for the process to complete

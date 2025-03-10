@@ -1,0 +1,30 @@
+{
+  "name": "@summer-mcp/browser-extension",
+  "version": "1.0.0",
+  "description": "Chrome browser extension for Cursor AI integration",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch",
+    "clean": "rimraf dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cursor",
+    "ai",
+    "chrome",
+    "extension"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@summer-mcp/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.254",
+    "esbuild": "^0.19.10",
+    "rimraf": "^5.0.5",
+    "sharp": "^0.33.5",
+    "typescript": "^5.3.3"
+  }
+}
