@@ -117,12 +117,10 @@ function handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo): void {
  * Handle tab updates (URL changes, page loads, etc.)
  * @param tabId The ID of the updated tab
  * @param changeInfo Information about the change
- * @param tab The updated tab
  */
 function handleTabUpdated(
   tabId: number,
-  changeInfo: chrome.tabs.TabChangeInfo,
-  tab: chrome.tabs.Tab
+  changeInfo: chrome.tabs.TabChangeInfo
 ): void {
   console.debug(`[Tab Manager] Tab updated: ${tabId}`, changeInfo);
 

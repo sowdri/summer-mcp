@@ -20,7 +20,7 @@ export {
 export type MessageType = string;
 export interface WebSocketMessage {
   type: string;
-  data: any;
+  data: unknown;
 }
 
 // Enum for message types received by browser extension from aggregator server

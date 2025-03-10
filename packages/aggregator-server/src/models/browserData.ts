@@ -176,7 +176,7 @@ export function addNetworkRequest(request: NetworkRequest): void {
   const tabId = request.tabId;
   if (!tabId) return;
   
-  browserDataProvider.addNetworkRequest(tabId, request);
+  browserDataProvider.addNetworkRequest(String(tabId), request);
 }
 
 /**
@@ -193,7 +193,7 @@ export function addNetworkError(request: NetworkRequest): void {
     isError: true
   };
   
-  browserDataProvider.addNetworkRequest(tabId, errorRequest);
+  browserDataProvider.addNetworkRequest(String(tabId), errorRequest);
 }
 
 /**

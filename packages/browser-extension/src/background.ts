@@ -9,14 +9,10 @@ import { initDebuggerEventListeners } from "./services/debugger/eventHandler";
 import { initTabEventListeners } from "./services/tabs/manager";
 import {
   connectWebSocket,
-  getConnectionState,
 } from "./websocket/connection";
 import {
-  ConnectionStatus,
   getConnectionData,
 } from "./websocket/connectionStatus";
-import { sendMessage } from "./websocket/messageSender";
-import { BrowserMessageType } from "@summer-mcp/core";
 
 console.debug("[Background] Background script starting...");
 console.debug(`[Background] Server URL: ${SERVER_URL}`);

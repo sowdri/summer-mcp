@@ -1,6 +1,3 @@
-import { startConsoleMonitoring } from "../features/console";
-import { getDomSnapshot } from "../features/dom";
-import { startNetworkMonitoring } from "../features/network";
 import { takeScreenshot } from "../features/screenshot";
 import { activateBrowserTab, getActiveBrowserTab, listBrowserTabs } from "../features/tabs";
 import { ServerCommand, ServerCommandType } from "@summer-mcp/core";

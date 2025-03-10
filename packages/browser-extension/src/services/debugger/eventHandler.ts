@@ -78,8 +78,9 @@ export function initDebuggerEventListeners(): void {
  * @param tabId The ID of the tab that generated the message
  * @param params The console message parameters
  */
-function handleConsoleMessage(tabId: number, params: any): void {
-  const message = params.message;
+function handleConsoleMessage(tabId: number, params: unknown): void {
+  const typedParams = params as { message: { level?: string; text: string } };
+  const message = typedParams.message;
   const level = message.level || "info";
 
   // Log message details for debugging
@@ -91,8 +92,7 @@ function handleConsoleMessage(tabId: number, params: any): void {
     data: [{
       level,
       message: message.text,
-      timestamp: Date.now(),
-      ...params
+      timestamp: Date.now()
     }],
     tabId,
     timestamp: Date.now()
@@ -106,16 +106,24 @@ function handleConsoleMessage(tabId: number, params: any): void {
  * @param method The network event method
  * @param params The network event parameters
  */
-function handleNetworkEvent(tabId: number, method: string, params: any): void {
+function handleNetworkEvent(tabId: number, method: string, params: unknown): void {
   // Extract useful information for logging
   let logInfo = "";
-
-  if (method === "Network.requestWillBeSent" && params.request) {
-    logInfo = `${params.request.method} ${params.request.url}`;
-  } else if (method === "Network.responseReceived" && params.response) {
-    logInfo = `${params.response.status} ${params.response.url}`;
+  let errorText = "";
+  
+  // Type cast params to access properties
+  const typedParams = params as Record<string, unknown>;
+  const request = typedParams.request as Record<string, unknown> | undefined;
+  const response = typedParams.response as Record<string, unknown> | undefined;
+  
+  if (method === "Network.requestWillBeSent" && request) {
+    logInfo = `${request.method || 'UNKNOWN'} ${request.url || 'UNKNOWN'}`;
+  } else if (method === "Network.responseReceived" && response) {
+    logInfo = `${response.status || 'UNKNOWN'} ${response.url || 'UNKNOWN'}`;
   } else if (method === "Network.loadingFailed") {
-    logInfo = `Failed: ${params.errorText} ${params.url}`;
+    errorText = (typedParams.errorText as string) || 'Unknown Error';
+    const url = (typedParams.url as string) || 'UNKNOWN';
+    logInfo = `Failed: ${errorText} ${url}`;
   }
 
   console.debug(
@@ -126,13 +134,12 @@ function handleNetworkEvent(tabId: number, method: string, params: any): void {
   const requestMessage: NetworkRequestsMessage = {
     type: BrowserMessageType.NETWORK_REQUESTS,
     data: {
-      method: params.request?.method || "UNKNOWN",
-      url: params.request?.url || params.url || "UNKNOWN",
-      status: params.response?.status,
-      statusText: params.response?.statusText || params.errorText,
+      method: request?.method as string || "UNKNOWN",
+      url: request?.url as string || typedParams.url as string || "UNKNOWN",
+      status: response?.status as number | undefined,
+      statusText: response?.statusText as string || errorText,
       timestamp: Date.now(),
-      eventType: method,
-      ...params
+      eventType: method
     },
     tabId,
     timestamp: Date.now()

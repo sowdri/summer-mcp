@@ -53,7 +53,7 @@ export interface ConsoleLogEntry {
   type?: string;
   message?: string;
   timestamp?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -80,7 +80,7 @@ export interface NetworkRequest {
   isError?: boolean;
   requestHeaders?: Record<string, string>;
   responseHeaders?: Record<string, string>;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

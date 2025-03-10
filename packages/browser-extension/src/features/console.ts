@@ -2,10 +2,6 @@ import {
   attachDebugger,
   isDebuggerAttached,
 } from "../services/debugger/manager";
-import { sendMessage } from "../websocket/messageSender";
-import { 
-  BrowserMessageType
-} from "@summer-mcp/core";
 
 /**
  * Start console monitoring for a tab
@@ -25,7 +21,7 @@ export function startConsoleMonitoring(tabId: number): void {
   }
 
   // Request console messages
-  chrome.debugger.sendCommand({ tabId }, "Console.enable", {}, (result) => {
+  chrome.debugger.sendCommand({ tabId }, "Console.enable", {}, () => {
     if (chrome.runtime.lastError) {
       console.error(
         `[Console Monitor] Error enabling console: ${chrome.runtime.lastError.message}`
@@ -37,7 +33,7 @@ export function startConsoleMonitoring(tabId: number): void {
       { tabId },
       "Console.clearMessages",
       {},
-      (clearResult) => {
+      () => {
         if (chrome.runtime.lastError) {
           console.error(
             `[Console Monitor] Error clearing console: ${chrome.runtime.lastError.message}`
@@ -68,7 +64,7 @@ export function stopConsoleMonitoring(tabId: number): void {
     return;
   }
 
-  chrome.debugger.sendCommand({ tabId }, "Console.disable", {}, (result) => {
+  chrome.debugger.sendCommand({ tabId }, "Console.disable", {}, () => {
     if (chrome.runtime.lastError) {
       console.error(
         `[Console Monitor] Error disabling console: ${chrome.runtime.lastError.message}`

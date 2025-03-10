@@ -2,10 +2,6 @@ import {
   attachDebugger,
   isDebuggerAttached,
 } from "../services/debugger/manager";
-import { sendMessage } from "../websocket/messageSender";
-import { 
-  BrowserMessageType
-} from "@summer-mcp/core";
 
 /**
  * Start network monitoring for a tab
@@ -25,7 +21,7 @@ export function startNetworkMonitoring(tabId: number): void {
   }
 
   // Request network events
-  chrome.debugger.sendCommand({ tabId }, "Network.enable", {}, (result) => {
+  chrome.debugger.sendCommand({ tabId }, "Network.enable", {}, () => {
     if (chrome.runtime.lastError) {
       console.error(
         `[Network Monitor] Error enabling network: ${chrome.runtime.lastError.message}`
@@ -55,7 +51,7 @@ export function stopNetworkMonitoring(tabId: number): void {
     return;
   }
 
-  chrome.debugger.sendCommand({ tabId }, "Network.disable", {}, (result) => {
+  chrome.debugger.sendCommand({ tabId }, "Network.disable", {}, () => {
     if (chrome.runtime.lastError) {
       console.error(
         `[Network Monitor] Error disabling network: ${chrome.runtime.lastError.message}`
