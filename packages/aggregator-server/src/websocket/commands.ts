@@ -1,7 +1,7 @@
 /**
  * WebSocket commands
  */
-import { ServerCommand } from "@summer-mcp/core";
+import { ServerCommand, ServerMessage } from "@summer-mcp/core";
 import { WebSocket } from "ws";
 
 // Set of connected clients
@@ -13,10 +13,19 @@ export const clients = new Set<WebSocket>();
 export function sendCommandToExtension(
   command: ServerCommand
 ): boolean {
+  return sendMessageToExtension(command);
+}
+
+/**
+ * Send message to all connected browser extensions
+ */
+export function sendMessageToExtension(
+  message: ServerMessage
+): boolean {
   // Check if there are any connected clients
   if (clients.size === 0) {
     console.warn(
-      `Cannot send command "${command.command}": No connected browser extensions`
+      `Cannot send message: No connected browser extensions`
     );
     return false;
   }
@@ -24,14 +33,14 @@ export function sendCommandToExtension(
   let sentToAny = false;
   clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(command));
+      client.send(JSON.stringify(message));
       sentToAny = true;
     }
   });
 
   if (!sentToAny) {
     console.warn(
-      `Failed to send command "${command.command}": No clients in OPEN state`
+      `Failed to send message: No clients in OPEN state`
     );
   }
 

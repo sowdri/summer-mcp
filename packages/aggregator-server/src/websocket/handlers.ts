@@ -20,9 +20,6 @@ import {
   BrowserMessage
 } from "@summer-mcp/core";
 
-// Legacy message type definition (to be deprecated)
-type MessageType = BrowserMessageType;
-
 /**
  * Handle messages from browser extension
  * @param message The message received from the browser extension

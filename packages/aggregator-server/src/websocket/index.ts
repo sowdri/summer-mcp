@@ -3,9 +3,9 @@
  */
 import { Server } from "http";
 import { WebSocket, WebSocketServer } from "ws";
-import { clients } from "./commands.js";
+import { clients, sendMessageToExtension } from "./commands.js";
 import { handleWebSocketMessage } from "./handlers.js";
-import { AggregatorWebSocketSendMessageType } from "../types/index.js";
+import { ConnectionStatusCommand } from "@summer-mcp/core";
 
 /**
  * Initialize WebSocket server
@@ -19,11 +19,14 @@ export function initializeWebSocketServer(server: Server): WebSocketServer {
     console.log("Browser extension connected");
     clients.add(ws);
 
-    // Send welcome message
-    ws.send(JSON.stringify({ 
-      type: AggregatorWebSocketSendMessageType.CONNECTION, 
-      status: "connected" 
-    }));
+    // Send welcome message to this specific client
+    const connectionMessage: ConnectionStatusCommand = {
+      type: 'connection',
+      status: 'connected'
+    };
+    
+    // Send directly to this specific client
+    ws.send(JSON.stringify(connectionMessage));
 
     // Handle messages from browser extension
     ws.on("message", (message) => {

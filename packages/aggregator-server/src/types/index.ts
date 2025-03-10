@@ -9,6 +9,7 @@ import {
   ServerCommandType,
   ServerCommand,
   ServerMessage,
+  ConnectionStatusCommand,
   BrowserTab
 } from "@summer-mcp/core";
 
@@ -19,22 +20,10 @@ export {
   ServerCommandType,
   ServerCommand,
   ServerMessage,
+  ConnectionStatusCommand,
   BrowserTab
 };
 
 // Re-export types from local files
 export * from "./browser-data.js";
 export * from "./tab-data.js";
-
-/**
- * Message types sent from aggregator server to browser extension
- */
-export enum AggregatorWebSocketSendMessageType {
-  CONNECTION = "connection",
-  COMMAND = "command"
-}
-
-/**
- * Message types received by aggregator server from browser extension
- */
-export type AggregatorWebSocketReceiveMessageType = BrowserMessageType;
