@@ -2,6 +2,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
 
 // Create the MCP server
 const server = new McpServer({
@@ -357,43 +358,188 @@ server.tool(
   }
 );
 
-// Get selected element tool
+// Browser tabs tool
+// server.tool(
+//   "getBrowserTabs",
+//   "Get the list of open browser tabs with their IDs",
+//   async () => {
+//     const response = await fetch(
+//       `http://127.0.0.1:${AGGREGATOR_PORT}/browser-tabs`
+//     );
+//     const json = await response.json();
+//     return {
+//       content: [
+//         {
+//           type: "text",
+//           text: JSON.stringify(json, null, 2),
+//         },
+//       ],
+//     };
+//   }
+// );
+
+// Get active browser tab tool
 server.tool(
-  "getSelectedElement",
-  "Get the selected element from the browser",
+  "getActiveBrowserTab",
+  "Get the currently active browser tab",
   async () => {
-    const response = await fetch(
-      `http://127.0.0.1:${AGGREGATOR_PORT}/selected-element`
-    );
-    const json = await response.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(json, null, 2),
-        },
-      ],
-    };
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:${AGGREGATOR_PORT}/active-tab`
+      );
+      
+      if (!response.ok) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Failed to get active browser tab. Make sure the browser extension is connected.",
+            },
+          ],
+        };
+      }
+      
+      const activeTab = await response.json();
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Active browser tab:\n\n${JSON.stringify(activeTab, null, 2)}`,
+          },
+        ],
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error retrieving active browser tab: ${errorMessage}`,
+          },
+        ],
+      };
+    }
   }
 );
 
-// Browser tabs tool
+// Get browser tabs with active tab highlighted
 server.tool(
   "getBrowserTabs",
   "Get the list of open browser tabs with their IDs",
   async () => {
-    const response = await fetch(
-      `http://127.0.0.1:${AGGREGATOR_PORT}/browser-tabs`
-    );
-    const json = await response.json();
-    return {
-      content: [
+    try {
+      // First, get the list of browser tabs
+      const tabsResponse = await fetch(
+        `http://127.0.0.1:${AGGREGATOR_PORT}/browser-tabs`
+      );
+
+      if (!tabsResponse.ok) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Failed to get browser tabs. Make sure the browser extension is connected.",
+            },
+          ],
+        };
+      }
+
+      const tabsData = await tabsResponse.json();
+      
+      // Get the active tab
+      const activeTabResponse = await fetch(
+        `http://127.0.0.1:${AGGREGATOR_PORT}/active-tab`
+      );
+      
+      let activeTab = null;
+      if (activeTabResponse.ok) {
+        activeTab = await activeTabResponse.json();
+      }
+      
+      // Format the tabs in a more readable way
+      const formattedTabs = tabsData.tabs.map((tab: { id: string | number; title: string; url: string; active: boolean }) => {
+        return `ID: ${tab.id} - ${tab.title} (${tab.url})${tab.active ? ' [ACTIVE]' : ''}`;
+      }).join('\n');
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Available browser tabs:\n\n${formattedTabs}\n\nTo activate a tab, use the activateTab tool with the tab ID.`,
+          },
+        ],
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error retrieving browser information: ${errorMessage}`,
+          },
+        ],
+      };
+    }
+  }
+);
+
+// Activate a specific browser tab
+server.tool(
+  "activateTab",
+  { tabId: z.string().describe("The ID of the tab to activate") },
+  async ({ tabId }) => {
+    try {
+      if (!tabId) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Please provide a tab ID to activate.",
+            },
+          ],
+        };
+      }
+      
+      // Send request to activate the tab
+      const response = await fetch(
+        `http://127.0.0.1:${AGGREGATOR_PORT}/activate-tab?tabId=${tabId}`,
         {
-          type: "text",
-          text: JSON.stringify(json, null, 2),
-        },
-      ],
-    };
+          method: "POST",
+        }
+      );
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Failed to activate tab: ${errorData.error || "Unknown error"}`,
+            },
+          ],
+        };
+      }
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Successfully activated tab ${tabId}.`,
+          },
+        ],
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error activating browser tab: ${errorMessage}`,
+          },
+        ],
+      };
+    }
   }
 );
 
@@ -413,7 +559,6 @@ server.tool("wipeLogs", "Wipe all browser logs from memory", async () => {
   };
 });
 
-// Start the MCP server
 // try {
 //   const transport = new StdioServerTransport();
 //   await server.connect(transport);

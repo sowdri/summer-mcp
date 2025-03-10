@@ -6,6 +6,8 @@ import { WebSocket } from "ws";
 // Define command types
 export type BrowserCommand =
   | "listBrowserTabs"
+  | "getActiveBrowserTab"
+  | "activateBrowserTab"
   | "takeScreenshot"
   | "getConsoleLogs"
   | "getConsoleErrors"

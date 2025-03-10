@@ -2,7 +2,7 @@ import { startConsoleMonitoring } from "../../features/console";
 import { getDomSnapshot } from "../../features/dom";
 import { startNetworkMonitoring } from "../../features/network";
 import { takeScreenshot } from "../../features/screenshot";
-import { listBrowserTabs } from "../../features/tabs";
+import { activateBrowserTab, getActiveBrowserTab, listBrowserTabs } from "../../features/tabs";
 import { ServerCommand } from "../../types/interfaces";
 
 /**
@@ -10,9 +10,23 @@ import { ServerCommand } from "../../types/interfaces";
  * @param message The message received from the server
  */
 export function handleServerCommand(message: ServerCommand): void {
+
+  // Debug log to track incoming commands
+  console.log("Received server command:", message);
+
   // Handle commands that don't require an active tab
   if (message.command === "listBrowserTabs") {
     listBrowserTabs();
+    return;
+  }
+  
+  if (message.command === "getActiveBrowserTab") {
+    getActiveBrowserTab();
+    return;
+  }
+  
+  if (message.command === "activateBrowserTab" && message.params?.tabId) {
+    activateBrowserTab(message.params.tabId);
     return;
   }
 

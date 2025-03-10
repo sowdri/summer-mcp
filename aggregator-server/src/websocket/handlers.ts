@@ -13,7 +13,7 @@ import {
   setSelectedElement,
   updateActiveTab,
 } from "../models/browserData.js";
-import { handleBrowserTabsResponse } from "../services/browserTabs.service.js";
+import { handleActiveTabResponse, handleBrowserTabsResponse } from "../services/browserTabs.service.js";
 import { handleScreenshotResponse } from "../services/screenshot.service.js";
 import {
   ActiveTab,
@@ -36,6 +36,7 @@ type MessageType =
   | "dom-snapshot"
   | "browser-tabs"
   | "active-tab"
+  | "activate-tab-result"
   | "tab-event"
   | "debugger-event"
   | "debugger-detached"
@@ -118,6 +119,15 @@ interface ExtensionEventMessage extends BaseMessage {
   data: ExtensionEvent;
 }
 
+interface ActivateTabResultMessage extends BaseMessage {
+  type: "activate-tab-result";
+  data: {
+    success: boolean;
+    tabId?: number;
+    error?: string;
+  };
+}
+
 // Union type of all possible messages
 type ExtensionMessage =
   | ScreenshotMessage
@@ -132,7 +142,8 @@ type ExtensionMessage =
   | DebuggerDetachedMessage
   | MonitorStatusMessage
   | MonitorErrorMessage
-  | ExtensionEventMessage;
+  | ExtensionEventMessage
+  | ActivateTabResultMessage;
 
 /**
  * Handle messages from browser extension
@@ -182,11 +193,20 @@ export function handleWebSocketMessage(message: string): void {
         handleBrowserTabsResponse(parsedMessage.data);
         break;
       case "active-tab":
+        handleActiveTabResponse(parsedMessage.data);
         updateActiveTab(parsedMessage.data);
         console.log(
           "Active tab updated:",
           parsedMessage.data.tabId,
           parsedMessage.data.url
+        );
+        break;
+      case "activate-tab-result":
+        console.log(
+          "Activate tab result:",
+          parsedMessage.data.success ? "Success" : "Failed",
+          parsedMessage.data.tabId || "",
+          parsedMessage.data.error || ""
         );
         break;
       case "tab-event":
