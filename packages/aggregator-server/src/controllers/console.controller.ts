@@ -4,6 +4,7 @@
 import { Request, Response } from "express";
 import { browserData } from "../models/browserData.js";
 import { clients, sendCommandToExtension } from "../websocket/commands.js";
+import { ServerCommandType, GetConsoleLogsCommand } from "@summer-mcp/core";
 
 /**
  * Get all console logs
@@ -18,13 +19,18 @@ export function getConsoleLogs(req: Request, res: Response): void {
     if (tabData) {
       res.json(tabData.consoleLogs);
     } else {
-      res.json([]);
+      res.status(404).json({
+        error: "Tab not found",
+        message: `No data found for tab ID: ${tabId}`,
+      });
     }
   } else {
-    // Return logs from the default tab for backward compatibility
-    const defaultTabId = "default";
-    const defaultTabData = browserData.tabs[defaultTabId];
-    res.json(defaultTabData?.consoleLogs || []);
+    // Return logs for all tabs
+    const allLogs: Record<string, any> = {};
+    Object.keys(browserData.tabs).forEach((id) => {
+      allLogs[id] = browserData.tabs[id].consoleLogs;
+    });
+    res.json(allLogs);
   }
 }
 
@@ -39,31 +45,31 @@ export function getConsoleErrors(req: Request, res: Response): void {
     // Return errors for the specific tab
     const tabData = browserData.tabs[tabId];
     if (tabData) {
+      // Filter console logs to only include errors
       const errors = tabData.consoleLogs.filter(
         (log) => log.level === "error" || log.type === "error"
       );
       res.json(errors);
     } else {
-      res.json([]);
+      res.status(404).json({
+        error: "Tab not found",
+        message: `No data found for tab ID: ${tabId}`,
+      });
     }
   } else {
-    // Return errors from the default tab for backward compatibility
-    const defaultTabId = "default";
-    const defaultTabData = browserData.tabs[defaultTabId];
-
-    if (defaultTabData) {
-      const errors = defaultTabData.consoleLogs.filter(
+    // Return errors for all tabs
+    const allErrors: Record<string, any> = {};
+    Object.keys(browserData.tabs).forEach((id) => {
+      allErrors[id] = browserData.tabs[id].consoleLogs.filter(
         (log) => log.level === "error" || log.type === "error"
       );
-      res.json(errors);
-    } else {
-      res.json([]);
-    }
+    });
+    res.json(allErrors);
   }
 }
 
 /**
- * Trigger console log collection from a specific tab
+ * Trigger console log collection from browser
  */
 export function triggerConsoleLogCollection(
   req: Request,
@@ -89,8 +95,14 @@ export function triggerConsoleLogCollection(
     });
   }
 
+  // Create the command object
+  const command: GetConsoleLogsCommand = {
+    type: 'command',
+    command: ServerCommandType.GET_CONSOLE_LOGS
+  };
+
   // Send command to browser extension
-  const commandSent = sendCommandToExtension("getConsoleLogs", { tabId });
+  const commandSent = sendCommandToExtension(command);
 
   // If command wasn't sent successfully, return error
   if (!commandSent) {

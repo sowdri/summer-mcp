@@ -18,8 +18,7 @@ import {
 
 // Configuration constants
 export const BROWSER_DATA_CONFIG: BrowserDataConfig = {
-  MAX_CONSOLE_LOGS: 1000,
-  MAX_CONSOLE_ERRORS: 1000,
+  MAX_CONSOLE_LOGS: 1000, // All console logs including errors and warnings
   MAX_NETWORK_SUCCESS: 1000,
   MAX_NETWORK_ERRORS: 1000,
   MAX_TAB_EVENTS: 100,
@@ -32,8 +31,7 @@ export const BROWSER_DATA_CONFIG: BrowserDataConfig = {
 // Create an empty tab data structure
 function createEmptyTabData(): TabData {
   return {
-    consoleLogs: [],
-    consoleErrors: [],
+    consoleLogs: [], // All console logs including errors and warnings
     networkRequests: {
       success: [],
       errors: [],
@@ -119,28 +117,6 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
       tabData.consoleLogs = tabData.consoleLogs.slice(
         0,
         this.config.MAX_CONSOLE_LOGS
-      );
-    }
-
-    tabData.lastUpdated = Date.now();
-  }
-
-  addConsoleError(tabId: string, error: ConsoleLog): void {
-    const tabData = this.ensureTabData(tabId);
-
-    // Add timestamp if not present
-    if (!error.timestamp) {
-      error.timestamp = Date.now();
-    }
-
-    // Add to the beginning for newest first
-    tabData.consoleErrors.unshift(error);
-
-    // Limit the number of entries
-    if (tabData.consoleErrors.length > this.config.MAX_CONSOLE_ERRORS) {
-      tabData.consoleErrors = tabData.consoleErrors.slice(
-        0,
-        this.config.MAX_CONSOLE_ERRORS
       );
     }
 
@@ -362,7 +338,6 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
     const tabData = this.getTabData(tabId);
     if (tabData) {
       tabData.consoleLogs = [];
-      tabData.consoleErrors = [];
       tabData.networkRequests.success = [];
       tabData.networkRequests.errors = [];
       tabData.tabEvents = [];
@@ -386,7 +361,6 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
   getMaxEntries(): number {
     return Math.max(
       this.config.MAX_CONSOLE_LOGS,
-      this.config.MAX_CONSOLE_ERRORS,
       this.config.MAX_NETWORK_SUCCESS,
       this.config.MAX_NETWORK_ERRORS,
       this.config.MAX_TAB_EVENTS,
@@ -399,7 +373,6 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
 
   setMaxEntries(count: number): void {
     this.config.MAX_CONSOLE_LOGS = count;
-    this.config.MAX_CONSOLE_ERRORS = count;
     this.config.MAX_NETWORK_SUCCESS = count;
     this.config.MAX_NETWORK_ERRORS = count;
     this.config.MAX_TAB_EVENTS = count;
@@ -520,7 +493,9 @@ export function addExtensionEvent(event: ExtensionEvent): void {
  * Add console error
  * @param tabId The ID of the tab that generated the error
  * @param error The console error entry
+ * @deprecated Use addConsoleLog instead, as all logs are now stored in consoleLogs
  */
 export function addConsoleError(tabId: string, error: any): void {
-  browserDataProvider.addConsoleError(tabId, error);
+  // Redirect to addConsoleLog since we're now storing all logs in one place
+  browserDataProvider.addConsoleLog(tabId, error);
 }

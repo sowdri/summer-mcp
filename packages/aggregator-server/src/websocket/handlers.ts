@@ -27,123 +27,14 @@ import {
   NetworkRequest,
   TabEvent,
 } from "../types/index.js";
-import { BrowserMessageType } from "@summer-mcp/core";
+import { 
+  BrowserMessageType,
+  BrowserMessage,
+  BrowserTab
+} from "@summer-mcp/core";
 
 // Legacy message type definition (to be deprecated)
 type MessageType = BrowserMessageType;
-
-// Base message interface
-interface BaseMessage {
-  type: BrowserMessageType;
-  tabId?: string | number;
-  timestamp?: number | string;
-}
-
-// Message interfaces
-interface ScreenshotMessage extends BaseMessage {
-  type: BrowserMessageType.SCREENSHOT;
-  data: string; // Base64 encoded image
-}
-
-interface ConsoleLogMessage extends BaseMessage {
-  type: BrowserMessageType.CONSOLE_LOGS;
-  data: ConsoleLog[];
-}
-
-interface ConsoleErrorsMessage extends BaseMessage {
-  type: BrowserMessageType.CONSOLE_ERRORS;
-  data: ConsoleLog[];
-}
-
-interface NetworkRequestMessage extends BaseMessage {
-  type: BrowserMessageType.NETWORK_REQUESTS;
-  data: NetworkRequest;
-}
-
-interface NetworkErrorMessage extends BaseMessage {
-  type: BrowserMessageType.NETWORK_ERRORS;
-  data: NetworkRequest;
-}
-
-interface DomSnapshotMessage extends BaseMessage {
-  type: BrowserMessageType.DOM_SNAPSHOT;
-  data: {
-    html: string;
-    selectedElement?: {
-      xpath: string;
-      attributes: Record<string, string>;
-    };
-  };
-}
-
-interface BrowserTabsMessage extends BaseMessage {
-  type: BrowserMessageType.BROWSER_TABS;
-  data: BrowserTabsResponse;
-}
-
-interface ActiveTabMessage extends BaseMessage {
-  type: BrowserMessageType.ACTIVE_TAB;
-  data: ActiveTab;
-}
-
-interface TabEventMessage extends BaseMessage {
-  type: BrowserMessageType.TAB_EVENT;
-  data: TabEvent;
-}
-
-interface DebuggerEventMessage extends BaseMessage {
-  type: BrowserMessageType.DEBUGGER_EVENT;
-  data: DebuggerEvent;
-}
-
-interface DebuggerDetachedMessage extends BaseMessage {
-  type: BrowserMessageType.DEBUGGER_DETACHED;
-  data: {
-    reason: string;
-  };
-}
-
-interface MonitorStatusMessage extends BaseMessage {
-  type: BrowserMessageType.CONSOLE_MONITOR_STATUS | BrowserMessageType.NETWORK_MONITOR_STATUS;
-  data: MonitorStatus;
-}
-
-interface MonitorErrorMessage extends BaseMessage {
-  type: BrowserMessageType.CONSOLE_MONITOR_ERROR | BrowserMessageType.NETWORK_MONITOR_ERROR;
-  data: MonitorError;
-}
-
-interface ExtensionEventMessage extends BaseMessage {
-  type: BrowserMessageType.EXTENSION_EVENT;
-  data: ExtensionEvent;
-}
-
-interface ActivateTabResultMessage extends BaseMessage {
-  type: BrowserMessageType.ACTIVATE_TAB_RESULT;
-  data: {
-    success: boolean;
-    tabId?: number;
-    error?: string;
-  };
-}
-
-// Union type of all possible messages
-type ExtensionMessage =
-  | ScreenshotMessage
-  | ConsoleLogMessage
-  | ConsoleErrorsMessage
-  | NetworkRequestMessage
-  | NetworkErrorMessage
-  | DomSnapshotMessage
-  | BrowserTabsMessage
-  | ActiveTabMessage
-  | TabEventMessage
-  | DebuggerEventMessage
-  | DebuggerDetachedMessage
-  | MonitorStatusMessage
-  | MonitorErrorMessage
-  | ExtensionEventMessage
-  | ActivateTabResultMessage;
 
 /**
  * Handle messages from browser extension
@@ -151,7 +42,7 @@ type ExtensionMessage =
  */
 export function handleWebSocketMessage(message: string): void {
   try {
-    const parsedMessage = JSON.parse(message) as ExtensionMessage;
+    const parsedMessage = JSON.parse(message) as BrowserMessage;
 
     // Add timestamp if not present
     if (!parsedMessage.timestamp) {
@@ -168,7 +59,7 @@ export function handleWebSocketMessage(message: string): void {
         if (parsedMessage.tabId) {
           const tabId = String(parsedMessage.tabId);
           parsedMessage.data.forEach((log) => {
-            addConsoleLog(tabId, log);
+            addConsoleLog(tabId, log as ConsoleLog);
           });
           console.log(
             `Received console logs for tab ${tabId}:`,
@@ -178,31 +69,12 @@ export function handleWebSocketMessage(message: string): void {
         } else {
           console.warn("Received console logs without tabId, using default");
           parsedMessage.data.forEach((log) => {
-            addConsoleLog("default", log);
-          });
-        }
-        break;
-      case BrowserMessageType.CONSOLE_ERRORS:
-        // Add each console error to the store with the specific tabId
-        if (parsedMessage.tabId) {
-          const tabId = String(parsedMessage.tabId);
-          parsedMessage.data.forEach((error) => {
-            addConsoleError(tabId, error);
-          });
-          console.log(
-            `Received console errors for tab ${tabId}:`,
-            parsedMessage.data.length,
-            "entries"
-          );
-        } else {
-          console.warn("Received console errors without tabId, using default");
-          parsedMessage.data.forEach((error) => {
-            addConsoleError("default", error);
+            addConsoleLog("default", log as ConsoleLog);
           });
         }
         break;
       case BrowserMessageType.NETWORK_REQUESTS:
-        addNetworkRequest(parsedMessage.data);
+        addNetworkRequest(parsedMessage.data as NetworkRequest);
         console.log(
           "Network request:",
           parsedMessage.data.method,
@@ -210,7 +82,7 @@ export function handleWebSocketMessage(message: string): void {
         );
         break;
       case BrowserMessageType.NETWORK_ERRORS:
-        addNetworkError(parsedMessage.data);
+        addNetworkError(parsedMessage.data as NetworkRequest);
         console.log(
           "Network error:",
           parsedMessage.data.method,
@@ -226,10 +98,22 @@ export function handleWebSocketMessage(message: string): void {
         console.log("Received DOM snapshot, length:", parsedMessage.data.html.length);
         break;
       case BrowserMessageType.BROWSER_TABS:
-        handleBrowserTabsResponse(parsedMessage.data);
+        // Convert to the expected BrowserTabsResponse format
+        const tabsResponse: BrowserTabsResponse = {
+          tabs: parsedMessage.data,
+          timestamp: Date.now()
+        };
+        handleBrowserTabsResponse(tabsResponse);
         break;
       case BrowserMessageType.ACTIVE_TAB:
-        handleActiveTabResponse(parsedMessage.data);
+        // Convert BrowserTab to ActiveTab
+        const activeTab: ActiveTab = {
+          tabId: parsedMessage.data.id,
+          url: parsedMessage.data.url || '',
+          title: parsedMessage.data.title || '',
+          favIconUrl: parsedMessage.data.favIconUrl
+        };
+        handleActiveTabResponse(activeTab);
         break;
       case BrowserMessageType.ACTIVATE_TAB_RESULT:
         // Convert the activate tab result to ActiveTab format
@@ -248,11 +132,23 @@ export function handleWebSocketMessage(message: string): void {
         );
         break;
       case BrowserMessageType.TAB_EVENT:
-        addTabEvent(parsedMessage.data);
+        // Convert to the expected TabEvent format
+        const tabEvent: TabEvent = {
+          ...parsedMessage.data,
+          event: parsedMessage.data.event,
+          tabId: parsedMessage.data.tabId
+        };
+        addTabEvent(tabEvent);
         console.log("Tab event:", parsedMessage.data.event);
         break;
       case BrowserMessageType.DEBUGGER_EVENT:
-        addDebuggerEvent(parsedMessage.data);
+        // Convert to the expected DebuggerEvent format
+        const debuggerEvent: DebuggerEvent = {
+          ...parsedMessage.data,
+          event: parsedMessage.data.method,
+          tabId: parsedMessage.tabId || 'unknown'
+        };
+        addDebuggerEvent(debuggerEvent);
         console.log("Debugger event:", parsedMessage.data.method);
         break;
       case BrowserMessageType.DEBUGGER_DETACHED:
@@ -260,7 +156,13 @@ export function handleWebSocketMessage(message: string): void {
         break;
       case BrowserMessageType.CONSOLE_MONITOR_STATUS:
       case BrowserMessageType.NETWORK_MONITOR_STATUS:
-        addMonitorStatus(parsedMessage.type, parsedMessage.data);
+        // Convert to the expected MonitorStatus format
+        const monitorStatus: MonitorStatus = {
+          ...parsedMessage.data,
+          tabId: parsedMessage.tabId || 'unknown',
+          status: parsedMessage.data.status
+        };
+        addMonitorStatus(parsedMessage.type, monitorStatus);
         console.log(
           "Monitor status:",
           parsedMessage.type,
@@ -269,7 +171,13 @@ export function handleWebSocketMessage(message: string): void {
         break;
       case BrowserMessageType.CONSOLE_MONITOR_ERROR:
       case BrowserMessageType.NETWORK_MONITOR_ERROR:
-        addMonitorError(parsedMessage.type, parsedMessage.data);
+        // Convert to the expected MonitorError format
+        const monitorError: MonitorError = {
+          ...parsedMessage.data,
+          tabId: parsedMessage.tabId || 'unknown',
+          error: parsedMessage.data.error
+        };
+        addMonitorError(parsedMessage.type, monitorError);
         console.log(
           "Monitor error:",
           parsedMessage.type,
@@ -277,7 +185,13 @@ export function handleWebSocketMessage(message: string): void {
         );
         break;
       case BrowserMessageType.EXTENSION_EVENT:
-        addExtensionEvent(parsedMessage.data);
+        // Convert to the expected ExtensionEvent format
+        const extensionEvent: ExtensionEvent = {
+          ...parsedMessage.data,
+          event: parsedMessage.data.event,
+          version: parsedMessage.data.version
+        };
+        addExtensionEvent(extensionEvent);
         console.log("Extension event:", parsedMessage.data.event);
         break;
       default:

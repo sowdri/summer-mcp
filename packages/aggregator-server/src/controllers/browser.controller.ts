@@ -9,6 +9,12 @@ import {
   registerActiveTabRequest,
 } from "../services/browserTabs.service.js";
 import { clients, sendCommandToExtension } from "../websocket/commands.js";
+import { 
+  ServerCommandType, 
+  ListBrowserTabsCommand, 
+  GetActiveBrowserTabCommand,
+  ActivateBrowserTabCommand
+} from "@summer-mcp/core";
 
 /**
  * Get browser tabs
@@ -26,8 +32,14 @@ export function getBrowserTabs(req: Request, res: Response): Response | void {
   // Register the request with the browser tabs service
   const requestId = registerTabsRequest(res);
 
+  // Create the command object
+  const command: ListBrowserTabsCommand = {
+    type: 'command',
+    command: ServerCommandType.LIST_BROWSER_TABS
+  };
+
   // Send command to browser extension
-  const commandSent = sendCommandToExtension("listBrowserTabs");
+  const commandSent = sendCommandToExtension(command);
 
   // If command wasn't sent successfully, clean up and return error
   if (!commandSent) {
@@ -43,14 +55,16 @@ export function getBrowserTabs(req: Request, res: Response): Response | void {
       message: "The browser extension is connected but not in a ready state",
     });
   }
+
+  // The response will be sent by the browser tabs service when the data is received
 }
 
 /**
- * Wipe all logs
+ * Clear all logs
  */
 export function wipeLogs(req: Request, res: Response): void {
   clearAllLogs();
-  res.json({ message: "All logs have been cleared" });
+  res.json({ message: "All logs cleared" });
 }
 
 /**
@@ -69,8 +83,14 @@ export function getActiveBrowserTab(req: Request, res: Response): Response | voi
   // Register the request with the browser tabs service
   const requestId = registerActiveTabRequest(res);
 
+  // Create the command object
+  const command: GetActiveBrowserTabCommand = {
+    type: 'command',
+    command: ServerCommandType.GET_ACTIVE_BROWSER_TAB
+  };
+
   // Send command to browser extension
-  const commandSent = sendCommandToExtension("getActiveBrowserTab");
+  const commandSent = sendCommandToExtension(command);
 
   // If command wasn't sent successfully, clean up and return error
   if (!commandSent) {
@@ -86,10 +106,12 @@ export function getActiveBrowserTab(req: Request, res: Response): Response | voi
       message: "The browser extension is connected but not in a ready state",
     });
   }
+
+  // The response will be sent by the browser tabs service when the data is received
 }
 
 /**
- * Set active browser tab
+ * Activate a browser tab
  */
 export function activateBrowserTab(req: Request, res: Response): Response | void {
   // Check if there are any connected WebSocket clients
@@ -101,18 +123,27 @@ export function activateBrowserTab(req: Request, res: Response): Response | void
     });
   }
 
-  // Get the tab ID from the request
-  const tabId = req.query.tabId || req.body.tabId;
-  
+  // Get tabId from request parameters or query
+  const tabId = req.params.tabId || req.query.tabId;
+
   if (!tabId) {
     return res.status(400).json({
-      error: "Missing tab ID",
+      error: "Missing tabId parameter",
       message: "Please provide a tab ID to activate",
     });
   }
 
+  // Create the command object
+  const command: ActivateBrowserTabCommand = {
+    type: 'command',
+    command: ServerCommandType.ACTIVATE_BROWSER_TAB,
+    params: {
+      tabId: String(tabId)
+    }
+  };
+
   // Send command to browser extension
-  const commandSent = sendCommandToExtension("activateBrowserTab", { tabId: Number(tabId) });
+  const commandSent = sendCommandToExtension(command);
 
   if (!commandSent) {
     return res.status(503).json({
@@ -123,7 +154,7 @@ export function activateBrowserTab(req: Request, res: Response): Response | void
 
   // Return success response
   res.json({
-    success: true,
-    message: `Command sent to activate tab ${tabId}`,
+    message: "Tab activation requested",
+    tabId: tabId,
   });
 }

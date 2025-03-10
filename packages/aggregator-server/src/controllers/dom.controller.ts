@@ -8,9 +8,10 @@ import {
   registerScreenshotRequest,
 } from "../services/screenshot.service.js";
 import { clients, sendCommandToExtension } from "../websocket/commands.js";
+import { ServerCommandType, TakeScreenshotCommand } from "@summer-mcp/core";
 
 /**
- * Capture screenshot
+ * Capture screenshot of the current tab
  */
 export function captureScreenshot(
   req: Request,
@@ -28,8 +29,14 @@ export function captureScreenshot(
   // Register the request with the screenshot service
   const requestId = registerScreenshotRequest(res);
 
+  // Create the command object
+  const command: TakeScreenshotCommand = {
+    type: 'command',
+    command: ServerCommandType.TAKE_SCREENSHOT
+  };
+
   // Send command to browser extension
-  const commandSent = sendCommandToExtension("takeScreenshot");
+  const commandSent = sendCommandToExtension(command);
 
   // If command wasn't sent successfully, clean up and return error
   if (!commandSent) {
@@ -45,19 +52,34 @@ export function captureScreenshot(
       message: "The browser extension is connected but not in a ready state",
     });
   }
+
+  // The response will be sent by the screenshot service when the data is received
 }
 
 /**
- * Get selected element
+ * Get the currently selected element
  */
 export function getSelectedElement(req: Request, res: Response): void {
-  // Get the selected element from the default tab
-  const defaultTabId = "default";
-  const selectedElement = browserData.tabs[defaultTabId]?.selectedElement;
+  // Check if a specific tab ID is requested
+  const tabId = req.query.tabId as string;
 
-  if (selectedElement) {
-    res.json(selectedElement);
+  if (tabId) {
+    // Return selected element for the specific tab
+    const tabData = browserData.tabs[tabId];
+    if (tabData) {
+      res.json(tabData.selectedElement || null);
+    } else {
+      res.status(404).json({
+        error: "Tab not found",
+        message: `No data found for tab ID: ${tabId}`,
+      });
+    }
   } else {
-    res.status(404).json({ error: "No element currently selected" });
+    // Return selected element for all tabs
+    const allElements: Record<string, any> = {};
+    Object.keys(browserData.tabs).forEach((id) => {
+      allElements[id] = browserData.tabs[id].selectedElement || null;
+    });
+    res.json(allElements);
   }
 }

@@ -89,8 +89,7 @@ export interface ExtensionEvent {
 
 // Tab-specific browser data
 export interface TabData {
-  consoleLogs: ConsoleLog[];
-  consoleErrors: ConsoleLog[];
+  consoleLogs: ConsoleLog[]; // All console logs including errors and warnings
   networkRequests: {
     success: NetworkRequest[];
     errors: NetworkRequest[];
@@ -125,7 +124,6 @@ export interface BrowserDataProvider {
 
   // Log operations
   addConsoleLog(tabId: string, log: ConsoleLog): void;
-  addConsoleError(tabId: string, error: ConsoleLog): void;
   addNetworkSuccess(tabId: string, request: NetworkRequest): void;
   addNetworkError(tabId: string, request: NetworkRequest): void;
 
@@ -155,8 +153,7 @@ export interface BrowserDataProvider {
 
 // Configuration constants
 export interface BrowserDataConfig {
-  MAX_CONSOLE_LOGS: number;
-  MAX_CONSOLE_ERRORS: number;
+  MAX_CONSOLE_LOGS: number; // All console logs including errors and warnings
   MAX_NETWORK_SUCCESS: number;
   MAX_NETWORK_ERRORS: number;
   MAX_TAB_EVENTS: number;

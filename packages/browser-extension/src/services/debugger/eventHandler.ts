@@ -2,7 +2,6 @@ import { sendMessage } from "../websocket/messageSender";
 import { 
   BrowserMessageType, 
   ConsoleLogsMessage, 
-  ConsoleErrorsMessage,
   NetworkRequestsMessage,
   NetworkErrorsMessage,
   DebuggerEventMessage,
