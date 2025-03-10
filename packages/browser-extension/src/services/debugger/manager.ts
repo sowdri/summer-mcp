@@ -72,3 +72,20 @@ export function isDebuggerAttached(tabId: number): boolean {
     debuggerConnections.get(tabId)?.attached === true
   );
 }
+
+/**
+ * Attach debugger to all existing tabs
+ * This will automatically attach the debugger to all existing tabs
+ */
+export function attachDebuggerToAllTabs(): void {
+  console.debug("[Debugger] Attaching debugger to all existing tabs");
+  
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach((tab) => {
+      if (tab.id) {
+        attachDebugger(tab.id);
+      }
+    });
+    console.debug(`[Debugger] Attached to ${tabs.length} tabs`);
+  });
+}

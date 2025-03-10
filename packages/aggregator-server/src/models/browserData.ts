@@ -425,11 +425,11 @@ export function clearAllLogs(): void {
 
 /**
  * Add console log
+ * @param tabId The ID of the tab that generated the log
+ * @param log The console log entry
  */
-export function addConsoleLog(log: any): void {
-  // Use a default tab ID for legacy calls
-  const defaultTabId = "default";
-  browserDataProvider.addConsoleLog(defaultTabId, log);
+export function addConsoleLog(tabId: string, log: any): void {
+  browserDataProvider.addConsoleLog(tabId, log);
 }
 
 /**
@@ -514,4 +514,13 @@ export function addMonitorError(type: string, error: MonitorError): void {
  */
 export function addExtensionEvent(event: ExtensionEvent): void {
   browserDataProvider.addExtensionEvent(event);
+}
+
+/**
+ * Add console error
+ * @param tabId The ID of the tab that generated the error
+ * @param error The console error entry
+ */
+export function addConsoleError(tabId: string, error: any): void {
+  browserDataProvider.addConsoleError(tabId, error);
 }

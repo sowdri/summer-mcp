@@ -5,6 +5,7 @@ import { startNetworkMonitoring } from "../../features/network";
 import { takeScreenshot } from "../../features/screenshot";
 import {
   attachDebugger,
+  attachDebuggerToAllTabs,
   debuggerConnections,
   detachDebugger,
 } from "../debugger/manager";
@@ -23,6 +24,9 @@ let activeTabId: number | null = null;
  * Initialize tab event listeners
  */
 export function initTabEventListeners(): void {
+  // Handle tab creation
+  chrome.tabs.onCreated.addListener(handleTabCreated);
+
   // Handle tab removal
   chrome.tabs.onRemoved.addListener(handleTabRemoved);
 
@@ -45,7 +49,43 @@ export function initTabEventListeners(): void {
     }
   });
 
+  // Attach debugger to all existing tabs
+  attachDebuggerToAllTabs();
+
   console.debug("[Tab Manager] Tab event listeners initialized");
+}
+
+/**
+ * Handle tab creation
+ * @param tab The created tab
+ */
+function handleTabCreated(tab: chrome.tabs.Tab): void {
+  if (!tab.id) return;
+  
+  const tabId = tab.id;
+  console.debug(`[Tab Manager] Tab created: ${tabId}`);
+
+  // Immediately attach debugger to the new tab
+  if (!debuggerConnections.has(tabId) || !debuggerConnections.get(tabId)?.attached) {
+    console.debug(`[Tab Manager] Attaching debugger to newly created tab: ${tabId}`);
+    attachDebugger(tabId);
+    chrome.action.setBadgeText({ tabId, text: BADGE_TEXT.CONNECTED });
+    chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_COLORS.CONNECTED });
+  }
+
+  // Send tab created event to aggregator
+  const message: TabEventMessage = {
+    type: BrowserMessageType.TAB_EVENT,
+    data: {
+      event: "created",
+      tabId,
+      tab: JSON.parse(JSON.stringify(tab)),
+      timestamp: Date.now()
+    },
+    tabId,
+    timestamp: Date.now()
+  };
+  sendMessage(message);
 }
 
 /**
@@ -130,14 +170,20 @@ function handleTabUpdated(
   };
   sendMessage(message);
 
-  // If this is the active tab and it's completed loading, refresh monitoring
-  if (
-    activeTabId === tabId &&
-    changeInfo.status === "complete" &&
-    debuggerConnections.has(tabId) &&
-    debuggerConnections.get(tabId)?.attached
-  ) {
-    refreshMonitoring(tabId);
+  // If this is a new tab or page load, ensure debugger is attached
+  if (changeInfo.status === "complete") {
+    // Automatically attach debugger to the tab if not already attached
+    if (!debuggerConnections.has(tabId) || !debuggerConnections.get(tabId)?.attached) {
+      console.debug(`[Tab Manager] New page loaded in tab ${tabId}, attaching debugger`);
+      attachDebugger(tabId);
+      chrome.action.setBadgeText({ tabId, text: BADGE_TEXT.CONNECTED });
+      chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_COLORS.CONNECTED });
+    }
+    
+    // If this is the active tab, refresh monitoring
+    if (activeTabId === tabId) {
+      refreshMonitoring(tabId);
+    }
   }
 }
 

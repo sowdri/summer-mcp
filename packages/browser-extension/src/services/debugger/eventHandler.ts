@@ -100,34 +100,19 @@ function handleConsoleMessage(tabId: number, params: any): void {
   // Log message details for debugging
   console.debug(`[Debugger] Console ${level}: ${message.text} (tab: ${tabId})`);
 
-  // Send to aggregator with additional metadata
-  if (level === "error" || level === "warning") {
-    const errorMessage: ConsoleErrorsMessage = {
-      type: BrowserMessageType.CONSOLE_ERRORS,
-      data: [{
-        level,
-        message: message.text,
-        timestamp: Date.now(),
-        ...params
-      }],
-      tabId,
-      timestamp: Date.now()
-    };
-    sendMessage(errorMessage);
-  } else {
-    const logMessage: ConsoleLogsMessage = {
-      type: BrowserMessageType.CONSOLE_LOGS,
-      data: [{
-        level,
-        message: message.text,
-        timestamp: Date.now(),
-        ...params
-      }],
-      tabId,
-      timestamp: Date.now()
-    };
-    sendMessage(logMessage);
-  }
+  // Send all logs (including errors and warnings) to aggregator with the same message type
+  const logMessage: ConsoleLogsMessage = {
+    type: BrowserMessageType.CONSOLE_LOGS,
+    data: [{
+      level,
+      message: message.text,
+      timestamp: Date.now(),
+      ...params
+    }],
+    tabId,
+    timestamp: Date.now()
+  };
+  sendMessage(logMessage);
 }
 
 /**

@@ -12,6 +12,7 @@ import {
   addTabEvent,
   setSelectedElement,
   updateActiveTab,
+  addConsoleError,
 } from "../models/browserData.js";
 import { handleActiveTabResponse, handleBrowserTabsResponse } from "../services/browserTabs.service.js";
 import { handleScreenshotResponse } from "../services/screenshot.service.js";
@@ -46,6 +47,11 @@ interface ScreenshotMessage extends BaseMessage {
 
 interface ConsoleLogMessage extends BaseMessage {
   type: BrowserMessageType.CONSOLE_LOGS;
+  data: ConsoleLog[];
+}
+
+interface ConsoleErrorsMessage extends BaseMessage {
+  type: BrowserMessageType.CONSOLE_ERRORS;
   data: ConsoleLog[];
 }
 
@@ -125,6 +131,7 @@ interface ActivateTabResultMessage extends BaseMessage {
 type ExtensionMessage =
   | ScreenshotMessage
   | ConsoleLogMessage
+  | ConsoleErrorsMessage
   | NetworkRequestMessage
   | NetworkErrorMessage
   | DomSnapshotMessage
@@ -157,15 +164,42 @@ export function handleWebSocketMessage(message: string): void {
         handleScreenshotResponse(parsedMessage.data);
         break;
       case BrowserMessageType.CONSOLE_LOGS:
-        // Add each console log to the store
-        parsedMessage.data.forEach((log) => {
-          addConsoleLog(log);
-        });
-        console.log(
-          "Received console logs:",
-          parsedMessage.data.length,
-          "entries"
-        );
+        // Add each console log to the store with the specific tabId
+        if (parsedMessage.tabId) {
+          const tabId = String(parsedMessage.tabId);
+          parsedMessage.data.forEach((log) => {
+            addConsoleLog(tabId, log);
+          });
+          console.log(
+            `Received console logs for tab ${tabId}:`,
+            parsedMessage.data.length,
+            "entries"
+          );
+        } else {
+          console.warn("Received console logs without tabId, using default");
+          parsedMessage.data.forEach((log) => {
+            addConsoleLog("default", log);
+          });
+        }
+        break;
+      case BrowserMessageType.CONSOLE_ERRORS:
+        // Add each console error to the store with the specific tabId
+        if (parsedMessage.tabId) {
+          const tabId = String(parsedMessage.tabId);
+          parsedMessage.data.forEach((error) => {
+            addConsoleError(tabId, error);
+          });
+          console.log(
+            `Received console errors for tab ${tabId}:`,
+            parsedMessage.data.length,
+            "entries"
+          );
+        } else {
+          console.warn("Received console errors without tabId, using default");
+          parsedMessage.data.forEach((error) => {
+            addConsoleError("default", error);
+          });
+        }
         break;
       case BrowserMessageType.NETWORK_REQUESTS:
         addNetworkRequest(parsedMessage.data);

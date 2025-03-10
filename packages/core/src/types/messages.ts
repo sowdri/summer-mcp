@@ -72,6 +72,7 @@ export interface ConsoleLogEntry {
 export interface ConsoleLogsMessage extends BaseBrowserMessage {
   type: BrowserMessageType.CONSOLE_LOGS;
   data: ConsoleLogEntry[];
+  tabId: string | number;
 }
 
 /**
@@ -80,6 +81,7 @@ export interface ConsoleLogsMessage extends BaseBrowserMessage {
 export interface ConsoleErrorsMessage extends BaseBrowserMessage {
   type: BrowserMessageType.CONSOLE_ERRORS;
   data: ConsoleLogEntry[];
+  tabId: string | number;
 }
 
 /**
