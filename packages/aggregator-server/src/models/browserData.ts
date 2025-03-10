@@ -2,7 +2,6 @@
  * Browser data model
  */
 import {
-  ActiveTab,
   BrowserData,
   BrowserDataConfig,
   BrowserDataProvider,
@@ -11,10 +10,10 @@ import {
   ExtensionEvent,
   MonitorError,
   MonitorStatus,
-  NetworkRequest,
   TabData,
   TabEvent,
 } from "../types/index.js";
+import { BrowserTab, NetworkRequest } from "@summer-mcp/core";
 
 // Configuration constants
 export const BROWSER_DATA_CONFIG: BrowserDataConfig = {
@@ -172,18 +171,15 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
   }
 
   // Tab operations
-  updateActiveTab(tabId: string, data: ActiveTab): void {
+  updateActiveTab(tabId: string, data: BrowserTab): void {
+    // Get or create tab data
     const tabData = this.ensureTabData(tabId);
 
-    // Add timestamp if not present
-    if (!data.timestamp) {
-      data.timestamp = Date.now();
-    }
-
+    // Update active tab
     tabData.activeTab = data;
-    tabData.lastUpdated = Date.now();
 
-    console.log(`Active tab updated for tab ${tabId}: ${data.url}`);
+    // Update last updated timestamp
+    tabData.lastUpdated = Date.now();
   }
 
   addTabEvent(tabId: string, event: TabEvent): void {
@@ -440,9 +436,9 @@ export function setSelectedElement(data: any): void {
 /**
  * Update active tab
  */
-export function updateActiveTab(data: ActiveTab): void {
+export function updateActiveTab(data: any): void {
   // Extract tabId from the data or use default
-  const tabId = data.tabId?.toString() || "default";
+  const tabId = data.id?.toString() || "default";
   browserDataProvider.updateActiveTab(tabId, data);
 }
 

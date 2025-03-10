@@ -3,7 +3,8 @@
  * Handles communication between HTTP requests and WebSocket responses
  */
 import { Response } from "express";
-import { ActiveTab, BrowserTabsResponse } from "../types/index.js";
+import { BrowserTab } from "@summer-mcp/core";
+import { BrowserTabsResponse } from "../types/browser-data.js";
 
 // Interface for pending request entry
 interface PendingTabRequest {
@@ -89,7 +90,7 @@ export function registerActiveTabRequest(res: Response, timeoutMs = 5000): strin
  * Handle active tab response from websocket
  * @param data Active tab data
  */
-export function handleActiveTabResponse(data: ActiveTab): void {
+export function handleActiveTabResponse(data: BrowserTab): void {
   // Resolve all pending requests as they all need the same data
   for (const [requestId, { res, timeout }] of pendingActiveTabRequests.entries()) {
     // Clear the timeout

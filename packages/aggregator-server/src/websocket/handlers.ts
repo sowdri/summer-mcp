@@ -16,20 +16,19 @@ import {
 import { handleActiveTabResponse, handleBrowserTabsResponse } from "../services/browserTabs.service.js";
 import { handleScreenshotResponse } from "../services/screenshot.service.js";
 import {
-  ActiveTab,
   BrowserTabsResponse,
   ConsoleLog,
   DebuggerEvent,
   ExtensionEvent,
   MonitorError,
   MonitorStatus,
-  NetworkRequest,
   TabEvent,
 } from "../types/index.js";
 import { 
   BrowserMessageType,
-  BrowserMessage,
-  BrowserTab
+  BrowserTab,
+  NetworkRequest,
+  BrowserMessage
 } from "@summer-mcp/core";
 
 // Legacy message type definition (to be deprecated)
@@ -109,26 +108,27 @@ export function handleWebSocketMessage(message: string): void {
         handleBrowserTabsResponse(tabsResponse);
         break;
       case BrowserMessageType.ACTIVE_TAB:
-        // Convert BrowserTab to ActiveTab
+        // Use BrowserTab directly
         const tabData = parsedMessage.data as BrowserTab;
-        const activeTab: ActiveTab = {
-          tabId: tabData.id,
-          url: tabData.url || '',
-          title: tabData.title || '',
-          favIconUrl: tabData.favIconUrl
-        };
-        handleActiveTabResponse(activeTab);
+        handleActiveTabResponse(tabData);
         break;
       case BrowserMessageType.ACTIVATE_TAB_RESULT:
-        // Convert the activate tab result to ActiveTab format
+        // Convert the activate tab result to BrowserTab format with additional properties
         const resultData = parsedMessage.data as { success: boolean; tabId?: number; error?: string };
-        const activeTabData: ActiveTab = {
-          tabId: resultData.tabId || 0, // Provide a default value to avoid undefined
+        // Create a custom object that includes both BrowserTab properties and additional properties
+        const activeTabData = {
+          id: resultData.tabId || 0, // Provide a default value to avoid undefined
           url: '',
           title: '',
-          status: resultData.success ? 'active' : 'error',
+          active: resultData.success,
+          windowId: 0,
+          index: 0,
+          favIconUrl: '',
+          // Additional properties
+          success: resultData.success,
           error: resultData.error
         };
+        // Pass the data to the updateActiveTab function
         updateActiveTab(activeTabData);
         console.log(
           "Activate tab result:",
