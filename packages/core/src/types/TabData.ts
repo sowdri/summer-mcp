@@ -2,7 +2,7 @@
  * Tab data types for the MCP system
  */
 
-import { ConsoleLogEntry, NetworkRequest } from "./messages";
+import { ConsoleLogEntry, NetworkRequest } from "./BrowserMessage";
 
 // Alias types for backward compatibility
 export type ConsoleLog = ConsoleLogEntry;

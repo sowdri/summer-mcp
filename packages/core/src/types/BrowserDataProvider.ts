@@ -2,7 +2,7 @@
  * Browser data provider interface for the MCP system
  */
 
-import { NetworkRequest } from "./messages";
+import { NetworkRequest } from "./BrowserMessage";
 import { TabData, ConsoleLog } from "./TabData";
 
 // Browser data storage provider interface

@@ -2,7 +2,7 @@
  * Browser data types for the MCP system
  */
 
-import { BrowserTab, NetworkRequest } from "./messages";
+import { BrowserTab, NetworkRequest } from "./BrowserMessage";
 import { TabData } from "./TabData";
 
 // Browser data interface

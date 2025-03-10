@@ -110,7 +110,7 @@ export function handleWebSocketMessage(message: string): void {
         break;
       default:
         // Log unknown message type
-        console.log("Unknown message type:", (parsedMessage as any).type);
+        console.log("Unknown message type:", (parsedMessage as BrowserMessage).type);
     }
   } catch (error) {
     console.error("Error processing message:", error);

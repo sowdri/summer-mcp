@@ -1,8 +1,8 @@
 /**
  * Type guard utilities for type-safe message handling
  */
-import { BrowserMessage, BrowserMessageType } from '../types/messages';
-import { ServerCommand, ServerCommandType, ServerMessage } from '../types/commands';
+import { BrowserMessage, BrowserMessageType } from '../types/BrowserMessage';
+import { ServerCommand, ServerCommandType, ServerMessage } from '../types/ServerMessage';
 
 /**
  * Type guard to check if a message is a specific browser message type

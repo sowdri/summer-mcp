@@ -2,11 +2,11 @@
  * Core types and utilities for Summer MCP
  */
 
-// Export all types from commands
-export * from './types/commands';
+// Export all types from server messages
+export * from './types/ServerMessage';
 
-// Export all types from messages
-export * from './types/messages';
+// Export all types from browser messages
+export * from './types/BrowserMessage';
 
 // Export browser data types
 export * from './types/BrowserData';
