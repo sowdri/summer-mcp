@@ -6,53 +6,28 @@ import {
   BrowserDataConfig,
   BrowserDataProvider,
   ConsoleLog,
-  DebuggerEvent,
-  ExtensionEvent,
-  MonitorError,
-  MonitorStatus,
-  TabData,
-  TabEvent,
+  TabData
 } from "../types/index.js";
 import { BrowserTab, NetworkRequest } from "@summer-mcp/core";
 
 // Configuration constants
 export const BROWSER_DATA_CONFIG: BrowserDataConfig = {
   MAX_CONSOLE_LOGS: 1000, // All console logs including errors and warnings
-  MAX_NETWORK_SUCCESS: 1000,
-  MAX_NETWORK_ERRORS: 1000,
-  MAX_TAB_EVENTS: 100,
-  MAX_DEBUGGER_EVENTS: 100,
-  MAX_MONITOR_STATUS: 100,
-  MAX_MONITOR_ERRORS: 100,
-  MAX_EXTENSION_EVENTS: 100,
+  MAX_NETWORK_REQUESTS: 1000
 };
 
 // Create an empty tab data structure
 function createEmptyTabData(): TabData {
   return {
     consoleLogs: [], // All console logs including errors and warnings
-    networkRequests: {
-      success: [],
-      errors: [],
-    },
+    networkRequests: [],
     selectedElement: null,
     activeTab: undefined,
-    tabEvents: [],
-    debuggerEvents: [],
-    monitorStatus: {
-      console: [],
-      network: [],
-    },
-    monitorErrors: {
-      console: [],
-      network: [],
-    },
-    extensionEvents: [],
-    lastUpdated: Date.now(),
+    lastUpdated: Date.now()
   };
 }
 
-// Store data from browser extension
+// In-memory browser data
 export const browserData: BrowserData = {
   tabs: {},
 };
@@ -122,7 +97,7 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
     tabData.lastUpdated = Date.now();
   }
 
-  addNetworkSuccess(tabId: string, request: NetworkRequest): void {
+  addNetworkRequest(tabId: string, request: NetworkRequest): void {
     const tabData = this.ensureTabData(tabId);
 
     // Add timestamp if not present
@@ -130,40 +105,23 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
       request.timestamp = Date.now();
     }
 
-    // Add to the beginning for newest first
-    tabData.networkRequests.success.unshift(request);
-
-    // Limit the number of entries
-    if (
-      tabData.networkRequests.success.length > this.config.MAX_NETWORK_SUCCESS
-    ) {
-      tabData.networkRequests.success = tabData.networkRequests.success.slice(
-        0,
-        this.config.MAX_NETWORK_SUCCESS
-      );
-    }
-
-    tabData.lastUpdated = Date.now();
-  }
-
-  addNetworkError(tabId: string, request: NetworkRequest): void {
-    const tabData = this.ensureTabData(tabId);
-
-    // Add timestamp if not present
-    if (!request.timestamp) {
-      request.timestamp = Date.now();
+    // Set isError flag based on the request
+    if (request.method === "Network.loadingFailed" || (request.status !== undefined && request.status >= 400)) {
+      request.isError = true;
+    } else {
+      request.isError = false;
     }
 
     // Add to the beginning for newest first
-    tabData.networkRequests.errors.unshift(request);
+    tabData.networkRequests.unshift(request);
 
     // Limit the number of entries
     if (
-      tabData.networkRequests.errors.length > this.config.MAX_NETWORK_ERRORS
+      tabData.networkRequests.length > this.config.MAX_NETWORK_REQUESTS
     ) {
-      tabData.networkRequests.errors = tabData.networkRequests.errors.slice(
+      tabData.networkRequests = tabData.networkRequests.slice(
         0,
-        this.config.MAX_NETWORK_ERRORS
+        this.config.MAX_NETWORK_REQUESTS
       );
     }
 
@@ -182,146 +140,6 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
     tabData.lastUpdated = Date.now();
   }
 
-  addTabEvent(tabId: string, event: TabEvent): void {
-    const tabData = this.ensureTabData(tabId);
-
-    // Add timestamp if not present
-    if (!event.timestamp) {
-      event.timestamp = Date.now();
-    }
-
-    // Add to the beginning for newest first
-    tabData.tabEvents.unshift(event);
-
-    // Limit the number of entries
-    if (tabData.tabEvents.length > this.config.MAX_TAB_EVENTS) {
-      tabData.tabEvents = tabData.tabEvents.slice(
-        0,
-        this.config.MAX_TAB_EVENTS
-      );
-    }
-
-    tabData.lastUpdated = Date.now();
-
-    console.log(`Tab event added for tab ${tabId}: ${event.event}`);
-  }
-
-  addDebuggerEvent(tabId: string, event: DebuggerEvent): void {
-    const tabData = this.ensureTabData(tabId);
-
-    // Add timestamp if not present
-    if (!event.timestamp) {
-      event.timestamp = Date.now();
-    }
-
-    // Add to the beginning for newest first
-    tabData.debuggerEvents.unshift(event);
-
-    // Limit the number of entries
-    if (tabData.debuggerEvents.length > this.config.MAX_DEBUGGER_EVENTS) {
-      tabData.debuggerEvents = tabData.debuggerEvents.slice(
-        0,
-        this.config.MAX_DEBUGGER_EVENTS
-      );
-    }
-
-    tabData.lastUpdated = Date.now();
-
-    console.log(`Debugger event added for tab ${tabId}: ${event.event}`);
-  }
-
-  // Monitor operations
-  addMonitorStatus(tabId: string, type: string, status: MonitorStatus): void {
-    const tabData = this.ensureTabData(tabId);
-
-    // Add timestamp if not present
-    if (!status.timestamp) {
-      status.timestamp = Date.now();
-    }
-
-    // Determine which array to add to
-    const statusArray = type.includes("console")
-      ? tabData.monitorStatus.console
-      : tabData.monitorStatus.network;
-
-    // Add to the beginning for newest first
-    statusArray.unshift(status);
-
-    // Limit the number of entries
-    if (statusArray.length > this.config.MAX_MONITOR_STATUS) {
-      const newLength = Math.min(
-        statusArray.length,
-        this.config.MAX_MONITOR_STATUS
-      );
-      statusArray.length = newLength;
-    }
-
-    tabData.lastUpdated = Date.now();
-
-    console.log(
-      `Monitor status added for tab ${tabId}: ${type} - ${status.status}`
-    );
-  }
-
-  addMonitorError(tabId: string, type: string, error: MonitorError): void {
-    const tabData = this.ensureTabData(tabId);
-
-    // Add timestamp if not present
-    if (!error.timestamp) {
-      error.timestamp = Date.now();
-    }
-
-    // Determine which array to add to
-    const errorArray = type.includes("console")
-      ? tabData.monitorErrors.console
-      : tabData.monitorErrors.network;
-
-    // Add to the beginning for newest first
-    errorArray.unshift(error);
-
-    // Limit the number of entries
-    if (errorArray.length > this.config.MAX_MONITOR_ERRORS) {
-      const newLength = Math.min(
-        errorArray.length,
-        this.config.MAX_MONITOR_ERRORS
-      );
-      errorArray.length = newLength;
-    }
-
-    tabData.lastUpdated = Date.now();
-
-    console.log(
-      `Monitor error added for tab ${tabId}: ${type} - ${error.error}`
-    );
-  }
-
-  // Extension operations
-  addExtensionEvent(event: ExtensionEvent): void {
-    // Use a special tab ID for extension-wide events
-    const tabId = "extension";
-    const tabData = this.ensureTabData(tabId);
-
-    // Add timestamp if not present
-    if (!event.timestamp) {
-      event.timestamp = Date.now();
-    }
-
-    // Add to the beginning for newest first
-    tabData.extensionEvents.unshift(event);
-
-    // Limit the number of entries
-    if (tabData.extensionEvents.length > this.config.MAX_EXTENSION_EVENTS) {
-      tabData.extensionEvents = tabData.extensionEvents.slice(
-        0,
-        this.config.MAX_EXTENSION_EVENTS
-      );
-    }
-
-    tabData.lastUpdated = Date.now();
-
-    console.log(`Extension event added: ${event.event}`);
-  }
-
   // Asset operations
   setSelectedElement(tabId: string, data: any): void {
     const tabData = this.ensureTabData(tabId);
@@ -331,51 +149,35 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
 
   // Utility operations
   clearTabLogs(tabId: string): void {
+    // Get tab data
     const tabData = this.getTabData(tabId);
+
+    // If tab data exists, clear all logs
     if (tabData) {
       tabData.consoleLogs = [];
-      tabData.networkRequests.success = [];
-      tabData.networkRequests.errors = [];
-      tabData.tabEvents = [];
-      tabData.debuggerEvents = [];
-      tabData.monitorStatus.console = [];
-      tabData.monitorStatus.network = [];
-      tabData.monitorErrors.console = [];
-      tabData.monitorErrors.network = [];
+      tabData.networkRequests = [];
       tabData.lastUpdated = Date.now();
     }
   }
 
   clearAllLogs(): void {
-    // Clear logs for all tabs
-    Object.keys(this.data.tabs).forEach((tabId) => {
+    // Clear all tab data
+    for (const tabId in this.data.tabs) {
       this.clearTabLogs(tabId);
-    });
+    }
   }
 
   // Configuration
   getMaxEntries(): number {
     return Math.max(
       this.config.MAX_CONSOLE_LOGS,
-      this.config.MAX_NETWORK_SUCCESS,
-      this.config.MAX_NETWORK_ERRORS,
-      this.config.MAX_TAB_EVENTS,
-      this.config.MAX_DEBUGGER_EVENTS,
-      this.config.MAX_MONITOR_STATUS,
-      this.config.MAX_MONITOR_ERRORS,
-      this.config.MAX_EXTENSION_EVENTS
+      this.config.MAX_NETWORK_REQUESTS
     );
   }
 
   setMaxEntries(count: number): void {
     this.config.MAX_CONSOLE_LOGS = count;
-    this.config.MAX_NETWORK_SUCCESS = count;
-    this.config.MAX_NETWORK_ERRORS = count;
-    this.config.MAX_TAB_EVENTS = count;
-    this.config.MAX_DEBUGGER_EVENTS = count;
-    this.config.MAX_MONITOR_STATUS = count;
-    this.config.MAX_MONITOR_ERRORS = count;
-    this.config.MAX_EXTENSION_EVENTS = count;
+    this.config.MAX_NETWORK_REQUESTS = count;
   }
 }
 
@@ -408,11 +210,7 @@ export function addNetworkRequest(request: any): void {
   // Use a default tab ID for legacy calls
   const defaultTabId = "default";
 
-  if (request.method === "Network.loadingFailed") {
-    browserDataProvider.addNetworkError(defaultTabId, request);
-  } else {
-    browserDataProvider.addNetworkSuccess(defaultTabId, request);
-  }
+  browserDataProvider.addNetworkRequest(defaultTabId, request);
 }
 
 /**
@@ -421,7 +219,11 @@ export function addNetworkRequest(request: any): void {
 export function addNetworkError(request: any): void {
   // Use a default tab ID for legacy calls
   const defaultTabId = "default";
-  browserDataProvider.addNetworkError(defaultTabId, request);
+  
+  // Mark as error
+  request.isError = true;
+  
+  browserDataProvider.addNetworkRequest(defaultTabId, request);
 }
 
 /**
@@ -440,47 +242,4 @@ export function updateActiveTab(data: any): void {
   // Extract tabId from the data or use default
   const tabId = data.id?.toString() || "default";
   browserDataProvider.updateActiveTab(tabId, data);
-}
-
-/**
- * Add tab event
- */
-export function addTabEvent(event: TabEvent): void {
-  // Extract tabId from the event or use default
-  const tabId = event.tabId?.toString() || "default";
-  browserDataProvider.addTabEvent(tabId, event);
-}
-
-/**
- * Add debugger event
- */
-export function addDebuggerEvent(event: DebuggerEvent): void {
-  // Extract tabId from the event or use default
-  const tabId = event.tabId?.toString() || "default";
-  browserDataProvider.addDebuggerEvent(tabId, event);
-}
-
-/**
- * Add monitor status
- */
-export function addMonitorStatus(type: string, status: MonitorStatus): void {
-  // Extract tabId from the status or use default
-  const tabId = status.tabId?.toString() || "default";
-  browserDataProvider.addMonitorStatus(tabId, type, status);
-}
-
-/**
- * Add monitor error
- */
-export function addMonitorError(type: string, error: MonitorError): void {
-  // Extract tabId from the error or use default
-  const tabId = error.tabId?.toString() || "default";
-  browserDataProvider.addMonitorError(tabId, type, error);
-}
-
-/**
- * Add extension event
- */
-export function addExtensionEvent(event: ExtensionEvent): void {
-  browserDataProvider.addExtensionEvent(event);
 }

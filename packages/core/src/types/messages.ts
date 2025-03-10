@@ -77,6 +77,7 @@ export interface NetworkRequest {
   timestamp?: number;
   duration?: number;
   size?: number;
+  isError?: boolean;
   requestHeaders?: Record<string, string>;
   responseHeaders?: Record<string, string>;
   [key: string]: any;

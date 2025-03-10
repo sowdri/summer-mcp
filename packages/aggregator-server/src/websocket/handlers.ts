@@ -3,13 +3,7 @@
  */
 import {
   addConsoleLog,
-  addDebuggerEvent,
-  addExtensionEvent,
-  addMonitorError,
-  addMonitorStatus,
-  addNetworkError,
   addNetworkRequest,
-  addTabEvent,
   setSelectedElement,
   updateActiveTab,
 } from "../models/browserData.js";
@@ -18,11 +12,6 @@ import { handleScreenshotResponse } from "../services/screenshot.service.js";
 import {
   BrowserTabsResponse,
   ConsoleLog,
-  DebuggerEvent,
-  ExtensionEvent,
-  MonitorError,
-  MonitorStatus,
-  TabEvent,
 } from "../types/index.js";
 import { 
   BrowserMessageType,
@@ -72,24 +61,14 @@ export function handleWebSocketMessage(message: string): void {
         }
         break;
       case BrowserMessageType.NETWORK_REQUESTS:
-        // Check if this is an error request
+        // Add the network request to the store
         const networkData = parsedMessage.data as NetworkRequest;
-        if (networkData.isError) {
-          addNetworkError(networkData);
-          console.log(
-            "Network error:",
-            networkData.method,
-            networkData.url,
-            networkData.error
-          );
-        } else {
-          addNetworkRequest(networkData);
-          console.log(
-            "Network request:",
-            networkData.method,
-            networkData.url
-          );
-        }
+        addNetworkRequest(networkData);
+        console.log(
+          networkData.isError ? "Network error:" : "Network request:",
+          networkData.method,
+          networkData.url
+        );
         break;
       case BrowserMessageType.DOM_SNAPSHOT:
         // Store the selected element if present

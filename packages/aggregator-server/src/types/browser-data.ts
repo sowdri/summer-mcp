@@ -5,12 +5,7 @@
 import { BrowserTab, NetworkRequest } from "@summer-mcp/core";
 import { 
   TabData, 
-  ConsoleLog, 
-  TabEvent, 
-  DebuggerEvent, 
-  MonitorStatus, 
-  MonitorError, 
-  ExtensionEvent 
+  ConsoleLog
 } from "./tab-data.js";
 
 // Browser data interface
@@ -27,20 +22,10 @@ export interface BrowserDataProvider {
 
   // Log operations
   addConsoleLog(tabId: string, log: ConsoleLog): void;
-  addNetworkSuccess(tabId: string, request: NetworkRequest): void;
-  addNetworkError(tabId: string, request: NetworkRequest): void;
+  addNetworkRequest(tabId: string, request: NetworkRequest): void;
 
   // Tab operations
   updateActiveTab(tabId: string, data: BrowserTab): void;
-  addTabEvent(tabId: string, event: TabEvent): void;
-  addDebuggerEvent(tabId: string, event: DebuggerEvent): void;
-
-  // Monitor operations
-  addMonitorStatus(tabId: string, type: string, status: MonitorStatus): void;
-  addMonitorError(tabId: string, type: string, error: MonitorError): void;
-
-  // Extension operations
-  addExtensionEvent(event: ExtensionEvent): void;
 
   // Asset operations
   setSelectedElement(tabId: string, data: any): void;
@@ -57,13 +42,7 @@ export interface BrowserDataProvider {
 // Configuration constants
 export interface BrowserDataConfig {
   MAX_CONSOLE_LOGS: number; // All console logs including errors and warnings
-  MAX_NETWORK_SUCCESS: number;
-  MAX_NETWORK_ERRORS: number;
-  MAX_TAB_EVENTS: number;
-  MAX_DEBUGGER_EVENTS: number;
-  MAX_MONITOR_STATUS: number;
-  MAX_MONITOR_ERRORS: number;
-  MAX_EXTENSION_EVENTS: number;
+  MAX_NETWORK_REQUESTS: number;
 }
 
 // Browser tabs response
