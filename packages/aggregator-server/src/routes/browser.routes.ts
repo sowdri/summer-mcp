@@ -8,7 +8,7 @@ import {
   activateBrowserTab
 } from "../controllers/browser.controller.js";
 
-const router = Router();
+const router: Router = Router();
 
 // Get browser tabs
 router.get("/browser-tabs", getBrowserTabs);

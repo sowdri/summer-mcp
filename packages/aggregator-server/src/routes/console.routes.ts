@@ -3,7 +3,7 @@
  */
 import { Router } from "express";
 
-const router = Router();
+const router: Router = Router();
 
 // No console routes needed as logs are streamed continuously
 

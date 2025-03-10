@@ -20,8 +20,7 @@ export function getDomSnapshot(tabId: number): void {
     const message: DomSnapshotMessage = {
       type: BrowserMessageType.DOM_SNAPSHOT,
       data: {
-        html: JSON.stringify(root),
-        selectedElement: undefined
+        html: JSON.stringify(root)
       },
       tabId,
       timestamp: Date.now()

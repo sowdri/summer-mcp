@@ -10,7 +10,8 @@
     "clean": "pnpm -r clean",
     "test": "pnpm -r test",
     "lint": "eslint \"packages/*/src/**/*.{ts,tsx}\"",
-    "lint:fix": "eslint \"packages/*/src/**/*.{ts,tsx}\" --fix"
+    "lint:fix": "eslint \"packages/*/src/**/*.{ts,tsx}\" --fix",
+    "type-check": "pnpm -r exec -- tsc --noEmit"
   },
   "keywords": [
     "browser",

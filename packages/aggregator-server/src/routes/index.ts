@@ -7,7 +7,7 @@ import consoleRoutes from "./console.routes.js";
 import domRoutes from "./dom.routes.js";
 import networkRoutes from "./network.routes.js";
 
-const router = Router();
+const router: Router = Router();
 
 // Health check
 router.get("/", (req, res) => {

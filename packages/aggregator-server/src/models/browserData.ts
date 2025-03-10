@@ -21,7 +21,6 @@ function createEmptyTabData(): TabData {
   return {
     consoleLogs: [], // All console logs including errors and warnings
     networkRequests: [],
-    selectedElement: null,
     activeTab: undefined,
     lastUpdated: Date.now()
   };
@@ -130,20 +129,8 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
 
   // Tab operations
   updateActiveTab(tabId: string, data: BrowserTab): void {
-    // Get or create tab data
     const tabData = this.ensureTabData(tabId);
-
-    // Update active tab
     tabData.activeTab = data;
-
-    // Update last updated timestamp
-    tabData.lastUpdated = Date.now();
-  }
-
-  // Asset operations
-  setSelectedElement(tabId: string, data: any): void {
-    const tabData = this.ensureTabData(tabId);
-    tabData.selectedElement = data;
     tabData.lastUpdated = Date.now();
   }
 
@@ -227,19 +214,14 @@ export function addNetworkError(request: any): void {
 }
 
 /**
- * Set selected element
- */
-export function setSelectedElement(data: any): void {
-  // Use a default tab ID for legacy calls
-  const defaultTabId = "default";
-  browserDataProvider.setSelectedElement(defaultTabId, data);
-}
-
-/**
  * Update active tab
  */
 export function updateActiveTab(data: any): void {
-  // Extract tabId from the data or use default
-  const tabId = data.id?.toString() || "default";
+  if (!data || !data.id) {
+    console.error("Invalid tab data:", data);
+    return;
+  }
+
+  const tabId = data.id.toString();
   browserDataProvider.updateActiveTab(tabId, data);
 }

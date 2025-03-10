@@ -4,7 +4,6 @@
 import {
   addConsoleLog,
   addNetworkRequest,
-  setSelectedElement,
   updateActiveTab,
 } from "../models/browserData.js";
 import { handleActiveTabResponse, handleBrowserTabsResponse } from "../services/browserTabs.service.js";
@@ -68,11 +67,8 @@ export function handleWebSocketMessage(message: string): void {
         );
         break;
       case BrowserMessageType.DOM_SNAPSHOT:
-        // Store the selected element if present
-        const domData = parsedMessage.data as { html: string; selectedElement?: { xpath: string; attributes: Record<string, string> } };
-        if (domData.selectedElement) {
-          setSelectedElement(domData.selectedElement);
-        }
+        // Store the DOM snapshot
+        const domData = parsedMessage.data as { html: string };
         console.log("Received DOM snapshot, length:", domData.html.length);
         break;
       case BrowserMessageType.BROWSER_TABS:

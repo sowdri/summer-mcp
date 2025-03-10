@@ -1,8 +1,13 @@
 ---
-description: 
+description: General rules
 globs: 
 alwaysApply: true
 ---
+# Before making code change
+- Do
+    - given an outline of what your are planning to do.
+    - ask for confirmation before proceeding
+
 # After each code change
 - Do
     - use pnpm and not npm

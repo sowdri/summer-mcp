@@ -9,8 +9,7 @@ export enum ServerCommandType {
   LIST_BROWSER_TABS = "listBrowserTabs",
   GET_ACTIVE_BROWSER_TAB = "getActiveBrowserTab",
   ACTIVATE_BROWSER_TAB = "activateBrowserTab",
-  TAKE_SCREENSHOT = "takeScreenshot",
-  GET_SELECTED_ELEMENT = "getSelectedElement"
+  TAKE_SCREENSHOT = "takeScreenshot"
 }
 
 /**
@@ -53,13 +52,6 @@ export interface TakeScreenshotCommand extends BaseServerCommand {
 }
 
 /**
- * Command to get the selected element from the browser
- */
-export interface GetSelectedElementCommand extends BaseServerCommand {
-  command: ServerCommandType.GET_SELECTED_ELEMENT;
-}
-
-/**
  * Connection status message sent from server to browser
  */
 export interface ConnectionStatusCommand {
@@ -75,8 +67,7 @@ export type ServerCommand =
   | ListBrowserTabsCommand
   | GetActiveBrowserTabCommand
   | ActivateBrowserTabCommand
-  | TakeScreenshotCommand
-  | GetSelectedElementCommand;
+  | TakeScreenshotCommand;
 
 /**
  * Union type of all possible server messages (commands + connection status)

@@ -11,7 +11,6 @@ export type ConsoleLog = ConsoleLogEntry;
 export interface TabData {
   consoleLogs: ConsoleLog[]; // All console logs including errors and warnings
   networkRequests: NetworkRequest[];
-  selectedElement: any | null;
   activeTab?: BrowserTab; // Using BrowserTab directly from core
   lastUpdated: number;
 } 

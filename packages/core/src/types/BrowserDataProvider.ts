@@ -19,9 +19,6 @@ export interface BrowserDataProvider {
   // Tab operations
   updateActiveTab(tabId: string, data: BrowserTab): void;
 
-  // Asset operations
-  setSelectedElement(tabId: string, data: any): void;
-
   // Utility operations
   clearTabLogs(tabId: string): void;
   clearAllLogs(): void;

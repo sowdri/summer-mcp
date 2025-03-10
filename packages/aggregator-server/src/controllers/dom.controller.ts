@@ -1,5 +1,5 @@
 /**
- * DOM controller
+ * DOM controller for the MCP system
  */
 import { Request, Response } from "express";
 import { browserData } from "../models/browserData.js";
@@ -54,32 +54,4 @@ export function captureScreenshot(
   }
 
   // The response will be sent by the screenshot service when the data is received
-}
-
-/**
- * Get the currently selected element
- */
-export function getSelectedElement(req: Request, res: Response): void {
-  // Check if a specific tab ID is requested
-  const tabId = req.query.tabId as string;
-
-  if (tabId) {
-    // Return selected element for the specific tab
-    const tabData = browserData.tabs[tabId];
-    if (tabData) {
-      res.json(tabData.selectedElement || null);
-    } else {
-      res.status(404).json({
-        error: "Tab not found",
-        message: `No data found for tab ID: ${tabId}`,
-      });
-    }
-  } else {
-    // Return selected element for all tabs
-    const allElements: Record<string, any> = {};
-    Object.keys(browserData.tabs).forEach((id) => {
-      allElements[id] = browserData.tabs[id].selectedElement || null;
-    });
-    res.json(allElements);
-  }
 }
