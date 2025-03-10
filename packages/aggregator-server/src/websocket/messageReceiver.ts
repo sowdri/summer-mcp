@@ -13,9 +13,11 @@ import {
   BrowserTabsResponse,
   ConsoleLog,
   BrowserMessageType,
-  BrowserTab,
   NetworkRequest,
-  BrowserMessage
+  BrowserMessage,
+  ScreenshotMessage,
+  BrowserTabsMessage,
+  ActiveTabMessage
 } from "@summer-mcp/core";
 
 /**
@@ -34,7 +36,8 @@ export function handleWebSocketMessage(message: string): void {
     // Process message based on type
     switch (parsedMessage.type) {
       case BrowserMessageType.SCREENSHOT:
-        handleScreenshotResponse(parsedMessage.data as string);
+        // Pass the entire ScreenshotMessage object
+        handleScreenshotResponse(parsedMessage as ScreenshotMessage);
         break;
       case BrowserMessageType.CONSOLE_LOGS:
         // Add each console log to the store with the specific tabId
@@ -73,14 +76,14 @@ export function handleWebSocketMessage(message: string): void {
       case BrowserMessageType.BROWSER_TABS:
         // Convert to the expected BrowserTabsResponse format
         const tabsResponse: BrowserTabsResponse = {
-          tabs: parsedMessage.data as BrowserTab[],
+          tabs: (parsedMessage as BrowserTabsMessage).data,
           timestamp: Date.now()
         };
         handleGetBrowserTabsResponse(tabsResponse);
         break;
       case BrowserMessageType.ACTIVE_TAB:
-        // Use BrowserTab directly
-        const tabData = parsedMessage.data as BrowserTab;
+        // Extract the BrowserTab data from the ActiveTabMessage
+        const tabData = (parsedMessage as ActiveTabMessage).data;
         handleGetActiveTabResponse(tabData);
         break;
       case BrowserMessageType.ACTIVATE_TAB_RESULT:

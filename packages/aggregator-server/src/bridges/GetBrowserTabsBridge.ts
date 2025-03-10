@@ -30,7 +30,7 @@ export function registerGetBrowserTabsRequest(res: Response, timeoutMs = 5000): 
 
 /**
  * Handle browser tabs response from websocket
- * @param data Browser tabs data
+ * @param data Browser tabs response data
  */
 export function handleGetBrowserTabsResponse(data: BrowserTabsResponse): void {
   getBrowserTabsBridge.resolveRequests(data);

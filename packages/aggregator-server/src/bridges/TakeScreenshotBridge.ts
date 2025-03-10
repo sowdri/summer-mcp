@@ -5,11 +5,12 @@
 import { Response } from "express";
 import { Bridge } from "./Bridge";
 import { processScreenshot } from "../utils/imageProcessing";
+import { ScreenshotMessage } from "@summer-mcp/core";
 
 /**
  * Bridge for screenshot capture requests
  */
-export class TakeScreenshotBridge extends Bridge<string> {
+export class TakeScreenshotBridge extends Bridge<ScreenshotMessage> {
   constructor() {
     super("Timeout waiting for screenshot data");
   }
@@ -17,9 +18,9 @@ export class TakeScreenshotBridge extends Bridge<string> {
   /**
    * Handle screenshot response from websocket
    * Overrides the base resolveRequests method to add image processing
-   * @param data Screenshot data URL from Chrome API (data:image/png;base64,...)
+   * @param message Screenshot message from the browser extension
    */
-  async resolveScreenshotRequests(data: string): Promise<void> {
+  async resolveScreenshotRequests(message: ScreenshotMessage): Promise<void> {
     // Check if there are any pending requests
     if (this.pendingRequests.size === 0) {
       console.warn("Received screenshot data but no pending requests found");
@@ -28,7 +29,7 @@ export class TakeScreenshotBridge extends Bridge<string> {
 
     try {
       // Process the screenshot once outside the loop
-      if (!data) {
+      if (!message || !message.data) {
         console.error("Screenshot data is undefined or empty");
         // Resolve all pending requests with an error
         for (const [requestId, { res, timeout }] of this.pendingRequests.entries()) {
@@ -40,7 +41,7 @@ export class TakeScreenshotBridge extends Bridge<string> {
       }
 
       // Process the screenshot data once for all requests
-      const processedData = await processScreenshot(data);
+      const processedData = await processScreenshot(message.data);
 
       // Resolve all pending requests with the same processed data
       for (const [requestId, { res, timeout }] of this.pendingRequests.entries()) {
@@ -81,8 +82,8 @@ export function registerScreenshotRequest(res: Response, timeoutMs = 5000): stri
 
 /**
  * Handle screenshot response from websocket
- * @param data Screenshot data URL from Chrome API (data:image/png;base64,...)
+ * @param message Screenshot message from the browser extension
  */
-export async function handleScreenshotResponse(data: string): Promise<void> {
-  await takeScreenshotBridge.resolveScreenshotRequests(data);
+export async function handleScreenshotResponse(message: ScreenshotMessage): Promise<void> {
+  await takeScreenshotBridge.resolveScreenshotRequests(message);
 } 

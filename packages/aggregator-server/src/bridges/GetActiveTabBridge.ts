@@ -30,7 +30,7 @@ export function registerGetActiveTabRequest(res: Response, timeoutMs = 5000): st
 
 /**
  * Handle active tab response from websocket
- * @param data Active tab data
+ * @param data Active tab data from the browser extension
  */
 export function handleGetActiveTabResponse(data: BrowserTab): void {
   getActiveTabBridge.resolveRequests(data);
