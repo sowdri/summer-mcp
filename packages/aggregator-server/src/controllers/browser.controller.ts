@@ -7,7 +7,7 @@ import {
   registerTabsRequest,
   registerActiveTabRequest,
 } from "../services/browserTabs.service";
-import { clients, sendCommandToExtension } from "../websocket/commands";
+import { clients, sendCommandToExtension } from "../websocket/messageSender";
 import { 
   ServerCommandType, 
   ListBrowserTabsCommand, 

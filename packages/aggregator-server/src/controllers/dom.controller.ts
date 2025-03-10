@@ -6,7 +6,7 @@ import {
   pendingScreenshotRequests,
   registerScreenshotRequest,
 } from "../services/screenshot.service";
-import { clients, sendCommandToExtension } from "../websocket/commands";
+import { clients, sendCommandToExtension } from "../websocket/messageSender";
 import { ServerCommandType, TakeScreenshotCommand } from "@summer-mcp/core";
 
 /**

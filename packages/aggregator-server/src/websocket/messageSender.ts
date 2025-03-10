@@ -1,5 +1,5 @@
 /**
- * WebSocket commands
+ * WebSocket message sender
  */
 import { ServerCommand, ServerMessage } from "@summer-mcp/core";
 import { WebSocket } from "ws";
@@ -45,4 +45,4 @@ export function sendMessageToExtension(
   }
 
   return sentToAny;
-}
+} 

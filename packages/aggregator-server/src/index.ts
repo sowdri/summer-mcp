@@ -5,7 +5,7 @@ import express from "express";
 import http from "http";
 import { PORT } from "./config/index";
 import routes from "./routes/index";
-import { clients } from "./websocket/commands";
+import { clients } from "./websocket/messageSender";
 import { initializeWebSocketServer } from "./websocket/index";
 
 // Create Express app

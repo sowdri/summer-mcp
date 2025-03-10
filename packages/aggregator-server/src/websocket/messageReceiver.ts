@@ -1,5 +1,5 @@
 /**
- * WebSocket message handlers
+ * WebSocket message receiver
  */
 import {
   addConsoleLog,
@@ -115,4 +115,4 @@ export function handleWebSocketMessage(message: string): void {
   } catch (error) {
     console.error("Error processing message:", error);
   }
-}
+} 
