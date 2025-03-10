@@ -10,13 +10,12 @@ import { initTabEventListeners } from "./services/tabs/manager";
 import {
   connectWebSocket,
   getConnectionState,
-  getWebSocket,
-} from "./services/websocket/connection";
+} from "./websocket/connection";
 import {
   ConnectionStatus,
   getConnectionData,
-} from "./services/websocket/connectionStatus";
-import { sendMessage } from "./services/websocket/messageSender";
+} from "./websocket/connectionStatus";
+import { sendMessage } from "./websocket/messageSender";
 import { BrowserMessageType } from "@summer-mcp/core";
 
 console.debug("[Background] Background script starting...");

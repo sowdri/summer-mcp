@@ -2,7 +2,7 @@
  * Service for tracking WebSocket connection status
  */
 
-import { SERVER_URL } from "../../config/constants";
+import { SERVER_URL } from "../config/constants";
 
 // Connection status enum
 export enum ConnectionStatus {

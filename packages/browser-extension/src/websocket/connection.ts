@@ -3,9 +3,9 @@ import {
   BADGE_TEXT,
   RECONNECTION_TIMEOUT,
   SERVER_URL,
-} from "../../config/constants";
+} from "../config/constants";
 import { ConnectionStatus, updateConnectionStatus } from "./connectionStatus";
-import { processServerMessage } from "./commandReceiver";
+import { processServerMessage } from "./messageReceiver";
 import { BrowserMessage } from "@summer-mcp/core";
 
 // WebSocket connection

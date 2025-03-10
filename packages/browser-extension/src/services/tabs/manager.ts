@@ -9,7 +9,7 @@ import {
   debuggerConnections,
   detachDebugger,
 } from "../debugger/manager";
-import { sendMessage } from "../websocket/messageSender";
+import { sendMessage } from "../../websocket/messageSender";
 import { 
   BrowserMessageType, 
   ActiveTabMessage

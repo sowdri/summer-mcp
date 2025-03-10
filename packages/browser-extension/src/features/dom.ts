@@ -2,7 +2,7 @@ import {
   attachDebugger,
   isDebuggerAttached,
 } from "../services/debugger/manager";
-import { sendMessage } from "../services/websocket/messageSender";
+import { sendMessage } from "../websocket/messageSender";
 import { BrowserMessageType, DomSnapshotMessage } from "@summer-mcp/core";
 
 /**

@@ -1,4 +1,4 @@
-import { sendMessage } from "../services/websocket/messageSender";
+import { sendMessage } from "../websocket/messageSender";
 import { BrowserMessageType, ScreenshotMessage } from "@summer-mcp/core";
 
 /**
