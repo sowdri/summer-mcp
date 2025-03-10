@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 

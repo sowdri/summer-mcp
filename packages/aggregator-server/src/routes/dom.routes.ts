@@ -4,7 +4,7 @@
 import { Router } from "express";
 import {
   captureScreenshot,
-} from "../controllers/dom.controller.js";
+} from "../controllers/dom.controller";
 
 const router: Router = Router();
 

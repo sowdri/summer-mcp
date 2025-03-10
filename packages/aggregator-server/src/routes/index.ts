@@ -2,10 +2,10 @@
  * Routes index
  */
 import { Router } from "express";
-import browserRoutes from "./browser.routes.js";
-import consoleRoutes from "./console.routes.js";
-import domRoutes from "./dom.routes.js";
-import networkRoutes from "./network.routes.js";
+import browserRoutes from "./browser.routes";
+import consoleRoutes from "./console.routes";
+import domRoutes from "./dom.routes";
+import networkRoutes from "./network.routes";
 
 const router: Router = Router();
 

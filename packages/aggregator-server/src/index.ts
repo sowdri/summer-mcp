@@ -3,10 +3,10 @@
  */
 import express from "express";
 import http from "http";
-import { PORT } from "./config/index.js";
-import routes from "./routes/index.js";
-import { clients } from "./websocket/commands.js";
-import { initializeWebSocketServer } from "./websocket/index.js";
+import { PORT } from "./config/index";
+import routes from "./routes/index";
+import { clients } from "./websocket/commands";
+import { initializeWebSocketServer } from "./websocket/index";
 
 // Create Express app
 const app = express();

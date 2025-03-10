@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 // Aggregator server port
@@ -32,9 +33,9 @@ export function registerGetBrowserTabsTool(server: McpServer) {
           `http://127.0.0.1:${AGGREGATOR_PORT}/active-tab`
         );
         
-        let activeTab = null;
-        if (activeTabResponse.ok) {
-          activeTab = await activeTabResponse.json();
+        // Check if active tab response is ok (for future use)
+        if (!activeTabResponse.ok) {
+          console.log("Failed to get active tab information");
         }
         
         // Format the tabs in a more readable way

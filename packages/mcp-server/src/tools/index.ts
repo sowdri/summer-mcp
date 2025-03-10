@@ -1,10 +1,11 @@
+// eslint-disable-next-line no-restricted-imports
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { registerGetNetworkErrorLogsTool } from "./getNetworkErrorLogs.js";
-import { registerGetNetworkSuccessLogsTool } from "./getNetworkSuccessLogs.js";
-import { registerTakeScreenshotTool } from "./takeScreenshot.js";
-import { registerGetActiveBrowserTabTool } from "./getActiveBrowserTab.js";
-import { registerGetBrowserTabsTool } from "./getBrowserTabs.js";
-import { registerActivateTabTool } from "./activateTab.js";
+import { registerGetNetworkErrorLogsTool } from "./getNetworkErrorLogs";
+import { registerGetNetworkSuccessLogsTool } from "./getNetworkSuccessLogs";
+import { registerTakeScreenshotTool } from "./takeScreenshot";
+import { registerGetActiveBrowserTabTool } from "./getActiveBrowserTab";
+import { registerGetBrowserTabsTool } from "./getBrowserTabs";
+import { registerActivateTabTool } from "./activateTab";
 
 export function registerAllTools(server: McpServer) {
   registerGetNetworkErrorLogsTool(server);

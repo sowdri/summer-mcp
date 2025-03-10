@@ -2,12 +2,11 @@
  * DOM controller for the MCP system
  */
 import { Request, Response } from "express";
-import { browserData } from "../models/browserData.js";
 import {
   pendingScreenshotRequests,
   registerScreenshotRequest,
-} from "../services/screenshot.service.js";
-import { clients, sendCommandToExtension } from "../websocket/commands.js";
+} from "../services/screenshot.service";
+import { clients, sendCommandToExtension } from "../websocket/commands";
 import { ServerCommandType, TakeScreenshotCommand } from "@summer-mcp/core";
 
 /**

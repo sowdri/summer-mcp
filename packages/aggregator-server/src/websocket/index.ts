@@ -3,8 +3,8 @@
  */
 import { Server } from "http";
 import { WebSocket, WebSocketServer } from "ws";
-import { clients, sendMessageToExtension } from "./commands.js";
-import { handleWebSocketMessage } from "./handlers.js";
+import { clients } from "./commands";
+import { handleWebSocketMessage } from "./handlers";
 import { ConnectionStatusCommand } from "@summer-mcp/core";
 
 /**

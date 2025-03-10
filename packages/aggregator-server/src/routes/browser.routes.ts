@@ -6,7 +6,7 @@ import {
   getBrowserTabs, 
   getActiveBrowserTab, 
   activateBrowserTab
-} from "../controllers/browser.controller.js";
+} from "../controllers/browser.controller";
 
 const router: Router = Router();
 

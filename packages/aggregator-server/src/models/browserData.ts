@@ -7,8 +7,8 @@ import {
   BrowserDataProvider,
   ConsoleLog,
   TabData
-} from "../types/index.js";
-import { BrowserTab, NetworkRequest } from "@summer-mcp/core";
+} from "../types/index";
+import { NetworkRequest } from "@summer-mcp/core";
 
 // Configuration constants
 export const BROWSER_DATA_CONFIG: BrowserDataConfig = {
@@ -164,38 +164,43 @@ export function clearAllLogs(): void {
  * @param tabId The ID of the tab that generated the log
  * @param log The console log entry
  */
-export function addConsoleLog(tabId: string, log: any): void {
+export function addConsoleLog(tabId: string, log: ConsoleLog): void {
   browserDataProvider.addConsoleLog(tabId, log);
 }
 
 /**
  * Add network request
  */
-export function addNetworkRequest(request: any): void {
-  // Use a default tab ID for legacy calls
-  const defaultTabId = "default";
-
-  browserDataProvider.addNetworkRequest(defaultTabId, request);
+export function addNetworkRequest(request: NetworkRequest): void {
+  // Extract tabId from the request
+  const tabId = request.tabId;
+  if (!tabId) return;
+  
+  browserDataProvider.addNetworkRequest(tabId, request);
 }
 
 /**
  * Add network error
  */
-export function addNetworkError(request: any): void {
-  // Use a default tab ID for legacy calls
-  const defaultTabId = "default";
+export function addNetworkError(request: NetworkRequest): void {
+  // Extract tabId from the request
+  const tabId = request.tabId;
+  if (!tabId) return;
   
-  // Mark as error
-  request.isError = true;
+  // Mark the request as an error
+  const errorRequest = {
+    ...request,
+    isError: true
+  };
   
-  browserDataProvider.addNetworkRequest(defaultTabId, request);
+  browserDataProvider.addNetworkRequest(tabId, errorRequest);
 }
 
 /**
  * Wrapper function for updating active tab information
  * Note: This no longer updates TabData directly as activeTab has been removed from TabData
  */
-export function updateActiveTab(data: any): void {
+export function updateActiveTab(data: Record<string, unknown>): void {
   if (!data || !data.id) {
     console.error("Invalid tab data:", data);
     return;

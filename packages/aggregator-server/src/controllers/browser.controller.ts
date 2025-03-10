@@ -2,13 +2,12 @@
  * Browser controller
  */
 import { Request, Response } from "express";
-import { browserData, clearAllLogs } from "../models/browserData.js";
 import {
   pendingTabRequests,
   registerTabsRequest,
   registerActiveTabRequest,
-} from "../services/browserTabs.service.js";
-import { clients, sendCommandToExtension } from "../websocket/commands.js";
+} from "../services/browserTabs.service";
+import { clients, sendCommandToExtension } from "../websocket/commands";
 import { 
   ServerCommandType, 
   ListBrowserTabsCommand, 
