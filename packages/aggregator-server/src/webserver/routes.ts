@@ -17,7 +17,7 @@ const router: Router = Router();
 
 // Health check
 router.get("/", (req: Request, res: Response) => {
-  res.json({ message: "Summer-MCP Aggregator Server is running" });
+  res.json({ message: "Summer-MCP Aggregator Server is running (with auto-reload)" });
 });
 
 // Browser tab routes

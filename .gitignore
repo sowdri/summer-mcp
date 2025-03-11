@@ -47,3 +47,4 @@ pnpm-debug.log*
 
 # Debug screenshots
 screenshots 
+debug-screenshots/

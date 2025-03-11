@@ -83,6 +83,9 @@ function copyAssets() {
     
     // Create popup directory
     mkdirSync('./dist/popup', { recursive: true });
+    
+    // Create content-scripts directory
+    mkdirSync('./dist/content-scripts', { recursive: true });
 
     // Copy static assets
     if (existsSync('./dist/icons')) {
@@ -105,6 +108,12 @@ function copyAssets() {
     if (existsSync('./src/popup/popup.css')) {
       console.log('Copying popup CSS...');
       cpSync('./src/popup/popup.css', './dist/popup/popup.css');
+    }
+    
+    // Copy content scripts
+    if (existsSync('./src/content-scripts')) {
+      console.log('Copying content scripts...');
+      cpSync('./src/content-scripts', './dist/content-scripts', { recursive: true });
     }
     
     // Copy manifest

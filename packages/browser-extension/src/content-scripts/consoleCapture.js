@@ -58,6 +58,12 @@
         source: 'summer-mcp-console-capture',
         data: logData
       }, '*');
+      
+      // Also send directly to background script
+      chrome.runtime.sendMessage({
+        source: 'summer-mcp-console-capture',
+        data: logData
+      });
     } catch (e) {
       // If something goes wrong, make sure we don't break the console
       originalConsole.error('Error in console capture:', e);
@@ -89,6 +95,20 @@
     sendLogToExtension('debug', arguments);
     originalConsole.debug.apply(console, arguments);
   };
+
+  // Set up message relay from window.postMessage to chrome.runtime.sendMessage
+  window.addEventListener('message', (event) => {
+    // Only accept messages from the same frame
+    if (event.source !== window) return;
+    
+    const message = event.data;
+    
+    // Check if this is a console capture message
+    if (message && message.source === 'summer-mcp-console-capture') {
+      // Forward to background script
+      chrome.runtime.sendMessage(message);
+    }
+  }, false);
 
   // Notify that console capture is active
   originalConsole.log('%cConsole capture active', 'color: #8c00ff; font-weight: bold');

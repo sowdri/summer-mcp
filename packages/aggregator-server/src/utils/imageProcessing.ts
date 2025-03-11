@@ -94,7 +94,7 @@ export async function processScreenshot(
       }
 
       // Resize the image to max width 500px while maintaining aspect ratio
-      const resizedImageBuffer = await resizeImage(imageBuffer, 500);
+      const resizedImageBuffer = await resizeImage(imageBuffer, 1000);
       const resizedBase64Data = resizedImageBuffer.toString("base64");
 
       // Save resized image if debug images are requested

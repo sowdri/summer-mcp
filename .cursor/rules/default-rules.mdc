@@ -17,4 +17,5 @@ alwaysApply: true
     - run `pnpm run build` at project root to check if build is successful
 - Don't
     - Do not run the modules, they are already running in the background.
+    - Don't commit to git
 
