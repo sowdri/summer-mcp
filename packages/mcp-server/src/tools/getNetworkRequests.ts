@@ -2,31 +2,53 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 // eslint-disable-next-line no-restricted-imports
 import { ToolCallback } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { GetNetworkRequestsParams } from "@summer-mcp/core";
+import { 
+  GetNetworkRequestsParams, 
+  GetNetworkRequestsResponse, 
+  GetNetworkRequestsErrorResponse 
+} from "@summer-mcp/core";
 
 // Aggregator server port
 const AGGREGATOR_PORT = process.env.AGGREGATOR_PORT || 3001;
+
+/**
+ * Interface for the parameters passed to the getNetworkRequests tool
+ */
+interface GetNetworkRequestsToolParams {
+  /**
+   * ID of the tab to get network requests from
+   */
+  tabId: string | number;
+  
+  /**
+   * Maximum number of requests to return
+   */
+  limit?: number;
+}
 
 /**
  * Register the getNetworkRequests tool with the MCP server
  * @param server The MCP server instance
  */
 export function registerGetNetworkRequestsTool(server: McpServer) {
-  const handler: ToolCallback = async (params) => {
+  const handler: ToolCallback = async (params: unknown) => {
     try {
       // Validate and extract parameters
       if (!params || typeof params !== 'object' || !('tabId' in params) || !params.tabId) {
         throw new Error("tabId parameter is required");
       }
       
+      // Cast params to the expected type
+      const toolParams = params as GetNetworkRequestsToolParams;
+      
       // Build request parameters
       const requestParams: GetNetworkRequestsParams = {
-        tabId: String(params.tabId)
+        tabId: String(toolParams.tabId)
       };
       
       // Add optional limit parameter
-      if ('limit' in params && params.limit !== undefined) {
-        requestParams.limit = Number(params.limit);
+      if ('limit' in toolParams && toolParams.limit !== undefined) {
+        requestParams.limit = Number(toolParams.limit);
       }
       
       // Build query parameters
@@ -44,21 +66,45 @@ export function registerGetNetworkRequestsTool(server: McpServer) {
       // Make the request
       const response = await fetch(url);
       
-      // Parse the response
-      const data = await response.json();
-      
-      // Check for error response
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || data.error || `Server responded with status: ${response.status}`);
+      // Handle error response from server
+      if (!response.ok) {
+        const errorData = await response.json() as GetNetworkRequestsErrorResponse;
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Failed to get network requests: ${errorData.error || "Unknown error"}. ${errorData.message || ""}`,
+            },
+          ],
+        };
       }
       
-      // Return the raw JSON response as text
-      // This is the correct approach for MCP tools when returning JSON data
+      // Parse the response
+      const data = await response.json() as GetNetworkRequestsResponse;
+      
+      // Format the response for display
+      const formattedResponse = {
+        count: data.count,
+        tabId: data.tabId,
+        timestamp: data.timestamp,
+        requests: data.requests.map(req => ({
+          method: req.method,
+          url: req.url,
+          status: req.status,
+          statusText: req.statusText,
+          type: req.type,
+          timestamp: req.timestamp,
+          duration: req.duration,
+          size: req.size,
+          isError: req.isError
+        }))
+      };
+      
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(data, null, 2),
+            text: JSON.stringify(formattedResponse, null, 2),
           },
         ],
       };
