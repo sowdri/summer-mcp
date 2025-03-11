@@ -160,7 +160,7 @@ async function startAggregatorDev() {
     
     // Set up file watcher using nodemon
     const watchProcess = spawn('npx', ['nodemon', '--watch', 'src', '--ext', 'ts,js', '--exec', 'node build.mjs'], {
-      stdio: 'inherit',
+      stdio: ['inherit', 'pipe', 'inherit'],
       shell: true,
       cwd: aggregatorDir
     });
@@ -170,7 +170,9 @@ async function startAggregatorDev() {
     // When the build completes, restart the server
     watchProcess.stdout?.on('data', (data) => {
       const output = data.toString();
-      if (output.includes('server build complete')) {
+      console.log('📝 Aggregator build output:', output.trim());
+      if (output.includes('Node.js server build complete')) {
+        console.log('🔄 Detected build completion, restarting server...');
         startAggregatorServer();
       }
     });

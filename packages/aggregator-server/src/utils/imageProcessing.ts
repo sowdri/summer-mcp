@@ -93,8 +93,8 @@ export async function processScreenshot(
         console.log(`Original screenshot saved to: ${originalPath}`);
       }
 
-      // Resize the image to max width 500px while maintaining aspect ratio
-      const resizedImageBuffer = await resizeImage(imageBuffer, 1000);
+      // Resize the image to max width 1200px while maintaining aspect ratio
+      const resizedImageBuffer = await resizeImage(imageBuffer, 1200);
       const resizedBase64Data = resizedImageBuffer.toString("base64");
 
       // Save resized image if debug images are requested
@@ -102,7 +102,7 @@ export async function processScreenshot(
         const debugDir = path.join(__dirname, "../../debug-screenshots");
         resizedPath = path.join(debugDir, `resized-${timestamp}.png`);
         fs.writeFileSync(resizedPath!, resizedImageBuffer);
-        console.log(`Resized screenshot saved to: ${resizedPath}`);
+        console.log(`🖼️ Resized screenshot saved to: ${resizedPath}`);
       }
 
       // Log processing info
