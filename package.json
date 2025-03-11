@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r build",
-    "dev": "concurrently \"pnpm -r dev\" \"pnpm --filter @summer-mcp/aggregator-server start:dev\"",
+    "dev": "concurrently \"pnpm -r --filter=!@summer-mcp/aggregator-server dev\" \"pnpm --filter @summer-mcp/aggregator-server dev\"",
     "clean": "pnpm -r clean",
     "test": "pnpm -r test",
     "lint": "eslint \"packages/*/src/**/*.{ts,tsx}\"",
