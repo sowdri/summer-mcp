@@ -2,6 +2,7 @@ import { takeScreenshot } from "../features/takeScreenshot";
 import { activateBrowserTab } from "../features/activateBrowserTab";
 import { getActiveBrowserTab } from "../features/getActiveBrowserTab";
 import { listBrowserTabs } from "../features/listBrowserTabs";
+import { getDomSnapshot } from "../features/getDomSnapshot";
 import { 
   ServerCommand, 
   ServerCommandType, 
@@ -9,7 +10,8 @@ import {
   ActivateBrowserTabCommand,
   TakeScreenshotCommand,
   ListBrowserTabsCommand,
-  GetActiveBrowserTabCommand
+  GetActiveBrowserTabCommand,
+  GetDomSnapshotCommand
 } from "@summer-mcp/core";
 
 /**
@@ -34,6 +36,10 @@ export function handleServerCommand(command: ServerCommand): void {
       
     case ServerCommandType.TAKE_SCREENSHOT:
       takeScreenshot(command as TakeScreenshotCommand);
+      break;
+      
+    case ServerCommandType.GET_DOM_SNAPSHOT:
+      getDomSnapshot(command as GetDomSnapshotCommand);
       break;
       
     default:

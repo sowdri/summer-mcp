@@ -1,5 +1,5 @@
 import { sendMessage } from "../websocket/messageSender";
-import { BrowserMessageType, DomSnapshotMessage } from "@summer-mcp/core";
+import { BrowserMessageType, DomSnapshotMessage, GetDomSnapshotCommand } from "@summer-mcp/core";
 
 // Define the type for the result of the executeScript function
 interface DomSnapshotResult {
@@ -10,9 +10,14 @@ interface DomSnapshotResult {
 
 /**
  * Get DOM snapshot for a tab using content scripts
- * @param tabId The ID of the tab to get the DOM snapshot from
+ * @param tabIdOrCommand The ID of the tab to get the DOM snapshot from or the entire command object
  */
-export function getDomSnapshot(tabId: number): void {
+export function getDomSnapshot(tabIdOrCommand: number | GetDomSnapshotCommand): void {
+  // Extract tabId from either the number or the command object
+  const tabId = typeof tabIdOrCommand === 'number' 
+    ? tabIdOrCommand 
+    : parseInt(tabIdOrCommand.params.tabId, 10);
+  
   console.debug(`[DOM Snapshot] Getting DOM snapshot for tab: ${tabId}`);
   
   try {

@@ -9,7 +9,8 @@ export enum ServerCommandType {
   LIST_BROWSER_TABS = "listBrowserTabs",
   GET_ACTIVE_BROWSER_TAB = "getActiveBrowserTab",
   ACTIVATE_BROWSER_TAB = "activateBrowserTab",
-  TAKE_SCREENSHOT = "takeScreenshot"
+  TAKE_SCREENSHOT = "takeScreenshot",
+  GET_DOM_SNAPSHOT = "getDomSnapshot"
 }
 
 /**
@@ -55,6 +56,16 @@ export interface TakeScreenshotCommand extends BaseServerCommand {
 }
 
 /**
+ * Command to get a DOM snapshot of a specific tab
+ */
+export interface GetDomSnapshotCommand extends BaseServerCommand {
+  command: ServerCommandType.GET_DOM_SNAPSHOT;
+  params: {
+    tabId: string;
+  };
+}
+
+/**
  * Connection status message sent from server to browser
  */
 export interface ConnectionStatusCommand {
@@ -70,7 +81,8 @@ export type ServerCommand =
   | ListBrowserTabsCommand
   | GetActiveBrowserTabCommand
   | ActivateBrowserTabCommand
-  | TakeScreenshotCommand;
+  | TakeScreenshotCommand
+  | GetDomSnapshotCommand;
 
 /**
  * Union type of all possible server messages (commands + connection status)

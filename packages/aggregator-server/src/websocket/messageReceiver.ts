@@ -9,6 +9,7 @@ import {
 import { handleGetBrowserTabsResponse } from "../bridges/GetBrowserTabsBridge";
 import { handleGetActiveTabResponse } from "../bridges/GetActiveTabBridge";
 import { handleScreenshotResponse } from "../bridges/TakeScreenshotBridge";
+import { handleDomSnapshotResponse } from "../bridges/GetDomSnapshotBridge";
 import {
   ConsoleLog,
   BrowserMessageType,
@@ -16,7 +17,8 @@ import {
   BrowserMessage,
   ScreenshotMessage,
   BrowserTabsMessage,
-  ActiveTabMessage
+  ActiveTabMessage,
+  DomSnapshotMessage
 } from "@summer-mcp/core";
 
 /**
@@ -68,7 +70,8 @@ export function handleWebSocketMessage(message: string): void {
         );
         break;
       case BrowserMessageType.DOM_SNAPSHOT:
-        // Store the DOM snapshot
+        // Handle the DOM snapshot response
+        handleDomSnapshotResponse(parsedMessage as DomSnapshotMessage);
         const domData = parsedMessage.data as { html: string };
         if (parsedMessage.success === false) {
           console.error("DOM snapshot error:", parsedMessage.error);

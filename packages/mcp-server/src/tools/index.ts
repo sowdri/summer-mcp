@@ -6,6 +6,7 @@ import { registerTakeScreenshotTool } from "./takeScreenshot";
 import { registerGetActiveBrowserTabTool } from "./getActiveBrowserTab";
 import { registerGetBrowserTabsTool } from "./getBrowserTabs";
 import { registerActivateTabTool } from "./activateTab";
+import { registerGetDomSnapshotTool } from "./getDomSnapshot";
 
 export function registerAllTools(server: McpServer) {
   registerGetNetworkErrorLogsTool(server);
@@ -14,4 +15,5 @@ export function registerAllTools(server: McpServer) {
   registerGetActiveBrowserTabTool(server);
   registerGetBrowserTabsTool(server);
   registerActivateTabTool(server);
+  registerGetDomSnapshotTool(server);
 } 

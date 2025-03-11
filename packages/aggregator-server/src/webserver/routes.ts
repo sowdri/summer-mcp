@@ -7,6 +7,7 @@ import { getBrowserTabs } from "./handlers/getBrowserTabs";
 import { getActiveBrowserTab } from "./handlers/getActiveBrowserTab";
 import { activateBrowserTab } from "./handlers/activateBrowserTab";
 import { takeScreenshot } from "./handlers/takeScreenshot";
+import { getDomSnapshot } from "./handlers/getDomSnapshot";
 
 const router: Router = Router();
 
@@ -22,6 +23,7 @@ router.post("/activate-tab", activateBrowserTab);
 
 // DOM routes
 router.post("/take-screenshot", takeScreenshot);
+router.post("/dom-snapshot", getDomSnapshot);
 
 // Network routes
 // TODO: Implement network routes
