@@ -2,10 +2,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 // eslint-disable-next-line no-restricted-imports
 import { ToolCallback } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { 
-  GetNetworkRequestsParams, 
-  GetNetworkRequestsResponse
-} from "@summer-mcp/core";
+import { GetNetworkRequestsParams } from "@summer-mcp/core";
 
 // Aggregator server port
 const AGGREGATOR_PORT = process.env.AGGREGATOR_PORT || 3001;
@@ -55,27 +52,13 @@ export function registerGetNetworkRequestsTool(server: McpServer) {
         throw new Error(data.message || data.error || `Server responded with status: ${response.status}`);
       }
       
-      // Cast to the correct type
-      const networkData = data as GetNetworkRequestsResponse;
-      
-      // Format the response for display
-      const formattedResponse = `Network Requests for Tab ${networkData.tabId}:\n\n` +
-        `Total: ${networkData.count} requests\n` +
-        `Timestamp: ${new Date(networkData.timestamp || Date.now()).toISOString()}\n\n` +
-        networkData.requests.map((req, index) => {
-          const timestamp = req.timestamp ? new Date(req.timestamp).toISOString() : 'Unknown';
-          const status = req.status ? `${req.status} ${req.statusText || ''}` : 'No status';
-          return `${index + 1}. ${req.method} ${req.url}\n` +
-                 `   Status: ${status}\n` +
-                 `   Time: ${timestamp}\n` +
-                 `   Type: ${req.type || 'Unknown'}\n`;
-        }).join('\n');
-      
+      // Return the raw JSON response as text
+      // This is the correct approach for MCP tools when returning JSON data
       return {
         content: [
           {
             type: "text",
-            text: formattedResponse,
+            text: JSON.stringify(data, null, 2),
           },
         ],
       };

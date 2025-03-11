@@ -13,6 +13,8 @@ export function registerGetNetworkSuccessLogsTool(server: McpServer) {
         `http://127.0.0.1:${AGGREGATOR_PORT}/network-success`
       );
       const json = await response.json();
+      
+      // Return the raw JSON response
       return {
         content: [
           {
