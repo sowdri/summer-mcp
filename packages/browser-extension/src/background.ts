@@ -5,15 +5,14 @@
 
 // Import services
 import { SERVER_URL } from "./config/constants";
-import { initDebuggerEventListeners } from "./services/debugger/eventHandler";
-import { initTabEventListeners } from "./services/tabs/manager";
 import {
   connectWebSocket,
 } from "./websocket/connection";
 import {
   getConnectionData,
 } from "./websocket/connectionStatus";
-import { initConsoleCapture } from "./features/consoleCapture";
+import { initCaptureConsole } from "./features/captureConsole";
+import { initNetworkMonitoring } from "./features/captureNetworkRequests";
 
 console.debug("[Background] Background script starting...");
 console.debug(`[Background] Server URL: ${SERVER_URL}`);
@@ -27,14 +26,13 @@ if (socket) {
   console.error("[Background] ❌ Failed to initialize WebSocket connection");
 }
 
-// Initialize event listeners
-console.debug("[Background] 📡 Initializing event listeners...");
-initDebuggerEventListeners();
-initTabEventListeners();
-
 // Initialize console capture feature
 console.debug("[Background] 📝 Initializing console capture feature...");
-initConsoleCapture();
+initCaptureConsole();
+
+// Initialize network monitoring
+console.debug("[Background] 🌐 Initializing network monitoring...");
+initNetworkMonitoring();
 
 // Handle messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

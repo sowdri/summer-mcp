@@ -56,6 +56,7 @@ export function processServerMessage(data: string): void {
     } else if (message.type === 'connection') {
       console.log(`Connection status: ${message.status}`, message.message || '');
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       console.warn(`Unknown message type: ${(message as any).type}`);
     }
   } catch (error) {

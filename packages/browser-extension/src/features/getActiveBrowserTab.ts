@@ -9,9 +9,9 @@ import {
 /**
  * Get the active browser tab
  * Returns information about the currently active tab
- * @param command The GetActiveBrowserTabCommand object
+ * @param _command The GetActiveBrowserTabCommand object (unused)
  */
-export function getActiveBrowserTab(command: GetActiveBrowserTabCommand): void {
+export function getActiveBrowserTab(_command: GetActiveBrowserTabCommand): void { // eslint-disable-line @typescript-eslint/no-unused-vars
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs.length === 0) {
       console.error("[Browser Tabs] No active tab found");

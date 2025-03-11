@@ -9,9 +9,9 @@ import {
 /**
  * List all browser tabs with their IDs
  * Returns a list of all open tabs with their IDs, URLs, and titles
- * @param command The ListBrowserTabsCommand object
+ * @param _command The ListBrowserTabsCommand object (unused)
  */
-export function listBrowserTabs(command: ListBrowserTabsCommand): void {
+export function listBrowserTabs(_command: ListBrowserTabsCommand): void { // eslint-disable-line @typescript-eslint/no-unused-vars
   chrome.tabs.query({}, (tabs) => {
     const tabsList = tabs.map((tab) => ({
       id: tab.id || 0,

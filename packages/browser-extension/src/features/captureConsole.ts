@@ -9,7 +9,7 @@ const injectedTabs = new Set<number>();
  * Initialize console capture feature
  * Sets up event listeners for tab events
  */
-export function initConsoleCapture(): void {
+export function initCaptureConsole(): void {
   console.debug("[Console Capture] Initializing console capture feature");
   
   // Set up message listener for console logs
