@@ -24,4 +24,7 @@ export * from './types/endpoints/GetDomSnapshot';
 export * from './utils/type-guards';
 
 // Export network request types
-export * from './types/NetworkRequests'; 
+export * from './types/NetworkRequests';
+
+// Export console logs types
+export * from './types/ConsoleLogs'; 

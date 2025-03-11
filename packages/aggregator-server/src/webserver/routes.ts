@@ -10,6 +10,8 @@ import { takeScreenshot } from "./handlers/takeScreenshot";
 import { getDomSnapshot } from "./handlers/getDomSnapshot";
 import { getNetworkRequests } from "./handlers/getNetworkRequests";
 import { getNetworkErrors } from "./handlers/getNetworkErrors";
+import { getConsoleLogs } from "./handlers/getConsoleLogs";
+import { getConsoleErrors } from "./handlers/getConsoleErrors";
 
 const router: Router = Router();
 
@@ -32,6 +34,7 @@ router.get("/network-requests", getNetworkRequests);
 router.get("/network-errors", getNetworkErrors);
 
 // Console routes
-// No console routes needed as logs are streamed continuously
+router.get("/console-logs", getConsoleLogs);
+router.get("/console-errors", getConsoleErrors);
 
 export default router; 
