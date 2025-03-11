@@ -6,3 +6,4 @@ alwaysApply: false
 - if a file exports a class/type then it has to be PascalCase 
 - if a file exports a function or a named object then it has to be camelCase
 - all scss files should follow snake_case
+- folder names has to snake_case

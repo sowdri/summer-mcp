@@ -70,7 +70,11 @@ export function handleWebSocketMessage(message: string): void {
       case BrowserMessageType.DOM_SNAPSHOT:
         // Store the DOM snapshot
         const domData = parsedMessage.data as { html: string };
-        console.log("Received DOM snapshot, length:", domData.html.length);
+        if (parsedMessage.success === false) {
+          console.error("DOM snapshot error:", parsedMessage.error);
+        } else {
+          console.log("Received DOM snapshot, length:", domData.html.length);
+        }
         break;
       case BrowserMessageType.BROWSER_TABS:
         // Pass the BrowserTabsMessage to the bridge

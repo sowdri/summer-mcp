@@ -43,6 +43,8 @@ export interface BrowserTab {
 export interface ScreenshotMessage extends BaseBrowserMessage {
   type: BrowserMessageType.SCREENSHOT;
   data: string; // Base64 encoded image
+  success?: boolean; // Whether the screenshot was successful
+  error?: string; // Error message if the screenshot failed
 }
 
 /**
@@ -103,6 +105,8 @@ export interface DomSnapshotMessage extends BaseBrowserMessage {
       attributes: Record<string, string>;
     };
   };
+  success?: boolean; // Whether the DOM snapshot was successful
+  error?: string; // Error message if the DOM snapshot failed
 }
 
 /**

@@ -1,16 +1,14 @@
 import { BADGE_COLORS, BADGE_TEXT } from "../../config/constants";
-import { startConsoleMonitoring } from "../../features/console";
-import { getDomSnapshot } from "../../features/dom";
-import { startNetworkMonitoring } from "../../features/network";
-import { takeScreenshot } from "../../features/screenshot";
+import { getDomSnapshot } from "../../features/getDomSnapshot";
+import { takeScreenshot } from "../../features/takeScreenshot";
 import {
   debuggerManager
 } from "../debugger/manager";
-import { handleTabClosed } from "../console/injectionService";
 import { sendMessage } from "../../websocket/messageSender";
 import { 
   BrowserMessageType, 
-  ActiveTabMessage
+  ActiveTabMessage,
+  ServerCommandType
 } from "@summer-mcp/core";
 
 // Track the currently active tab
@@ -88,11 +86,6 @@ async function handleTabRemoved(tabId: number): Promise<void> {
     // Remove from connections map
     const connections = debuggerManager.getDebuggerConnections();
     connections.delete(tabId);
-  }
-
-  // Clean up console injection service
-  if (typeof handleTabClosed === 'function') {
-    handleTabClosed(tabId);
   }
 
   // If the active tab was removed, set activeTabId to null
@@ -234,9 +227,12 @@ function sendActiveTabInfo(tabId: number): void {
 async function refreshMonitoring(tabId: number): Promise<void> {
   try {
     await Promise.all([
-      takeScreenshot(tabId),
-      startConsoleMonitoring(tabId),
-      startNetworkMonitoring(tabId),
+      // Create a mock TakeScreenshotCommand object
+      takeScreenshot({
+        type: 'command',
+        command: ServerCommandType.TAKE_SCREENSHOT,
+        params: { tabId: String(tabId) }
+      }),
       getDomSnapshot(tabId)
     ]);
     console.debug(`[Tab Manager] Monitoring refreshed for tab: ${tabId}`);

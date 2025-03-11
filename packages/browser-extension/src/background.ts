@@ -13,6 +13,7 @@ import {
 import {
   getConnectionData,
 } from "./websocket/connectionStatus";
+import { initConsoleCapture } from "./features/consoleCapture";
 
 console.debug("[Background] Background script starting...");
 console.debug(`[Background] Server URL: ${SERVER_URL}`);
@@ -30,6 +31,10 @@ if (socket) {
 console.debug("[Background] 📡 Initializing event listeners...");
 initDebuggerEventListeners();
 initTabEventListeners();
+
+// Initialize console capture feature
+console.debug("[Background] 📝 Initializing console capture feature...");
+initConsoleCapture();
 
 // Handle messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

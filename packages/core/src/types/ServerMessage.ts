@@ -45,10 +45,13 @@ export interface ActivateBrowserTabCommand extends BaseServerCommand {
 }
 
 /**
- * Command to take a screenshot of the current tab
+ * Command to take a screenshot of the current tab or a specific tab
  */
 export interface TakeScreenshotCommand extends BaseServerCommand {
   command: ServerCommandType.TAKE_SCREENSHOT;
+  params?: {
+    tabId?: string;
+  };
 }
 
 /**
