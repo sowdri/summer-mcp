@@ -25,23 +25,16 @@ function createEmptyTabData(): TabData {
   };
 }
 
-// In-memory browser data
-export const browserData: BrowserData = {
-  tabs: {},
-};
-
 /**
  * In-memory implementation of the BrowserDataProvider interface
  */
 export class InMemoryBrowserDataProvider implements BrowserDataProvider {
   private config: BrowserDataConfig;
-  private data: BrowserData;
+  private data: BrowserData = {
+    tabs: {},
+  };
 
-  constructor(
-    data: BrowserData = browserData,
-    config: BrowserDataConfig = BROWSER_DATA_CONFIG
-  ) {
-    this.data = data;
+  constructor(config: BrowserDataConfig = BROWSER_DATA_CONFIG) {
     this.config = config;
   }
 
@@ -108,9 +101,6 @@ export class InMemoryBrowserDataProvider implements BrowserDataProvider {
     
     tabData.lastUpdated = Date.now();
   }
-
-  // Tab operations
-  // updateActiveTab method removed as activeTab doesn't belong in TabData
 
   // Utility operations
   clearTabLogs(tabId: string): void {
