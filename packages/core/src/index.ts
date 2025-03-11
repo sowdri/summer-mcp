@@ -21,4 +21,7 @@ export * from './types/endpoints/TakeScreenshot';
 export * from './types/endpoints/GetDomSnapshot';
 
 // Export utility functions
-export * from './utils/type-guards'; 
+export * from './utils/type-guards';
+
+// Export network request types
+export * from './types/NetworkRequests'; 

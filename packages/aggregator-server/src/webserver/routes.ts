@@ -8,6 +8,7 @@ import { getActiveBrowserTab } from "./handlers/getActiveBrowserTab";
 import { activateBrowserTab } from "./handlers/activateBrowserTab";
 import { takeScreenshot } from "./handlers/takeScreenshot";
 import { getDomSnapshot } from "./handlers/getDomSnapshot";
+import { getNetworkRequests } from "./handlers/getNetworkRequests";
 
 const router: Router = Router();
 
@@ -16,17 +17,30 @@ router.get("/", (req: Request, res: Response) => {
   res.json({ message: "Summer-MCP Aggregator Server is running" });
 });
 
-// Browser routes
-router.get("/browser-tabs", getBrowserTabs);
+// Browser tab routes
+router.get("/tabs", getBrowserTabs);
 router.get("/active-tab", getActiveBrowserTab);
 router.post("/activate-tab", activateBrowserTab);
 
 // DOM routes
+router.get("/dom-snapshot", getDomSnapshot);
 router.post("/take-screenshot", takeScreenshot);
-router.post("/dom-snapshot", getDomSnapshot);
 
 // Network routes
-// TODO: Implement network routes
+router.get("/network-requests", getNetworkRequests);
+
+// Backward compatibility routes
+router.get("/network-success", (req: Request, res: Response) => {
+  // Just pass through to network-requests
+  // The tabId should be passed as a query parameter
+  getNetworkRequests(req, res);
+});
+
+router.get("/network-errors", (req: Request, res: Response) => {
+  // Just pass through to network-requests
+  // The tabId should be passed as a query parameter
+  getNetworkRequests(req, res);
+});
 
 // Console routes
 // No console routes needed as logs are streamed continuously
