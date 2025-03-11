@@ -4,11 +4,9 @@ import { getDomSnapshot } from "../../features/dom";
 import { startNetworkMonitoring } from "../../features/network";
 import { takeScreenshot } from "../../features/screenshot";
 import {
-  attachDebugger,
-  attachDebuggerToAllTabs,
-  debuggerConnections,
-  detachDebugger,
+  debuggerManager
 } from "../debugger/manager";
+import { handleTabClosed } from "../console/injectionService";
 import { sendMessage } from "../../websocket/messageSender";
 import { 
   BrowserMessageType, 
@@ -21,7 +19,7 @@ let activeTabId: number | null = null;
 /**
  * Initialize tab event listeners
  */
-export function initTabEventListeners(): void {
+export async function initTabEventListeners(): Promise<void> {
   // Handle tab creation
   chrome.tabs.onCreated.addListener(handleTabCreated);
 
@@ -48,7 +46,7 @@ export function initTabEventListeners(): void {
   });
 
   // Attach debugger to all existing tabs
-  attachDebuggerToAllTabs();
+  await debuggerManager.attachDebuggerToAllTabs();
 
   console.debug("[Tab Manager] Tab event listeners initialized");
 }
@@ -57,18 +55,24 @@ export function initTabEventListeners(): void {
  * Handle tab creation
  * @param tab The created tab
  */
-function handleTabCreated(tab: chrome.tabs.Tab): void {
+async function handleTabCreated(tab: chrome.tabs.Tab): Promise<void> {
   if (!tab.id) return;
   
   const tabId = tab.id;
   console.debug(`[Tab Manager] Tab created: ${tabId}`);
 
   // Immediately attach debugger to the new tab
-  if (!debuggerConnections.has(tabId) || !debuggerConnections.get(tabId)?.attached) {
+  if (!debuggerManager.isDebuggerAttached(tabId)) {
     console.debug(`[Tab Manager] Attaching debugger to newly created tab: ${tabId}`);
-    attachDebugger(tabId);
-    chrome.action.setBadgeText({ tabId, text: BADGE_TEXT.CONNECTED });
-    chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_COLORS.CONNECTED });
+    const attached = await debuggerManager.attachDebugger(tabId);
+    if (attached) {
+      chrome.action.setBadgeText({ tabId, text: BADGE_TEXT.CONNECTED });
+      chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_COLORS.CONNECTED });
+    } else {
+      console.error(`[Tab Manager] Failed to attach debugger to tab: ${tabId}`);
+      chrome.action.setBadgeText({ tabId, text: BADGE_TEXT.ERROR });
+      chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_COLORS.ERROR });
+    }
   }
 }
 
@@ -76,12 +80,19 @@ function handleTabCreated(tab: chrome.tabs.Tab): void {
  * Handle tab removal
  * @param tabId The ID of the removed tab
  */
-function handleTabRemoved(tabId: number): void {
+async function handleTabRemoved(tabId: number): Promise<void> {
   console.debug(`[Tab Manager] Tab removed: ${tabId}`);
 
-  if (debuggerConnections.has(tabId)) {
-    detachDebugger(tabId);
-    debuggerConnections.delete(tabId);
+  if (debuggerManager.isDebuggerAttached(tabId)) {
+    await debuggerManager.detachDebugger(tabId);
+    // Remove from connections map
+    const connections = debuggerManager.getDebuggerConnections();
+    connections.delete(tabId);
+  }
+
+  // Clean up console injection service
+  if (typeof handleTabClosed === 'function') {
+    handleTabClosed(tabId);
   }
 
   // If the active tab was removed, set activeTabId to null
@@ -94,7 +105,7 @@ function handleTabRemoved(tabId: number): void {
  * Handle tab activation (switching between tabs)
  * @param activeInfo Information about the activated tab
  */
-function handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo): void {
+async function handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo): Promise<void> {
   const tabId = activeInfo.tabId;
   console.debug(`[Tab Manager] Tab activated: ${tabId}`);
 
@@ -105,11 +116,8 @@ function handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo): void {
   sendActiveTabInfo(tabId);
 
   // If debugger is attached to this tab, refresh monitoring
-  if (
-    debuggerConnections.has(tabId) &&
-    debuggerConnections.get(tabId)?.attached
-  ) {
-    refreshMonitoring(tabId);
+  if (debuggerManager.isDebuggerAttached(tabId)) {
+    await refreshMonitoring(tabId);
   }
 }
 
@@ -118,25 +126,32 @@ function handleTabActivated(activeInfo: chrome.tabs.TabActiveInfo): void {
  * @param tabId The ID of the updated tab
  * @param changeInfo Information about the change
  */
-function handleTabUpdated(
+async function handleTabUpdated(
   tabId: number,
   changeInfo: chrome.tabs.TabChangeInfo
-): void {
+): Promise<void> {
   console.debug(`[Tab Manager] Tab updated: ${tabId}`, changeInfo);
 
   // If this is a new tab or page load, ensure debugger is attached
   if (changeInfo.status === "complete") {
     // Automatically attach debugger to the tab if not already attached
-    if (!debuggerConnections.has(tabId) || !debuggerConnections.get(tabId)?.attached) {
+    if (!debuggerManager.isDebuggerAttached(tabId)) {
       console.debug(`[Tab Manager] New page loaded in tab ${tabId}, attaching debugger`);
-      attachDebugger(tabId);
-      chrome.action.setBadgeText({ tabId, text: BADGE_TEXT.CONNECTED });
-      chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_COLORS.CONNECTED });
+      const attached = await debuggerManager.attachDebugger(tabId);
+      if (attached) {
+        chrome.action.setBadgeText({ tabId, text: BADGE_TEXT.CONNECTED });
+        chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_COLORS.CONNECTED });
+      } else {
+        console.error(`[Tab Manager] Failed to attach debugger to tab: ${tabId}`);
+        chrome.action.setBadgeText({ tabId, text: BADGE_TEXT.ERROR });
+        chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE_COLORS.ERROR });
+        return;
+      }
     }
     
     // If this is the active tab, refresh monitoring
     if (activeTabId === tabId) {
-      refreshMonitoring(tabId);
+      await refreshMonitoring(tabId);
     }
   }
 }
@@ -145,27 +160,36 @@ function handleTabUpdated(
  * Handle browser action click (extension icon)
  * @param tab The tab that was clicked
  */
-function handleActionClicked(tab: chrome.tabs.Tab): void {
+async function handleActionClicked(tab: chrome.tabs.Tab): Promise<void> {
   if (!tab.id) return;
 
   const tabId = tab.id;
   console.debug(`[Tab Manager] Browser action clicked on tab: ${tabId}`);
 
   // Toggle debugger connection
-  if (
-    debuggerConnections.has(tabId) &&
-    debuggerConnections.get(tabId)?.attached
-  ) {
-    detachDebugger(tabId);
-    chrome.action.setBadgeText({ text: BADGE_TEXT.DISCONNECTED });
-    chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.DISCONNECTED });
+  if (debuggerManager.isDebuggerAttached(tabId)) {
+    const detached = await debuggerManager.detachDebugger(tabId);
+    if (detached) {
+      chrome.action.setBadgeText({ text: BADGE_TEXT.DISCONNECTED });
+      chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.DISCONNECTED });
+    } else {
+      console.error(`[Tab Manager] Failed to detach debugger from tab: ${tabId}`);
+      chrome.action.setBadgeText({ text: BADGE_TEXT.ERROR });
+      chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.ERROR });
+    }
   } else {
-    attachDebugger(tabId);
-    chrome.action.setBadgeText({ text: BADGE_TEXT.CONNECTED });
-    chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.CONNECTED });
+    const attached = await debuggerManager.attachDebugger(tabId);
+    if (attached) {
+      chrome.action.setBadgeText({ text: BADGE_TEXT.CONNECTED });
+      chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.CONNECTED });
 
-    // Send initial data
-    refreshMonitoring(tabId);
+      // Send initial data
+      await refreshMonitoring(tabId);
+    } else {
+      console.error(`[Tab Manager] Failed to attach debugger to tab: ${tabId}`);
+      chrome.action.setBadgeText({ text: BADGE_TEXT.ERROR });
+      chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.ERROR });
+    }
   }
 }
 
@@ -205,12 +229,18 @@ function sendActiveTabInfo(tabId: number): void {
 /**
  * Refresh monitoring for a tab
  * @param tabId The ID of the tab to refresh monitoring for
+ * @returns Promise that resolves when all monitoring is refreshed
  */
-function refreshMonitoring(tabId: number): void {
-  takeScreenshot(tabId);
-  startConsoleMonitoring(tabId);
-  startNetworkMonitoring(tabId);
-  getDomSnapshot(tabId);
-
-  console.debug(`[Tab Manager] Monitoring refreshed for tab: ${tabId}`);
+async function refreshMonitoring(tabId: number): Promise<void> {
+  try {
+    await Promise.all([
+      takeScreenshot(tabId),
+      startConsoleMonitoring(tabId),
+      startNetworkMonitoring(tabId),
+      getDomSnapshot(tabId)
+    ]);
+    console.debug(`[Tab Manager] Monitoring refreshed for tab: ${tabId}`);
+  } catch (error) {
+    console.error(`[Tab Manager] Error refreshing monitoring for tab: ${tabId}`, error);
+  }
 }
