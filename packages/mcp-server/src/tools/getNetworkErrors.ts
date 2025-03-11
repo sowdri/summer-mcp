@@ -46,12 +46,9 @@ export function registerGetNetworkErrorsTool(server: McpServer) {
         tabId: String(toolParams.tabId)
       };
       
-      // Add optional limit parameter - we'll apply our own limit after filtering
-      // but we'll request more from the server to ensure we have enough errors
+      // Add optional limit parameter
       if ('limit' in toolParams && toolParams.limit !== undefined) {
-        // Request more items than the limit to ensure we have enough errors after filtering
-        // Multiply by 5 as a heuristic (assuming roughly 20% of requests might be errors)
-        requestParams.limit = Number(toolParams.limit) * 5;
+        requestParams.limit = Number(toolParams.limit);
       }
       
       // Build query parameters
@@ -62,9 +59,9 @@ export function registerGetNetworkErrorsTool(server: McpServer) {
         queryParams.push(`limit=${encodeURIComponent(String(requestParams.limit))}`);
       }
       
-      // Construct URL with query parameters
+      // Construct URL with query parameters - using the network-errors endpoint
       const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
-      const url = `http://127.0.0.1:${AGGREGATOR_PORT}/network-requests${queryString}`;
+      const url = `http://127.0.0.1:${AGGREGATOR_PORT}/network-errors${queryString}`;
       
       // Make the request
       const response = await fetch(url);
@@ -85,23 +82,12 @@ export function registerGetNetworkErrorsTool(server: McpServer) {
       // Parse the response
       const data = await response.json() as GetNetworkRequestsResponse;
       
-      // Filter for error requests only
-      // Error requests are those with status >= 400 or isError flag
-      const errorRequests = data.requests.filter(req => 
-        (req.status && req.status >= 400) || req.isError === true
-      );
-      
-      // Apply the original limit after filtering
-      const limitedErrorRequests = toolParams.limit 
-        ? errorRequests.slice(0, Number(toolParams.limit)) 
-        : errorRequests;
-      
       // Format the response for display
       const formattedResponse = {
-        count: limitedErrorRequests.length,
+        count: data.count,
         tabId: data.tabId,
         timestamp: data.timestamp,
-        errorRequests: limitedErrorRequests.map(req => ({
+        errorRequests: data.requests.map(req => ({
           method: req.method,
           url: req.url,
           status: req.status,

@@ -9,6 +9,7 @@ import { activateBrowserTab } from "./handlers/activateBrowserTab";
 import { takeScreenshot } from "./handlers/takeScreenshot";
 import { getDomSnapshot } from "./handlers/getDomSnapshot";
 import { getNetworkRequests } from "./handlers/getNetworkRequests";
+import { getNetworkErrors } from "./handlers/getNetworkErrors";
 
 const router: Router = Router();
 
@@ -28,19 +29,7 @@ router.post("/take-screenshot", takeScreenshot);
 
 // Network routes
 router.get("/network-requests", getNetworkRequests);
-
-// Backward compatibility routes
-router.get("/network-success", (req: Request, res: Response) => {
-  // Just pass through to network-requests
-  // The tabId should be passed as a query parameter
-  getNetworkRequests(req, res);
-});
-
-router.get("/network-errors", (req: Request, res: Response) => {
-  // Just pass through to network-requests
-  // The tabId should be passed as a query parameter
-  getNetworkRequests(req, res);
-});
+router.get("/network-errors", getNetworkErrors);
 
 // Console routes
 // No console routes needed as logs are streamed continuously
