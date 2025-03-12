@@ -1,0 +1,109 @@
+---
+description: Project Overview
+globs: 
+alwaysApply: true
+---
+# Summer MCP - Browser Monitoring and Control Platform
+
+## Project Overview
+
+Summer MCP (Monitoring and Control Platform) is a comprehensive system designed to monitor and control web browsers, primarily for integration with AI tools like Cursor. The project is structured as a monorepo with four main packages that work together to provide browser monitoring and control capabilities.
+
+## Architecture
+
+The project consists of four main components:
+
+1. **Browser Extension (`@summer-mcp/browser-extension`)**: A Chrome extension that monitors browser activity, including network requests, console logs, DOM state, and tab information. It communicates with the Aggregator Server via WebSocket.
+
+2. **Aggregator Server (`@summer-mcp/aggregator-server`)**: A server that receives data from the browser extension, processes it, and provides an API for accessing it. It acts as a central hub for browser data collection and command distribution.
+
+3. **MCP Server (`@summer-mcp/mcp-server`)**: A server that implements the Model Context Protocol (MCP) for Cursor AI integration. It provides tools for AI agents to interact with the browser through standardized interfaces.
+
+4. **Core Package (`@summer-mcp/core`)**: Contains shared types and utilities used by all components, ensuring consistent data structures and communication protocols.
+
+## Communication Flow
+
+```
+┌─────────────────┐     WebSocket     ┌─────────────────┐      MCP      ┌─────────────────┐
+│                 │  ServerCommands   │                 │  Protocol     │                 │
+│     Browser     │ ◄───────────────► │   Aggregator    │ ◄──────────►  │    MCP Server   │
+│    Extension    │  BrowserMessages  │     Server      │               │                 │
+│                 │                   │                 │               │                 │
+└─────────────────┘                   └─────────────────┘               └─────────────────┘
+```
+
+- **ServerCommands**: Commands sent from the aggregator server to the browser extension (e.g., take screenshot, get DOM snapshot)
+- **BrowserMessages**: Messages sent from the browser extension to the aggregator server (e.g., console logs, network requests)
+- **MCP Protocol**: Standardized protocol for AI tools to interact with the browser via the MCP server
+
+## Key Features
+
+1. **Browser Monitoring**:
+   - Network request tracking
+   - Console log collection
+   - DOM state snapshots
+   - Tab management
+
+2. **Browser Control**:
+   - Tab activation
+   - Screenshot capture
+   - DOM inspection
+
+3. **AI Integration**:
+   - MCP-compliant tools for AI agents
+   - Standardized interfaces for browser interaction
+
+## Technical Details
+
+### Browser Extension
+
+The browser extension consists of:
+- Background scripts for managing WebSocket connections and coordinating data collection
+- Content scripts for DOM interaction and page-level monitoring
+- Feature modules for specific monitoring capabilities
+- Important: Does not store any logs or requests, instead continously streams events as they occur.
+
+### Aggregator Server
+
+The aggregator server includes:
+- WebSocket server for browser extension communication
+- Web server for API access
+- Data storage and management
+- Bridge to the MCP server
+
+### MCP Server
+
+The MCP server provides tools for AI agents:
+- `getNetworkRequests`: Retrieve network requests from a specific tab
+- `getNetworkErrors`: Retrieve network errors from a specific tab
+- `getConsoleLogs`: Retrieve console logs from a specific tab
+- `getConsoleErrorsAndWarnings`: Retrieve console errors and warnings from a specific tab
+- `getActiveBrowserTab`: Get the currently active browser tab
+- `getBrowserTabs`: Get a list of all open browser tabs
+- `activateTab`: Activate a specific browser tab
+- `getDomSnapshot`: Get a snapshot of the DOM for a specific tab
+
+### Core Types
+
+The core package defines the data structures and communication protocols:
+- `BrowserMessage`: Messages sent from the browser to the server
+- `ServerMessage`: Commands sent from the server to the browser
+- Data types for network requests, console logs, DOM snapshots, etc.
+
+## Development
+
+The project uses:
+- TypeScript for type safety
+- pnpm for package management
+- WebSocket for real-time communication
+- Model Context Protocol for AI integration
+
+## Usage
+
+The system is designed to be used by AI tools like Cursor to:
+1. Monitor browser activity for context-aware assistance
+2. Control browser behavior for automated tasks
+3. Extract information from web pages for analysis
+4. Provide debugging assistance by accessing console logs and network requests
+
+This architecture enables AI agents to have rich, real-time access to browser state and control capabilities, enhancing their ability to assist with web-related tasks.

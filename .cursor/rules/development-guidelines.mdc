@@ -1,5 +1,5 @@
 ---
-description: General rules
+description: Development Guidelines
 globs: 
 alwaysApply: true
 ---
@@ -19,3 +19,4 @@ alwaysApply: true
     - Do not run the modules, they are already running in the background.
     - Don't commit to git
 
+- Only focus on the problem or task in hand
