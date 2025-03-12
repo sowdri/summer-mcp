@@ -7,48 +7,32 @@ import {
   GetConsoleLogsResponse, 
   GetConsoleLogsErrorResponse 
 } from "@summer-mcp/core";
+import { z } from "zod";
 
 // Aggregator server port
 const AGGREGATOR_PORT = process.env.AGGREGATOR_PORT || 3001;
 
-/**
- * Interface for the parameters passed to the getConsoleErrorsAndWarnings tool
- */
-interface GetConsoleErrorsAndWarningsToolParams {
-  /**
-   * ID of the tab to get console error and warning logs from
-   */
-  tabId: string | number;
-  
-  /**
-   * Maximum number of error and warning logs to return
-   */
-  limit?: number;
-}
+// Define the parameter schema
+const getConsoleErrorsAndWarningsParams = {
+  tabId: z.string().describe("The ID of the tab to get console errors and warnings from"),
+  limit: z.number().optional().describe("Maximum number of errors and warnings to return")
+};
 
 /**
  * Register the getConsoleErrorsAndWarnings tool with the MCP server
  * @param server The MCP server instance
  */
 export function registerGetConsoleErrorsAndWarningsTool(server: McpServer) {
-  const handler: ToolCallback = async (params: unknown) => {
+  const handler: ToolCallback<typeof getConsoleErrorsAndWarningsParams> = async ({ tabId, limit }) => {
     try {
-      // Validate and extract parameters
-      if (!params || typeof params !== 'object' || !('tabId' in params) || !params.tabId) {
-        throw new Error("tabId parameter is required");
-      }
-      
-      // Cast params to the expected type
-      const toolParams = params as GetConsoleErrorsAndWarningsToolParams;
-      
       // Build request parameters
       const requestParams: GetConsoleLogsParams = {
-        tabId: String(toolParams.tabId)
+        tabId: String(tabId)
       };
       
       // Add optional limit parameter
-      if ('limit' in toolParams && toolParams.limit !== undefined) {
-        requestParams.limit = Number(toolParams.limit);
+      if (limit !== undefined) {
+        requestParams.limit = Number(limit);
       }
       
       // Build query parameters
@@ -120,7 +104,7 @@ export function registerGetConsoleErrorsAndWarningsTool(server: McpServer) {
 
   server.tool(
     "getConsoleErrorsAndWarnings",
-    "Get console error and warning logs for a specific browser tab",
+    getConsoleErrorsAndWarningsParams,
     handler
   );
 } 

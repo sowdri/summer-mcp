@@ -7,48 +7,32 @@ import {
   GetNetworkRequestsResponse, 
   GetNetworkRequestsErrorResponse 
 } from "@summer-mcp/core";
+import { z } from "zod";
 
 // Aggregator server port
 const AGGREGATOR_PORT = process.env.AGGREGATOR_PORT || 3001;
 
-/**
- * Interface for the parameters passed to the getNetworkRequests tool
- */
-interface GetNetworkRequestsToolParams {
-  /**
-   * ID of the tab to get network requests from
-   */
-  tabId: string | number;
-  
-  /**
-   * Maximum number of requests to return
-   */
-  limit?: number;
-}
+// Define the parameter schema
+const getNetworkRequestsParams = {
+  tabId: z.string().describe("The ID of the tab to get network requests from"),
+  limit: z.number().optional().describe("Maximum number of requests to return")
+};
 
 /**
  * Register the getNetworkRequests tool with the MCP server
  * @param server The MCP server instance
  */
 export function registerGetNetworkRequestsTool(server: McpServer) {
-  const handler: ToolCallback = async (params: unknown) => {
+  const handler: ToolCallback<typeof getNetworkRequestsParams> = async ({ tabId, limit }) => {
     try {
-      // Validate and extract parameters
-      if (!params || typeof params !== 'object' || !('tabId' in params) || !params.tabId) {
-        throw new Error("tabId parameter is required");
-      }
-      
-      // Cast params to the expected type
-      const toolParams = params as GetNetworkRequestsToolParams;
-      
       // Build request parameters
       const requestParams: GetNetworkRequestsParams = {
-        tabId: String(toolParams.tabId)
+        tabId: String(tabId)
       };
       
       // Add optional limit parameter
-      if ('limit' in toolParams && toolParams.limit !== undefined) {
-        requestParams.limit = Number(toolParams.limit);
+      if (limit !== undefined) {
+        requestParams.limit = Number(limit);
       }
       
       // Build query parameters
@@ -123,7 +107,7 @@ export function registerGetNetworkRequestsTool(server: McpServer) {
 
   server.tool(
     "getNetworkRequests",
-    "Get network requests for a specific browser tab",
+    getNetworkRequestsParams,
     handler
   );
 } 

@@ -48,46 +48,27 @@ export function registerTakeScreenshotTool(server: McpServer) {
       }
 
       if (response.ok) {
-        // Check if we have the expected data structure
-        const screenshotResult = result as TakeScreenshotResponse;
-        if (screenshotResult && screenshotResult.data) {
-          console.log("Screenshot data received, length:", screenshotResult.data.length);
-          const contentType = screenshotResult.contentType || "image/png";
-
-          return {
-            content: [
-              {
-                type: "image",
-                data: screenshotResult.data,
-                mimeType: contentType,
-              },
-            ],
-          };
-        } else {
-          console.log(
-            "Unexpected response structure:",
-            JSON.stringify(result).substring(0, 100) + "..."
-          );
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Screenshot taken but unexpected response format: ${JSON.stringify(
-                  result
-                )}`,
-              },
-            ],
-          };
-        }
+        // Success response
+        const screenshotData = (result as TakeScreenshotResponse).data;
+        const contentType = (result as TakeScreenshotResponse).contentType || "image/png";
+        
+        return {
+          content: [
+            {
+              type: "image",
+              data: screenshotData,
+              mimeType: contentType
+            }
+          ],
+        };
       } else {
-        const errorResult = result as TakeScreenshotErrorResponse;
+        // Error response
+        const errorData = result as TakeScreenshotErrorResponse;
         return {
           content: [
             {
               type: "text",
-              text: `Error taking screenshot: ${
-                errorResult.error || "Unknown error"
-              }. ${errorResult.message || ""}`,
+              text: `Failed to take screenshot: ${errorData.error || "Unknown error"}. ${errorData.message || ""}`,
             },
           ],
         };
