@@ -20,7 +20,7 @@ export function registerAllTools(server: McpServer) {
   registerGetConsoleErrorsAndWarningsTool(server);
   
   // Register other tools
-  registerTakeScreenshotTool(server);
+  // registerTakeScreenshotTool(server);
   registerGetActiveBrowserTabTool(server);
   registerGetBrowserTabsTool(server);
   registerActivateTabTool(server);

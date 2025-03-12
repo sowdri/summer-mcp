@@ -12,7 +12,7 @@ export function registerGetBrowserTabsTool(server: McpServer) {
     try {
       // First, get the list of browser tabs
       const tabsResponse = await fetch(
-        `http://127.0.0.1:${AGGREGATOR_PORT}/browser-tabs`
+        `http://127.0.0.1:${AGGREGATOR_PORT}/tabs`
       );
 
       if (!tabsResponse.ok) {
@@ -28,19 +28,13 @@ export function registerGetBrowserTabsTool(server: McpServer) {
       }
 
       const data = await tabsResponse.json() as GetBrowserTabsResponse;
-      const tabs = data.tabs;
-
-      // Format the tabs for display
-      const formattedTabs = tabs.map(
-        (tab) =>
-          `ID: ${tab.id}\nTitle: ${tab.title || "No title"}\nURL: ${tab.url || "No URL"}\nWindow ID: ${tab.windowId}\nIndex: ${tab.index}\n`
-      );
-
+      
+      // Return the JSON response as a string
       return {
         content: [
           {
             type: "text",
-            text: `Browser tabs:\n\n${formattedTabs.join("\n")}`,
+            text: JSON.stringify(data, null, 2),
           },
         ],
       };
