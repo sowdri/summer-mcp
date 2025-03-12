@@ -26,7 +26,7 @@ router.get("/active-tab", getActiveBrowserTab);
 router.post("/activate-tab", activateBrowserTab);
 
 // DOM routes
-router.get("/dom-snapshot", getDomSnapshot);
+router.post("/dom-snapshot", getDomSnapshot);
 router.post("/take-screenshot", takeScreenshot);
 
 // Network routes

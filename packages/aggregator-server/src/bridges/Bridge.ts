@@ -66,19 +66,45 @@ export class Bridge<TBrowserMessage, THttpResponse> {
    * @param message Browser message from WebSocket
    */
   async resolveRequests(message: TBrowserMessage): Promise<void> {
-    // Convert the browser message to an HTTP response
-    const response = await Promise.resolve(this.convertMessageToResponse(message));
-    
-    // Resolve all pending requests as they all need the same data
-    for (const [requestId, { res, timeout }] of this.pendingRequests.entries()) {
-      // Clear the timeout
-      clearTimeout(timeout);
+    try {
+      // Convert the browser message to an HTTP response
+      const response = await Promise.resolve(this.convertMessageToResponse(message));
+      
+      // Resolve all pending requests as they all need the same data
+      for (const [requestId, { res, timeout }] of this.pendingRequests.entries()) {
+        // Clear the timeout
+        clearTimeout(timeout);
 
-      // Send the response
-      res.json(response);
+        try {
+          // Set appropriate headers for large responses
+          res.setHeader('Content-Type', 'application/json');
+          
+          // Send the response
+          res.json(response);
+        } catch (error) {
+          console.error(`Error sending response for request ${requestId}:`, error);
+          // If there's an error sending the response, send a simplified error response
+          res.status(500).json({ 
+            error: "Failed to send response", 
+            message: error instanceof Error ? error.message : String(error) 
+          });
+        }
 
-      // Remove from pending requests
-      this.pendingRequests.delete(requestId);
+        // Remove from pending requests
+        this.pendingRequests.delete(requestId);
+      }
+    } catch (error) {
+      console.error("Error in resolveRequests:", error);
+      
+      // Handle error for all pending requests
+      for (const [requestId, { res, timeout }] of this.pendingRequests.entries()) {
+        clearTimeout(timeout);
+        res.status(500).json({ 
+          error: "Failed to process response", 
+          message: error instanceof Error ? error.message : String(error) 
+        });
+        this.pendingRequests.delete(requestId);
+      }
     }
   }
   

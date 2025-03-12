@@ -71,25 +71,59 @@ export function registerGetDomSnapshotTool(server: McpServer) {
         console.log("DOM snapshot response parsed successfully");
       } catch (parseError) {
         console.error("Error parsing DOM snapshot response:", parseError);
-        const text = await response.text();
-        console.log("Raw response text:", text.substring(0, 100) + "...");
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error parsing DOM snapshot response: ${parseError}`,
-            },
-          ],
-        };
+        
+        // Try to get the response as text
+        try {
+          const text = await response.text();
+          console.log("Raw response text length:", text.length);
+          console.log("Raw response text preview:", text.substring(0, 100) + "...");
+          
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Error parsing DOM snapshot response: ${parseError}. Response was ${text.length} bytes.`,
+              },
+            ],
+          };
+        } catch (textError) {
+          console.error("Error getting response as text:", textError);
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Error parsing DOM snapshot response: ${parseError}. Could not get response as text: ${textError}`,
+              },
+            ],
+          };
+        }
       }
 
       if (response.ok && result.success) {
         const domResponse = result as GetDomSnapshotResponse;
+        
+        // Check if HTML is too large to return directly
+        const htmlLength = domResponse.html.length;
+        if (htmlLength > 1000000) { // 100KB limit for direct display
+          return {
+            content: [
+              {
+                type: "text",
+                text: `DOM snapshot retrieved successfully. HTML is ${htmlLength} bytes (too large to display directly).`,
+              },
+              {
+                type: "text",
+                text: domResponse.html.substring(0, 5000) + "\n\n... [content truncated] ...\n\n" + domResponse.html.substring(htmlLength - 5000),
+              },
+            ],
+          };
+        }
+        
         return {
           content: [
             {
               type: "text",
-              text: `DOM snapshot retrieved successfully. HTML length: ${domResponse.html.length} characters.`,
+              text: `DOM snapshot retrieved successfully. HTML is ${htmlLength} bytes.`,
             },
             {
               type: "text",

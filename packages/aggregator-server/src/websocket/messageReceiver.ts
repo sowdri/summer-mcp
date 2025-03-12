@@ -83,6 +83,7 @@ export function handleWebSocketMessage(message: string): void {
         }
         break;
       case BrowserMessageType.DOM_SNAPSHOT:
+        console.log("Received DOM snapshot");
         // Handle the DOM snapshot response
         handleDomSnapshotResponse(parsedMessage as DomSnapshotMessage);
         const domData = parsedMessage.data as { html: string };

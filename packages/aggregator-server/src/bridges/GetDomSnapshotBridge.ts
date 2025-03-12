@@ -23,11 +23,35 @@ function convertDomSnapshotMessageToResponse(message: DomSnapshotMessage): GetDo
     };
   }
   
-  return {
-    html: message.data.html,
-    success: true,
-    timestamp: typeof message.timestamp === 'string' ? Date.parse(message.timestamp) : message.timestamp
-  };
+  try {
+    // Check if HTML content is present
+    if (!message.data || !message.data.html) {
+      return {
+        error: "No HTML content in DOM snapshot",
+        success: false
+      };
+    }
+    
+    // Create a summary if the HTML is very large
+    const html = message.data.html;
+    const htmlLength = html.length;
+    
+    // Log the size for debugging
+    console.log(`DOM snapshot HTML size: ${htmlLength} bytes`);
+    
+    return {
+      html: html,
+      success: true,
+      timestamp: typeof message.timestamp === 'string' ? Date.parse(message.timestamp) : message.timestamp
+    };
+  } catch (error) {
+    console.error("Error converting DOM snapshot message to response:", error);
+    return {
+      error: "Error processing DOM snapshot",
+      message: error instanceof Error ? error.message : String(error),
+      success: false
+    };
+  }
 }
 
 /**

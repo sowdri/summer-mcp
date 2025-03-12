@@ -25,6 +25,7 @@ export async function getDomSnapshot(
   req: Request<{}, GetDomSnapshotResponse | GetDomSnapshotErrorResponse, GetDomSnapshotRequest>,
   res: Response
 ): Promise<Response | void> {
+  console.log("📸 Getting DOM snapshot");
   try {
     // Get tab ID from request body or query
     const tabId = req.body.tabId || req.query.tabId;
@@ -35,16 +36,6 @@ export async function getDomSnapshot(
         success: false
       };
       return res.status(400).json(errorResponse);
-    }
-
-    // Check if there are any connected WebSocket clients
-    if (getDomSnapshotBridge().pendingRequests.size === 0) {
-      const errorResponse: GetDomSnapshotErrorResponse = {
-        error: "No browser extension connected",
-        message: "Please ensure the browser extension is installed and connected",
-        success: false
-      };
-      return res.status(503).json(errorResponse);
     }
 
     // Register the request with the bridge

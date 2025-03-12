@@ -8,6 +8,9 @@ interface DomSnapshotResult {
   url: string;
 }
 
+// Maximum size for HTML content (500KB)
+const MAX_HTML_SIZE = 500 * 1024;
+
 /**
  * Get DOM snapshot for a tab using content scripts
  * @param tabIdOrCommand The ID of the tab to get the DOM snapshot from or the entire command object
@@ -25,15 +28,26 @@ export function getDomSnapshot(tabIdOrCommand: number | GetDomSnapshotCommand): 
       target: { tabId },
       func: () => {
         // This function runs in the context of the web page
-        return {
-          html: document.documentElement.outerHTML,
-          title: document.title,
-          url: window.location.href
-        };
+        // Keep it simple - just return the HTML, title, and URL
+        try {
+          return {
+            html: document.documentElement.outerHTML,
+            title: document.title,
+            url: window.location.href
+          };
+        } catch (error) {
+          // If that fails, return a minimal HTML with the error
+          return {
+            html: `<html><body><p>Error capturing DOM: ${String(error)}</p></body></html>`,
+            title: document.title || 'Error',
+            url: window.location.href || 'unknown'
+          };
+        }
       }
     }, (results) => {
+      console.log("📸 DOM snapshot results", results);
       if (chrome.runtime.lastError) {
-        const errorMessage = `Error getting DOM snapshot: ${chrome.runtime.lastError.message}`;
+        const errorMessage = `❌ Error getting DOM snapshot: ${chrome.runtime.lastError.message}`;
         console.error(`[DOM Snapshot] ${errorMessage}`);
         sendErrorMessage(errorMessage, tabId);
         return;
@@ -48,23 +62,40 @@ export function getDomSnapshot(tabIdOrCommand: number | GetDomSnapshotCommand): 
 
       const snapshot = results[0].result as DomSnapshotResult;
       
-      // Send the successful snapshot to the server
-      const message: DomSnapshotMessage = {
-        type: BrowserMessageType.DOM_SNAPSHOT,
-        data: {
-          html: snapshot.html
-          // We don't include title and url in the data as they're not part of the interface
-        },
-        tabId,
-        timestamp: Date.now(),
-        success: true // Mark as successful
-      };
-      
-      sendMessage(message);
-      console.debug(`[DOM Snapshot] Successfully captured DOM snapshot for tab: ${tabId} (${snapshot.title})`);
+      try {
+        // Get the HTML and check its size
+        let html = snapshot.html;
+        const originalSize = html.length;
+        console.debug(`[DOM Snapshot] Original HTML size: ${originalSize} bytes`);
+        
+        // Limit the size of the HTML content if it's too large
+        if (html.length > MAX_HTML_SIZE) {
+          console.warn(`[DOM Snapshot] HTML content too large (${html.length} bytes), truncating to ${MAX_HTML_SIZE} bytes`);
+          html = html.substring(0, MAX_HTML_SIZE) + '\n<!-- HTML content truncated due to size limit -->';
+        }
+        
+        // Send the successful snapshot to the server
+        const message: DomSnapshotMessage = {
+          type: BrowserMessageType.DOM_SNAPSHOT,
+          data: {
+            html: html
+            // We don't include title and url in the data as they're not part of the interface
+          },
+          tabId,
+          timestamp: Date.now(),
+          success: true // Mark as successful
+        };
+        
+        sendMessage(message);
+        console.debug(`[DOM Snapshot] Successfully captured DOM snapshot for tab: ${tabId} (${snapshot.title}), size: ${html.length} bytes`);
+      } catch (processingError) {
+        const errorMessage = `Error processing DOM snapshot: ${String(processingError)}`;
+        console.error(`[DOM Snapshot] ${errorMessage}`);
+        sendErrorMessage(errorMessage, tabId);
+      }
     });
   } catch (error) {
-    const errorMessage = `Exception getting DOM snapshot: ${error}`;
+    const errorMessage = `Exception getting DOM snapshot: ${String(error)}`;
     console.error(`[DOM Snapshot] ${errorMessage}`);
     sendErrorMessage(errorMessage, tabId);
   }
