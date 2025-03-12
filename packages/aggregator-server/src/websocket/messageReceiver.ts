@@ -62,12 +62,25 @@ export function handleWebSocketMessage(message: string): void {
       case BrowserMessageType.NETWORK_REQUESTS:
         // Add the network request to the store
         const networkData = parsedMessage.data as NetworkRequest;
-        addNetworkRequest(networkData);
-        console.log(
-          networkData.isError ? "Network error:" : "Network request:",
-          networkData.method,
-          networkData.url
-        );
+        
+        // Ensure the tabId is set on the network request
+        if (!networkData.tabId && parsedMessage.tabId) {
+          networkData.tabId = parsedMessage.tabId;
+        }
+        
+        // Only add the request if it has a tabId
+        if (networkData.tabId) {
+          addNetworkRequest(networkData);
+          console.log(
+            networkData.isError ? "Network error:" : "Network request:",
+            networkData.method,
+            networkData.url,
+            "for tab:",
+            networkData.tabId
+          );
+        } else {
+          console.warn("Received network request without tabId, ignoring:", networkData.method, networkData.url);
+        }
         break;
       case BrowserMessageType.DOM_SNAPSHOT:
         // Handle the DOM snapshot response

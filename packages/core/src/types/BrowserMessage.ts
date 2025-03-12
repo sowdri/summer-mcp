@@ -55,7 +55,6 @@ export interface ConsoleLogEntry {
   type?: string;
   message?: string;
   timestamp?: number;
-  [key: string]: unknown;
 }
 
 /**
@@ -80,9 +79,10 @@ export interface NetworkRequest {
   duration?: number;
   size?: number;
   isError?: boolean;
+  error?: string; // Error message for failed requests
   requestHeaders?: Record<string, string>;
   responseHeaders?: Record<string, string>;
-  [key: string]: unknown;
+  tabId: string | number; // Required tabId for network requests
 }
 
 /**
@@ -91,6 +91,7 @@ export interface NetworkRequest {
 export interface NetworkRequestsMessage extends BaseBrowserMessage {
   type: BrowserMessageType.NETWORK_REQUESTS;
   data: NetworkRequest;
+  tabId: string | number; // Explicitly require tabId for network requests
 }
 
 /**

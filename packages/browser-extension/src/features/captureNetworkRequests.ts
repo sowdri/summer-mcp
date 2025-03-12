@@ -50,7 +50,8 @@ function handleRequestCompleted(details: chrome.webRequest.WebResponseCacheDetai
     duration: 0, // We don't have request start time
     size: getContentLength(responseHeaders),
     isError: false,
-    responseHeaders
+    responseHeaders,
+    tabId: details.tabId
   };
   
   // Send network request message
@@ -69,7 +70,8 @@ function handleRequestError(details: chrome.webRequest.WebResponseErrorDetails):
     type: details.type,
     timestamp: details.timeStamp,
     isError: true,
-    error: details.error
+    error: details.error,
+    tabId: details.tabId
   };
   
   // Send network request message
@@ -82,6 +84,9 @@ function handleRequestError(details: chrome.webRequest.WebResponseErrorDetails):
  * @param tabId The ID of the tab that made the request
  */
 function sendNetworkRequest(networkRequest: NetworkRequest, tabId: number): void {
+  // Ensure tabId is set on the network request
+  networkRequest.tabId = networkRequest.tabId || tabId;
+  
   const message: NetworkRequestsMessage = {
     type: BrowserMessageType.NETWORK_REQUESTS,
     data: networkRequest,
@@ -93,9 +98,9 @@ function sendNetworkRequest(networkRequest: NetworkRequest, tabId: number): void
   
   // Log the request
   if (networkRequest.isError) {
-    console.debug(`[Network Monitor] Error: ${networkRequest.method} ${networkRequest.url} - ${networkRequest.error}`);
+    console.debug(`[Network Monitor] Error: ${networkRequest.method} ${networkRequest.url} - ${networkRequest.error} (Tab: ${tabId})`);
   } else {
-    console.debug(`[Network Monitor] ${networkRequest.method} ${networkRequest.url} - ${networkRequest.status}`);
+    console.debug(`[Network Monitor] ${networkRequest.method} ${networkRequest.url} - ${networkRequest.status} (Tab: ${tabId})`);
   }
 }
 
