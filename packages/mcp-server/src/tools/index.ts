@@ -4,7 +4,7 @@ import { registerGetNetworkRequestsTool } from "./getNetworkRequests";
 import { registerGetNetworkErrorsTool } from "./getNetworkErrors";
 import { registerGetConsoleLogsTool } from "./getConsoleLogs";
 import { registerGetConsoleErrorsTool } from "./getConsoleErrors";
-// import { registerTakeScreenshotTool } from "./takeScreenshot";
+import { registerTakeScreenshotTool } from "./takeScreenshot";
 import { registerGetActiveBrowserTabTool } from "./getActiveBrowserTab";
 import { registerGetBrowserTabsTool } from "./getBrowserTabs";
 import { registerActivateTabTool } from "./activateTab";
@@ -20,7 +20,7 @@ export function registerAllTools(server: McpServer) {
   registerGetConsoleErrorsTool(server);
   
   // Register other tools
-  // registerTakeScreenshotTool(server);
+  registerTakeScreenshotTool(server);
   registerGetActiveBrowserTabTool(server);
   registerGetBrowserTabsTool(server);
   registerActivateTabTool(server);

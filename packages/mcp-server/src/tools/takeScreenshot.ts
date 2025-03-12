@@ -48,17 +48,25 @@ export function registerTakeScreenshotTool(server: McpServer) {
       }
 
       if (response.ok) {
-        // Success response
-        const screenshotData = (result as TakeScreenshotResponse).data;
-        const contentType = (result as TakeScreenshotResponse).contentType || "image/png";
+        // Success response with the new format
+        const successResponse = result as TakeScreenshotResponse;
+        
+        // Create a detailed message with all the response fields
+        const detailedMessage = `
+${successResponse.message}
+
+Screenshot details:
+- Path: ${successResponse.screenshotPath}
+- Timestamp: ${new Date(successResponse.timestamp).toLocaleString()}
+- Content Type: ${successResponse.contentType || 'image/png'}
+        `.trim();
         
         return {
           content: [
             {
-              type: "image",
-              data: screenshotData,
-              mimeType: contentType
-            }
+              type: "text",
+              text: detailedMessage,
+            },
           ],
         };
       } else {

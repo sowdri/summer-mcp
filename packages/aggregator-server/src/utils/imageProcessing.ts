@@ -52,12 +52,10 @@ export async function resizeImageToBase64(
 /**
  * Process screenshot data from a data URL
  * @param dataUrl The data URL containing the screenshot image
- * @param saveDebugImages Whether to save debug images to disk
  * @returns A Promise that resolves to a TakeScreenshotResponse object
  */
 export async function processScreenshot(
-  dataUrl: string,
-  saveDebugImages = true
+  dataUrl: string
 ): Promise<TakeScreenshotResponse> {
   if (!dataUrl) {
     throw new Error("Screenshot data is undefined or empty");
@@ -78,32 +76,26 @@ export async function processScreenshot(
       let originalPath: string | undefined;
       let resizedPath: string | undefined;
 
-      // Save debug images if requested
-      if (saveDebugImages) {
-        // Save original image to file system for debugging
-        const debugDir = path.join(__dirname, "../../debug-screenshots");
+      // Create screenshots directory
+      const debugDir = path.join(__dirname, "../../debug-screenshots");
 
-        // Create directory if it doesn't exist
-        if (!fs.existsSync(debugDir)) {
-          fs.mkdirSync(debugDir, { recursive: true });
-        }
-
-        originalPath = path.join(debugDir, `original-${timestamp}.png`);
-        fs.writeFileSync(originalPath, imageBuffer);
-        console.log(`Original screenshot saved to: ${originalPath}`);
+      // Create directory if it doesn't exist
+      if (!fs.existsSync(debugDir)) {
+        fs.mkdirSync(debugDir, { recursive: true });
       }
+
+      // Save original image to file system
+      originalPath = path.join(debugDir, `original-${timestamp}.png`);
+      fs.writeFileSync(originalPath, imageBuffer);
+      console.log(`Original screenshot saved to: ${originalPath}`);
 
       // Resize the image to max width 1200px while maintaining aspect ratio
       const resizedImageBuffer = await resizeImage(imageBuffer, 1200);
-      const resizedBase64Data = resizedImageBuffer.toString("base64");
-
-      // Save resized image if debug images are requested
-      if (saveDebugImages) {
-        const debugDir = path.join(__dirname, "../../debug-screenshots");
-        resizedPath = path.join(debugDir, `resized-${timestamp}.png`);
-        fs.writeFileSync(resizedPath!, resizedImageBuffer);
-        console.log(`🖼️ Resized screenshot saved to: ${resizedPath}`);
-      }
+      
+      // Save resized image
+      resizedPath = path.join(debugDir, `resized-${timestamp}.png`);
+      fs.writeFileSync(resizedPath, resizedImageBuffer);
+      console.log(`🖼️ Resized screenshot saved to: ${resizedPath}`);
 
       // Log processing info
       console.log("Screenshot data processed with Sharp:", {
@@ -115,22 +107,18 @@ export async function processScreenshot(
         resizedPath
       });
 
-      // Return a properly typed response
+      // Return a properly typed response with the new format
       return {
-        data: resizedBase64Data,
-        contentType,
+        success: true,
+        message: "Screenshot captured and saved successfully. The image will be pasted directly into the console.",
+        screenshotPath: resizedPath,
         timestamp,
-        originalSize: imageBuffer.length,
-        resizedSize: resizedImageBuffer.length
+        contentType
       };
     } else {
       console.warn("Invalid data URL format:", dataUrl.substring(0, 50) + "...");
-      // If the data URL format is invalid, return the original data
-      return {
-        data: dataUrl,
-        contentType: "image/png", // Default to PNG
-        timestamp: Date.now()
-      };
+      // If the data URL format is invalid, return an error response
+      throw new Error("Invalid data URL format");
     }
   } catch (error) {
     console.error("Error processing screenshot:", error);

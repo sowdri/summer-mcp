@@ -16,18 +16,23 @@ export type TakeScreenshotRequest = {};
 /**
  * POST /take-screenshot
  * 
- * Response: Screenshot data as base64 string
+ * Response: Success status and path to the saved screenshot
  */
 export interface TakeScreenshotResponse {
   /**
-   * Base64 encoded screenshot data
+   * Whether the screenshot was successfully taken and saved
    */
-  data: string;
+  success: boolean;
   
   /**
-   * Content type of the screenshot (e.g., "image/png")
+   * User-friendly message about the screenshot operation
    */
-  contentType: string;
+  message: string;
+  
+  /**
+   * File system path where the screenshot is stored
+   */
+  screenshotPath: string;
   
   /**
    * Timestamp when the screenshot was taken
@@ -35,14 +40,9 @@ export interface TakeScreenshotResponse {
   timestamp: number;
   
   /**
-   * Original size of the screenshot in bytes (before resizing)
+   * Content type of the screenshot (e.g., "image/png")
    */
-  originalSize?: number;
-  
-  /**
-   * Resized size of the screenshot in bytes
-   */
-  resizedSize?: number;
+  contentType?: string;
 }
 
 /**

@@ -17,7 +17,12 @@ export * from './types/BrowserDataProvider';
 export * from './types/endpoints/GetBrowserTabs';
 export * from './types/endpoints/GetActiveTab';
 export * from './types/endpoints/ActivateTab';
-export * from './types/endpoints/TakeScreenshot';
+// Re-export the updated TakeScreenshot types
+export { 
+  TakeScreenshotRequest, 
+  TakeScreenshotResponse, 
+  TakeScreenshotErrorResponse 
+} from './types/endpoints/TakeScreenshot';
 export * from './types/endpoints/GetDomSnapshot';
 
 // Export utility functions
