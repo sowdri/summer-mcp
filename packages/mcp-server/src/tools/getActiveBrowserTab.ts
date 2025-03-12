@@ -28,11 +28,12 @@ export function registerGetActiveBrowserTabTool(server: McpServer) {
       
       const activeTab = await response.json() as GetActiveTabResponse;
       
+      // Return the JSON response as a string
       return {
         content: [
           {
             type: "text",
-            text: `Active browser tab:\n\nID: ${activeTab.id}\nTitle: ${activeTab.title || 'No title'}\nURL: ${activeTab.url || 'No URL'}\nWindow ID: ${activeTab.windowId}\nIndex: ${activeTab.index}`,
+            text: JSON.stringify(activeTab, null, 2),
           },
         ],
       };
