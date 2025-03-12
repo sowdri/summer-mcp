@@ -13,17 +13,17 @@ import { z } from "zod";
 const AGGREGATOR_PORT = process.env.AGGREGATOR_PORT || 3001;
 
 // Define the parameter schema
-const getConsoleErrorsAndWarningsParams = {
+const getConsoleErrorsParams = {
   tabId: z.string().describe("The ID of the tab to get console errors and warnings from"),
   limit: z.number().optional().describe("Maximum number of errors and warnings to return")
 };
 
 /**
- * Register the getConsoleErrorsAndWarnings tool with the MCP server
+ * Register the getConsoleErrors tool with the MCP server
  * @param server The MCP server instance
  */
-export function registerGetConsoleErrorsAndWarningsTool(server: McpServer) {
-  const handler: ToolCallback<typeof getConsoleErrorsAndWarningsParams> = async ({ tabId, limit }) => {
+export function registerGetConsoleErrorsTool(server: McpServer) {
+  const handler: ToolCallback<typeof getConsoleErrorsParams> = async ({ tabId, limit }) => {
     try {
       // Build request parameters
       const requestParams: GetConsoleLogsParams = {
@@ -103,8 +103,8 @@ export function registerGetConsoleErrorsAndWarningsTool(server: McpServer) {
   };
 
   server.tool(
-    "getConsoleErrorsAndWarnings",
-    getConsoleErrorsAndWarningsParams,
+    "getConsoleErrors",
+    getConsoleErrorsParams,
     handler
   );
 } 
