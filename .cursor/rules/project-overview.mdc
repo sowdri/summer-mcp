@@ -82,6 +82,7 @@ The MCP server provides tools for AI agents:
 - `getBrowserTabs`: Get a list of all open browser tabs
 - `activateTab`: Activate a specific browser tab
 - `getDomSnapshot`: Get a snapshot of the DOM for a specific tab
+- `takeScreenshot`: Takes a screenshot using the browser extension and the aggregator-server uses AppleScript `pasteImageToCursorIde` to copy the image to clipboard and paste into Cursor IDE
 
 ### Core Types
 

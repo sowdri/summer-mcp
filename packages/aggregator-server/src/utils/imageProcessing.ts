@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { TakeScreenshotResponse } from "@summer-mcp/core";
+import { pasteImageToCursorIde } from "./pasteImageToCursorIde";
 
 // The current working directory
 const __dirname = process.cwd();
@@ -96,6 +97,13 @@ export async function processScreenshot(
       resizedPath = path.join(debugDir, `resized-${timestamp}.png`);
       fs.writeFileSync(resizedPath, resizedImageBuffer);
       console.log(`🖼️ Resized screenshot saved to: ${resizedPath}`);
+
+      // Paste the screenshot to Cursor IDE
+      pasteImageToCursorIde({
+        fullPath: resizedPath,
+        autoPaste: true
+      });
+      console.log(`📋 Screenshot sent to Cursor IDE for pasting`);
 
       // Log processing info
       console.log("Screenshot data processed with Sharp:", {
